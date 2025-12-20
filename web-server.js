@@ -12,6 +12,8 @@ const cookieParser = require('cookie-parser');
 const path = require('path');
 const fs = require('fs');
 const bcrypt = require('bcryptjs');
+const util = require('util');
+const { Strategy } = require('passport');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -24,7 +26,18 @@ const CALLBACK_URL = process.env.CALLBACK_URL || ''; // Discord OAuth2 Strategy 
 // }, (accessToken, refreshToken, profile, done) => {
 //     return done(null, profile);
 // }));
-// Google OAuth2 Strategy - Register with error handling for missing credentials
+// Custom strategy for handling missing Google OAuth credentials
+function MockGoogleStrategy() {
+    Strategy.call(this);
+    this.name = 'google';
+}
+util.inherits(MockGoogleStrategy, Strategy);
+
+MockGoogleStrategy.prototype.authenticate = function(req, options) {
+    this.error(new Error('Google OAuth not configured. Please set GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET environment variables.'));
+};
+
+// Google OAuth2 Strategy - Register with proper handling for missing credentials
 if (process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET) {
     passport.use('google', new GoogleStrategy({
         clientID: process.env.GOOGLE_CLIENT_ID,
@@ -41,12 +54,8 @@ if (process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET) {
         return done(null, user);
     }));
 } else {
-    // Register a placeholder strategy that returns an error
-    passport.use('google', {
-        authenticate: function(req, options, done) {
-            return done(new Error('Google OAuth not configured. Please set GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET environment variables.'));
-        }
-    });
+    // Use mock strategy when credentials are missing
+    passport.use('google', new MockGoogleStrategy());
     console.log('⚠️ Google OAuth not configured - GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET not set');
 }
 
