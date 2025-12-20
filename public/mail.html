@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mailbox - eFotball wannabe</title>
+    <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-brand">⚽ eFOOTBALL WANNABE</div>
+        <div class="top-bar-right">
+            <div class="currency-display">
+                <span class="currency-item">🪙 <span id="topEcoins">0</span></span>
+                <span class="currency-item">💰 <span id="topGP">0</span></span>
+            </div>
+            <div class="top-icons">
+                <button class="icon-btn" onclick="window.location.href='/dashboard'" title="Home">🏠</button>
+                <button class="icon-btn active" onclick="window.location.href='/mail'" title="Mailbox">
+                    📬
+                    <span class="notification-badge" id="mailBadge" style="display:none;">0</span>
+                </button>
+                <button class="icon-btn" onclick="window.location.href='/news'" title="News">📰</button>
+                <button class="icon-btn" onclick="window.location.href='/logout'" title="Logout">🚪</button>
+            </div>
+            <div class="user-info" id="userInfo">
+                <img id="userAvatar" src="" alt="Avatar" class="user-avatar">
+                <span id="username">Loading...</span>
+            </div>
+        </div>
+    </nav>
+
+    <div class="dashboard-container">
+        <div class="inbox-container">
+            <div class="inbox-header">
+                <h1 class="inbox-title">Inbox</h1>
+            </div>
+
+            <div id="mailList" class="inbox-list">
+                <!-- Mail items will be generated here -->
+            </div>
+
+            <div id="emptyState" class="empty-inbox" style="display:none;">
+                <div class="empty-icon">📬</div>
+                <h2>No Messages</h2>
+                <p>Your inbox is empty. Check back later for rewards!</p>
+            </div>
+
+            <div class="loading" id="loading">Loading inbox...</div>
+        </div>
+    </div>
+
+    <script src="/mail.js"></script>
+</body>
+</html>

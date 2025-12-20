@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Settings - eFotball wannabe</title>
+    <link rel="stylesheet" href="/styles.css">
+    <style>
+        .settings-container {
+            max-width: 700px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .settings-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .settings-header h1 {
+            color: var(--secondary);
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .settings-section {
+            background: rgba(0, 0, 51, 0.8);
+            border: 2px solid rgba(255, 237, 0, 0.3);
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 20px;
+        }
+
+        .settings-section h3 {
+            color: var(--secondary);
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .settings-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .settings-row:last-child {
+            border-bottom: none;
+        }
+
+        .settings-label {
+            color: white;
+        }
+
+        .settings-value {
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        /* Danger Zone */
+        .danger-zone {
+            background: rgba(239, 68, 68, 0.1);
+            border: 2px solid rgba(239, 68, 68, 0.5);
+        }
+
+        .danger-zone h3 {
+            color: #ef4444;
+        }
+
+        .danger-warning {
+            background: rgba(239, 68, 68, 0.2);
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+
+        .danger-warning h4 {
+            color: #ef4444;
+            margin-bottom: 10px;
+        }
+
+        .danger-warning ul {
+            color: rgba(255, 255, 255, 0.8);
+            padding-left: 20px;
+        }
+
+        .danger-warning li {
+            margin: 5px 0;
+        }
+
+        .btn-danger {
+            background: #ef4444;
+            color: white;
+            padding: 12px 25px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-danger:hover {
+            background: #dc2626;
+            transform: scale(1.02);
+        }
+
+        .btn-danger:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .confirm-input {
+            width: 100%;
+            padding: 10px 15px;
+            border-radius: 8px;
+            border: 2px solid rgba(239, 68, 68, 0.5);
+            background: rgba(0, 0, 0, 0.3);
+            color: white;
+            margin: 15px 0;
+        }
+
+        .confirm-input::placeholder {
+            color: rgba(255, 255, 255, 0.4);
+        }
+    </style>
+</head>
+
+<body>
+    <nav class="navbar">
+        <div class="nav-brand">⚽ eFOOTBALL WANNABE</div>
+        <div class="top-bar-right">
+            <div class="currency-display">
+                <span class="currency-item">🪙 <span id="topEcoins">0</span></span>
+                <span class="currency-item">💰 <span id="topGP">0</span></span>
+            </div>
+            <div class="top-icons">
+                <button class="icon-btn" onclick="window.location.href='/dashboard'" title="Dashboard">📊</button>
+                <button class="icon-btn" onclick="window.location.href='/profile'" title="Profile">👤</button>
+                <button class="icon-btn" onclick="window.location.href='/logout'" title="Logout">🚪</button>
+            </div>
+        </div>
+    </nav>
+
+    <div class="settings-container">
+        <div class="settings-header">
+            <h1>⚙️ SETTINGS ⚙️</h1>
+            <p>Manage your account</p>
+        </div>
+
+        <div class="settings-section">
+            <h3>👤 Account Info</h3>
+            <div class="settings-row">
+                <span class="settings-label">Username</span>
+                <span class="settings-value" id="userName">Loading...</span>
+            </div>
+            <div class="settings-row">
+                <span class="settings-label">User ID</span>
+                <span class="settings-value" id="userId">---</span>
+            </div>
+            <div class="settings-row">
+                <span class="settings-label">Login Provider</span>
+                <span class="settings-value">Google</span>
+            </div>
+        </div>
+
+        <div class="settings-section">
+            <h3>📊 Game Stats</h3>
+            <div class="settings-row">
+                <span class="settings-label">Total Players</span>
+                <span class="settings-value" id="playerCount">0</span>
+            </div>
+            <div class="settings-row">
+                <span class="settings-label">Total Matches</span>
+                <span class="settings-value" id="matchCount">0</span>
+            </div>
+            <div class="settings-row">
+                <span class="settings-label">Account Created</span>
+                <span class="settings-value" id="createdDate">---</span>
+            </div>
+        </div>
+
+        <div class="settings-section danger-zone">
+            <h3>⚠️ Danger Zone</h3>
+            <div class="danger-warning">
+                <h4>Reset Account</h4>
+                <p>This will permanently delete all your progress:</p>
+                <ul>
+                    <li>All GP and eCoins</li>
+                    <li>All players and trainers</li>
+                    <li>Match history and stats</li>
+                    <li>Squad and formation</li>
+                </ul>
+            </div>
+            <p style="color: rgba(255,255,255,0.7); margin-bottom: 10px;">Type "RESET" to confirm:</p>
+            <input type="text" class="confirm-input" id="resetConfirm" placeholder="Type RESET here">
+            <button class="btn-danger" id="resetBtn" onclick="resetAccount()" disabled>🗑️ Reset My Account</button>
+        </div>
+
+        <div style="text-align: center; margin-top: 30px;">
+            <button class="btn btn-primary" onclick="window.location.href='/dashboard'">⬅️ Back to Dashboard</button>
+        </div>
+    </div>
+
+    <script src="/settings.js"></script>
+</body>
+
+</html>

@@ -1,0 +1,37 @@
+{
+  "$schema": "https://json.schemastore.org/package.json",
+  "name": "efotbal-wannabe",
+  "version": "2.0.0",
+  "description": "eFotball Web Manager - Full website with squad management, tournaments, and live PvP",
+  "main": "web-server.js",
+  "scripts": {
+    "start": "node web-server.js",
+    "dev": "node web-server.js"
+  },
+  "keywords": [
+    "football",
+    "efotball",
+    "manager",
+    "squad",
+    "pvp"
+  ],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "dependencies": {
+    "@faker-js/faker": "^10.0.0",
+    "bcryptjs": "^2.4.3",
+    "better-sqlite3": "^12.5.0",
+    "body-parser": "^1.20.3",
+    "cookie-parser": "1.4.7",
+    "dotenv": "^16.4.5",
+    "express": "^4.21.1",
+    "express-session": "^1.18.1",
+    "express-session-better-sqlite3": "^1.2.1",
+    "nodemailer": "^6.9.7",
+    "passport": "^0.7.0",
+    "passport-discord": "^0.1.4",
+    "passport-google-oauth20": "^2.0.0",
+    "passport-local": "^1.0.0"
+  }
+}

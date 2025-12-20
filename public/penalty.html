@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Penalty Shootout - eFotball wannabe</title>
+    <link rel="stylesheet" href="/styles.css">
+    <style>
+        .penalty-container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .penalty-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .penalty-header h1 {
+            color: var(--secondary);
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .penalty-arena {
+            background: linear-gradient(180deg, #1a8f3c 0%, #0d5a24 100%);
+            border: 3px solid rgba(255, 237, 0, 0.4);
+            border-radius: 15px;
+            padding: 40px;
+            margin-bottom: 30px;
+            text-align: center;
+            position: relative;
+            min-height: 400px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .goal-post {
+            width: 400px;
+            height: 150px;
+            background: rgba(0, 0, 0, 0.3);
+            border: 3px solid rgba(255, 255, 255, 0.5);
+            border-radius: 10px;
+            margin: 20px auto;
+            position: relative;
+        }
+
+        .goal-zones {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            height: 100%;
+            padding: 10px;
+        }
+
+        .goal-zone {
+            background: rgba(0, 255, 0, 0.2);
+            border: 2px solid rgba(0, 255, 0, 0.5);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: #fff;
+        }
+
+        .goal-zone:hover:not(.disabled) {
+            background: rgba(255, 237, 0, 0.3);
+            border-color: var(--secondary);
+            transform: scale(1.05);
+        }
+
+        .goal-zone.disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .goal-zone.missed {
+            background: rgba(220, 20, 60, 0.3);
+            border-color: rgba(220, 20, 60, 0.8);
+        }
+
+        .goal-zone.scored {
+            background: rgba(0, 200, 0, 0.5);
+            border-color: rgba(0, 255, 0, 1);
+        }
+
+        .penalty-info {
+            background: rgba(0, 0, 51, 0.8);
+            border: 2px solid rgba(255, 237, 0, 0.3);
+            border-radius: 12px;
+            padding: 30px;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        .score-display {
+            font-size: 3em;
+            color: var(--secondary);
+            margin: 20px 0;
+            font-weight: bold;
+        }
+
+        .vs-text {
+            font-size: 1.2em;
+            color: #fff;
+            margin-bottom: 15px;
+        }
+
+        .penalty-round {
+            font-size: 1.5em;
+            color: var(--secondary);
+            margin-bottom: 15px;
+        }
+
+        .kick-counter {
+            display: flex;
+            gap: 5px;
+            justify-content: center;
+            margin: 15px 0;
+        }
+
+        .kick-indicator {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8em;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .kick-indicator.current {
+            background: var(--secondary);
+            color: #000;
+            border-color: var(--secondary);
+            font-weight: bold;
+        }
+
+        .kick-indicator.scored {
+            background: #00AA00;
+            border-color: #00FF00;
+        }
+
+        .kick-indicator.missed {
+            background: #AA0000;
+            border-color: #FF0000;
+        }
+
+        .result-display {
+            background: rgba(0, 20, 220, 0.4);
+            border: 3px solid rgba(255, 237, 0, 0.5);
+            border-radius: 15px;
+            padding: 30px;
+            margin: 30px 0;
+            text-align: center;
+            display: none;
+        }
+
+        .result-display.show {
+            display: block;
+            animation: slideIn 0.5s ease-out;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .result-title {
+            font-size: 2.5em;
+            color: var(--secondary);
+            margin-bottom: 20px;
+            font-weight: bold;
+        }
+
+        .result-title.win {
+            color: #00FF00;
+        }
+
+        .result-title.loss {
+            color: #FF0000;
+        }
+
+        .result-final-score {
+            font-size: 2.5em;
+            margin: 20px 0;
+            color: var(--secondary);
+        }
+
+        .reward-box {
+            background: rgba(0, 0, 0, 0.3);
+            border: 2px solid rgba(255, 237, 0, 0.3);
+            border-radius: 12px;
+            padding: 20px;
+            margin: 20px 0;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .reward-item {
+            text-align: center;
+        }
+
+        .reward-label {
+            color: #aaa;
+            font-size: 0.9em;
+            margin-bottom: 5px;
+        }
+
+        .reward-value {
+            font-size: 2em;
+            color: var(--secondary);
+            font-weight: bold;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-top: 20px;
+        }
+
+        .btn-reset {
+            padding: 15px 30px;
+            background: var(--secondary);
+            color: #000;
+            border: none;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-reset:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 15px rgba(255, 237, 0, 0.5);
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-brand">⚽ eFOOTBALL WANNABE</div>
+        <div class="top-bar-right">
+            <div class="currency-display">
+                <span class="currency-item">🪙 <span id="topEcoins">0</span></span>
+                <span class="currency-item">💰 <span id="topGP">0</span></span>
+            </div>
+            <div class="top-icons">
+                <button class="icon-btn" onclick="window.location.href='/dashboard'" title="Dashboard">📊</button>
+                <button class="icon-btn" onclick="window.location.href='/mail'" title="Mail">📬</button>
+                <button class="icon-btn" onclick="window.location.href='/logout'" title="Logout">🚪</button>
+            </div>
+        </div>
+    </nav>
+
+    <div class="penalty-container">
+        <div class="penalty-header">
+            <h1>🎯 PENALTY SHOOTOUT 🥅</h1>
+            <p>Take 5 penalty kicks and try to score!</p>
+        </div>
+
+        <div class="penalty-info" id="penaltyInfo">
+            <div class="vs-text">YOU 🆚 AI GOALKEEPER</div>
+            <div class="penalty-round">Ready for your kicks!</div>
+            <div class="score-display">0 - 0</div>
+            <div class="kick-counter" id="kickCounter">
+                <div class="kick-indicator current">1</div>
+                <div class="kick-indicator">2</div>
+                <div class="kick-indicator">3</div>
+                <div class="kick-indicator">4</div>
+                <div class="kick-indicator">5</div>
+            </div>
+        </div>
+
+        <div class="penalty-arena" id="penaltyArena">
+            <h2>⚽ Choose Your Shot</h2>
+            <div class="goal-post">
+                <div class="goal-zones" id="goalZones">
+                    <div class="goal-zone" onclick="shootPenalty(0)" data-zone="0">Top Left</div>
+                    <div class="goal-zone" onclick="shootPenalty(1)" data-zone="1">Top Center</div>
+                    <div class="goal-zone" onclick="shootPenalty(2)" data-zone="2">Top Right</div>
+                    <div class="goal-zone" onclick="shootPenalty(3)" data-zone="3">Mid Left</div>
+                    <div class="goal-zone" onclick="shootPenalty(4)" data-zone="4">Mid Center</div>
+                    <div class="goal-zone" onclick="shootPenalty(5)" data-zone="5">Mid Right</div>
+                    <div class="goal-zone" onclick="shootPenalty(6)" data-zone="6">Low Left</div>
+                    <div class="goal-zone" onclick="shootPenalty(7)" data-zone="7">Low Center</div>
+                    <div class="goal-zone" onclick="shootPenalty(8)" data-zone="8">Low Right</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="result-display" id="resultDisplay">
+            <div class="result-title" id="resultTitle">Victory!</div>
+            <div class="result-final-score" id="resultScore">5 - 3</div>
+            
+            <div class="reward-box">
+                <div class="reward-item">
+                    <div class="reward-label">💰 GP Earned</div>
+                    <div class="reward-value" id="rewardGP">+5000</div>
+                </div>
+                <div class="reward-item">
+                    <div class="reward-label">🪙 eCoins Earned</div>
+                    <div class="reward-value" id="rewardCoins">+15</div>
+                </div>
+            </div>
+
+            <div class="button-group">
+                <button class="btn-reset" onclick="location.reload()">🔄 Play Again</button>
+                <button class="btn-reset" onclick="window.location.href='/dashboard'" style="background: rgba(255, 237, 0, 0.2); color: var(--secondary);">📊 Dashboard</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="/penalty.js"></script>
+</body>
+</html>

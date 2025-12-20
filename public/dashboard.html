@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - eFotball wannabe</title>
+    <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-brand">⚽ eFOOTBALL WANNABE</div>
+        <div class="top-bar-right">
+            <div class="currency-display">
+                <span class="currency-item">🪙 <span id="topEcoins">0</span></span>
+                <span class="currency-item">💰 <span id="topGP">0</span></span>
+            </div>
+            <div class="top-icons">
+                <button class="icon-btn" onclick="window.location.href='/mail'" title="Mailbox">
+                    📬
+                    <span class="notification-badge" id="mailBadge" style="display:none;">0</span>
+                </button>
+                <button class="icon-btn" onclick="window.location.href='/news'" title="News">📰</button>
+                <button class="icon-btn" onclick="window.location.href='/logout'" title="Logout">🚪</button>
+            </div>
+            <div class="user-info" id="userInfo">
+                <img id="userAvatar" src="" alt="Avatar" class="user-avatar">
+                <span id="username">Loading...</span>
+            </div>
+        </div>
+    </nav>
+
+    <div class="dashboard-container">
+        <!-- Featured Banner -->
+        <div class="featured-banner coming-soon-banner">
+            <div class="banner-content">
+                <h2 class="banner-title">Coming Soon</h2>
+                <p class="banner-description">New features and exciting content are on the way!</p>
+                <p class="banner-note">Stay tuned for updates</p>
+            </div>
+        </div>
+
+        <!-- Main Sections Grid -->
+        <div class="main-sections-grid">
+            <!-- My Team Section -->
+            <div class="main-section-card section-red" onclick="window.location.href='/my-team'">
+                <div class="section-icon">🛡️</div>
+                <div class="section-title">My Team</div>
+                <div class="section-description">Build your squad, set formations, and manage your players</div>
+            </div>
+
+            <!-- Contracts Section -->
+            <div class="main-section-card section-purple" onclick="window.location.href='/contracts'">
+                <div class="section-icon">👤➕</div>
+                <div class="section-title">Contracts</div>
+                <div class="section-description">Sign new players and expand your collection</div>
+            </div>
+
+            <!-- Match Section -->
+            <div class="main-section-card section-blue" onclick="window.location.href='/match'">
+                <div class="section-icon">⚽</div>
+                <div class="section-title">Match</div>
+                <div class="section-description">Battle AI opponents and earn rewards</div>
+            </div>
+
+            <!-- PvP Section -->
+            <div class="main-section-card section-orange" onclick="window.location.href='/pvp'">
+                <div class="section-icon">🔥</div>
+                <div class="section-title">PvP</div>
+                <div class="section-description">Challenge real players worldwide</div>
+            </div>
+
+            <!-- Penalty Section -->
+            <div class="main-section-card section-orange" onclick="window.location.href='/penalty'">
+                <div class="section-icon">🎯</div>
+                <div class="section-title">Penalty</div>
+                <div class="section-description">Penalty shootout challenge</div>
+            </div>
+
+            <!-- Training Section -->
+            <div class="main-section-card section-blue" onclick="window.location.href='/training'">
+                <div class="section-icon">⚡</div>
+                <div class="section-title">Training</div>
+                <div class="section-description">Upgrade and train your players</div>
+            </div>
+
+            <!-- Leaderboard Section -->
+            <div class="main-section-card section-red" onclick="window.location.href='/leaderboard'">
+                <div class="section-icon">🏆</div>
+                <div class="section-title">Leaderboard</div>
+                <div class="section-description">Global rankings and achievements</div>
+            </div>
+
+            <!-- Collection Section -->
+            <div class="main-section-card section-purple" onclick="window.location.href='/collection'">
+                <div class="section-icon">📚</div>
+                <div class="section-title">Collection</div>
+                <div class="section-description">Browse all your collected players</div>
+            </div>
+        </div>
+
+        <!-- Commands Modal -->
+        <div id="commandsModal" class="modal">
+            <div class="modal-content commands-modal-content">
+                <span class="close" onclick="closeCommandsModal()">&times;</span>
+                <h2 style="color: var(--secondary); text-align: center; margin-bottom: 30px;">📜 Discord Bot Commands</h2>
+                <div class="commands-grid">
+                    <div class="command-category">
+                        <h3>⚽ Matches</h3>
+                        <div class="command-item">
+                            <code>/match</code>
+                            <span>Play vs AI teams</span>
+                        </div>
+                        <div class="command-item">
+                            <code>/pvp</code>
+                            <span>Real-time PvP battles</span>
+                        </div>
+                        <div class="command-item">
+                            <code>/penalty shoot</code>
+                            <span>Daily penalty challenge</span>
+                        </div>
+                    </div>
+
+                    <div class="command-category">
+                        <h3>👥 Squad</h3>
+                        <div class="command-item">
+                            <code>/squad view</code>
+                            <span>View your squad</span>
+                        </div>
+                        <div class="command-item">
+                            <code>/squad autoset</code>
+                            <span>Auto-pick best XI</span>
+                        </div>
+                        <div class="command-item">
+                            <code>/formation</code>
+                            <span>Change formation</span>
+                        </div>
+                    </div>
+
+                    <div class="command-category">
+                        <h3>📦 Contracts</h3>
+                        <div class="command-item">
+                            <code>/contract</code>
+                            <span>Pull 1 player</span>
+                        </div>
+                        <div class="command-item">
+                            <code>/contract2</code>
+                            <span>Multi-pull (1-10)</span>
+                        </div>
+                        <div class="command-item">
+                            <code>/use</code>
+                            <span>Open free packs</span>
+                        </div>
+                    </div>
+
+                    <div class="command-category">
+                        <h3>📊 Info</h3>
+                        <div class="command-item">
+                            <code>/profile</code>
+                            <span>Your profile & stats</span>
+                        </div>
+                        <div class="command-item">
+                            <code>/collection</code>
+                            <span>Browse players</span>
+                        </div>
+                        <div class="command-item">
+                            <code>/leaderboard</code>
+                            <span>Global rankings</span>
+                        </div>
+                        <div class="command-item">
+                            <code>/help</code>
+                            <span>All commands</span>
+                        </div>
+                    </div>
+
+                    <div class="command-category">
+                        <h3>⚡ Training</h3>
+                        <div class="command-item">
+                            <code>/training player</code>
+                            <span>Train your players</span>
+                        </div>
+                        <div class="command-item">
+                            <code>/training shop</code>
+                            <span>Buy trainers</span>
+                        </div>
+                        <div class="command-item">
+                            <code>/training info</code>
+                            <span>Training center</span>
+                        </div>
+                    </div>
+
+                    <div class="command-category">
+                        <h3>🎁 Rewards</h3>
+                        <div class="command-item">
+                            <code>/mail</code>
+                            <span>Claim rewards</span>
+                        </div>
+                        <div class="command-item">
+                            <code>/news</code>
+                            <span>Latest updates</span>
+                        </div>
+                    </div>
+                </div>
+                <p class="commands-note">💡 Use these commands in Discord to manage your team!</p>
+            </div>
+        </div>
+
+        <!-- Overview Tab (Hidden by default) -->
+        <div id="overview-tab" class="tab-content" style="display:none;">
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-icon">💰</div>
+                    <div class="stat-info">
+                        <div class="stat-label">GP</div>
+                        <div class="stat-value" id="gpAmount">0</div>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">🪙</div>
+                    <div class="stat-info">
+                        <div class="stat-label">eCoins</div>
+                        <div class="stat-value" id="eCoinsAmount">0</div>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">👥</div>
+                    <div class="stat-info">
+                        <div class="stat-label">Players</div>
+                        <div class="stat-value" id="playerCount">0</div>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">⭐</div>
+                    <div class="stat-info">
+                        <div class="stat-label">Team Rating</div>
+                        <div class="stat-value" id="teamRating">0</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Squad Builder Tab -->
+        <div id="squad-tab" class="tab-content">
+            <div class="squad-builder">
+                <div class="squad-header">
+                    <h2>Squad Builder</h2>
+                    <div class="formation-selector">
+                        <label>Formation:</label>
+                        <select id="formationSelect" onchange="changeFormation()">
+                            <option value="4-3-3">4-3-3</option>
+                            <option value="4-4-2">4-4-2</option>
+                            <option value="3-5-2">3-5-2</option>
+                            <option value="4-2-3-1">4-2-3-1</option>
+                        </select>
+                    </div>
+                    <button class="btn btn-primary" onclick="saveSquad()">💾 Save Squad</button>
+                </div>
+
+                <div class="squad-pitch" id="squadPitch">
+                    <!-- Squad positions will be dynamically generated -->
+                </div>
+
+                <div class="bench-section" id="benchSection">
+                    <h3>🪑 Bench (Max 8 players - Drag here)</h3>
+                    <div class="bench-players" id="benchPlayers">
+                        <!-- Bench players will be shown here -->
+                    </div>
+                </div>
+            </div>
+
+            <div class="player-selector">
+                <h3>Available Players</h3>
+                <div class="player-filters">
+                    <input type="text" id="playerSearch" placeholder="Search players..." onkeyup="filterPlayers()">
+                    <select id="positionFilter" onchange="filterPlayers()">
+                        <option value="">All Positions</option>
+                        <option value="GK">GK</option>
+                        <option value="DEF">Defenders</option>
+                        <option value="MID">Midfielders</option>
+                        <option value="ATT">Attackers</option>
+                    </select>
+                    <select id="availableRatingSort" onchange="filterPlayers()">
+                        <option value="">Sort by Rating</option>
+                        <option value="high-low">⬇️ High to Low</option>
+                        <option value="low-high">⬆️ Low to High</option>
+                    </select>
+                </div>
+                <div class="available-players" id="availablePlayers">
+                    <!-- Available players will be shown here -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Players Tab -->
+        <div id="players-tab" class="tab-content">
+            <div class="players-header">
+                <h2>My Players</h2>
+                <div class="player-filters">
+                    <input type="text" id="allPlayersSearch" placeholder="Search..." onkeyup="filterAllPlayers()">
+                    <select id="rarityFilter" onchange="filterAllPlayers()">
+                        <option value="">All Rarities</option>
+                        <option value="Iconic">💎 Iconic</option>
+                        <option value="Legend">🌟 Legend</option>
+                        <option value="Black">⚫ Black</option>
+                        <option value="Gold">🟡 Gold</option>
+                        <option value="Silver">⚪ Silver</option>
+                        <option value="Bronze">🟤 Bronze</option>
+                        <option value="White">⬜ White</option>
+                    </select>
+                    <select id="ratingSort" onchange="filterAllPlayers()">
+                        <option value="">Sort by Rating</option>
+                        <option value="high-low">⬇️ High to Low</option>
+                        <option value="low-high">⬆️ Low to High</option>
+                    </select>
+                </div>
+            </div>
+            <div class="players-grid" id="allPlayersGrid">
+                <!-- All players will be shown here -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Player Modal -->
+    <div id="playerModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal()">&times;</span>
+            <div id="playerModalContent"></div>
+        </div>
+    </div>
+
+    <script src="/dashboard.js"></script>
+</body>
+</html>

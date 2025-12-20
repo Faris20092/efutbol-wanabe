@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Collection - eFotball wannabe</title>
+    <link rel="stylesheet" href="/styles.css">
+    <style>
+        .collection-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .collection-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .collection-header h1 {
+            color: var(--secondary);
+            font-size: 2.5em;
+            margin-bottom: 15px;
+        }
+
+        .collection-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .stat-box {
+            background: rgba(0, 0, 51, 0.8);
+            border: 2px solid rgba(255, 237, 0, 0.3);
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .stat-label {
+            color: #aaa;
+            font-size: 0.9em;
+            margin-bottom: 8px;
+        }
+
+        .stat-value {
+            color: var(--secondary);
+            font-size: 2em;
+            font-weight: bold;
+        }
+
+        .filters {
+            background: rgba(0, 0, 51, 0.8);
+            border: 2px solid rgba(255, 237, 0, 0.3);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 30px;
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .filter-group {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+
+        .filter-group label {
+            color: var(--secondary);
+            font-weight: bold;
+        }
+
+        .filter-group input,
+        .filter-group select {
+            padding: 8px 12px;
+            border-radius: 6px;
+            border: 2px solid rgba(255, 237, 0, 0.3);
+            background: rgba(0, 0, 51, 0.8);
+            color: #fff;
+        }
+
+        .players-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .player-card {
+            background: rgba(0, 20, 220, 0.3);
+            border: 2px solid rgba(255, 237, 0, 0.2);
+            border-radius: 10px;
+            padding: 12px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .player-card:hover {
+            border-color: var(--secondary);
+            background: rgba(0, 20, 220, 0.5);
+            transform: translateY(-3px);
+        }
+
+        .player-rarity {
+            font-size: 0.8em;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .player-rarity.iconic {
+            color: #FF00FF;
+        }
+
+        .player-rarity.legend {
+            color: #FFD700;
+        }
+
+        .player-rarity.black {
+            color: #999;
+        }
+
+        .player-name {
+            color: #fff;
+            font-weight: bold;
+            margin-bottom: 5px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .player-stats {
+            color: #aaa;
+            font-size: 0.85em;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #aaa;
+        }
+
+        @media (max-width: 768px) {
+            .filters {
+                flex-direction: column;
+            }
+
+            .players-grid {
+                grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <nav class="navbar">
+        <div class="nav-brand">⚽ eFOOTBALL WANNABE</div>
+        <div class="top-bar-right">
+            <div class="currency-display">
+                <span class="currency-item">🪙 <span id="topEcoins">0</span></span>
+                <span class="currency-item">💰 <span id="topGP">0</span></span>
+            </div>
+            <div class="top-icons">
+                <button class="icon-btn" onclick="window.location.href='/dashboard'" title="Dashboard">📊</button>
+                <button class="icon-btn" onclick="window.location.href='/mail'" title="Mail">📬</button>
+                <button class="icon-btn" onclick="window.location.href='/logout'" title="Logout">🚪</button>
+            </div>
+        </div>
+    </nav>
+
+    <div class="collection-container">
+        <div class="collection-header">
+            <h1>📚 MY COLLECTION 📚</h1>
+            <p>Browse all your collected players</p>
+        </div>
+
+        <div class="collection-stats" id="collectionStats">
+            <div class="stat-box">
+                <div class="stat-label">Total Players</div>
+                <div class="stat-value" id="totalPlayers">0</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-label">Iconic</div>
+                <div class="stat-value" id="iconicCount">0</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-label">Legend</div>
+                <div class="stat-value" id="legendCount">0</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-label">Black</div>
+                <div class="stat-value" id="blackCount">0</div>
+            </div>
+        </div>
+
+        <div class="filters">
+            <div class="filter-group">
+                <label>🔍 Search:</label>
+                <input type="text" id="searchInput" placeholder="Player name..." onkeyup="filterPlayers()">
+            </div>
+            <div class="filter-group">
+                <label>⭐ Rarity:</label>
+                <select id="rarityFilter" onchange="filterPlayers()">
+                    <option value="">All</option>
+                    <option value="Iconic">Iconic</option>
+                    <option value="Legend">Legend</option>
+                    <option value="Black">Black</option>
+                    <option value="Gold">Gold</option>
+                    <option value="Silver">Silver</option>
+                    <option value="Bronze">Bronze</option>
+                    <option value="White">White</option>
+                </select>
+            </div>
+            <div class="filter-group">
+                <label>🎯 Position:</label>
+                <select id="positionFilter" onchange="filterPlayers()">
+                    <option value="">All</option>
+                    <option value="GK">GK</option>
+                    <option value="CB">CB</option>
+                    <option value="LB">LB</option>
+                    <option value="RB">RB</option>
+                    <option value="DMF">DMF</option>
+                    <option value="CMF">CMF</option>
+                    <option value="AMF">AMF</option>
+                    <option value="LMF">LMF</option>
+                    <option value="RMF">RMF</option>
+                    <option value="LWF">LWF</option>
+                    <option value="RWF">RWF</option>
+                    <option value="SS">SS</option>
+                    <option value="CF">CF</option>
+                </select>
+            </div>
+            <div class="filter-group">
+                <label>⚽ Playing Style:</label>
+                <select id="styleFilter" onchange="filterPlayers()">
+                    <option value="">All</option>
+                    <option value="Goal Poacher">Goal Poacher</option>
+                    <option value="Dummy Runner">Dummy Runner</option>
+                    <option value="Fox in the Box">Fox in the Box</option>
+                    <option value="Target Man">Target Man</option>
+                    <option value="Creative Playmaker">Creative Playmaker</option>
+                    <option value="Prolific Winger">Prolific Winger</option>
+                    <option value="Roaming Flank">Roaming Flank</option>
+                    <option value="Cross Specialist">Cross Specialist</option>
+                    <option value="Classic No. 10">Classic No. 10</option>
+                    <option value="Hole Player">Hole Player</option>
+                    <option value="Box-to-Box">Box-to-Box</option>
+                    <option value="The Destroyer">The Destroyer</option>
+                    <option value="Orchestrator">Orchestrator</option>
+                    <option value="Anchor Man">Anchor Man</option>
+                    <option value="Build Up">Build Up</option>
+                    <option value="Extra Frontman">Extra Frontman</option>
+                    <option value="Offensive Full-back">Offensive Full-back</option>
+                    <option value="Defensive Full-back">Defensive Full-back</option>
+                    <option value="Full-back Finisher">Full-back Finisher</option>
+                    <option value="Offensive Goalkeeper">Offensive Goalkeeper</option>
+                    <option value="Defensive Goalkeeper">Defensive Goalkeeper</option>
+                </select>
+            </div>
+            <div class="filter-group">
+                <label>🏟️ Club:</label>
+                <select id="clubFilter" onchange="filterPlayers()">
+                    <option value="">All Clubs</option>
+                    <!-- Clubs populated dynamically -->
+                </select>
+            </div>
+            <div class="filter-group">
+                <label>📊 Sort By:</label>
+                <select id="sortFilter" onchange="filterPlayers()">
+                    <option value="overall-desc">Overall ↓</option>
+                    <option value="overall-asc">Overall ↑</option>
+                    <option value="name-asc">Name A-Z</option>
+                    <option value="name-desc">Name Z-A</option>
+                    <option value="level-desc">Level ↓</option>
+                    <option value="level-asc">Level ↑</option>
+                    <option value="rarity-desc">Rarity ↓</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="players-grid" id="playersGrid">
+            <div class="empty-state">Loading your collection...</div>
+        </div>
+    </div>
+
+    <script src="/collection.js"></script>
+</body>
+
+</html>

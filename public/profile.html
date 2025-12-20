@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profile - eFotball wannabe</title>
+    <link rel="stylesheet" href="/styles.css">
+    <style>
+        .profile-container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .profile-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .profile-header h1 {
+            color: var(--secondary);
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .profile-card {
+            background: linear-gradient(135deg, rgba(0, 0, 51, 0.9), rgba(16, 33, 62, 0.9));
+            border: 3px solid rgba(255, 237, 0, 0.4);
+            border-radius: 20px;
+            padding: 30px;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .profile-avatar {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            border: 4px solid var(--secondary);
+            margin-bottom: 15px;
+        }
+
+        .profile-name {
+            font-size: 2rem;
+            font-weight: bold;
+            color: white;
+            margin-bottom: 10px;
+        }
+
+        .profile-id {
+            color: rgba(255, 255, 255, 0.5);
+            font-size: 0.9rem;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: rgba(0, 0, 51, 0.8);
+            border: 2px solid rgba(255, 237, 0, 0.3);
+            border-radius: 15px;
+            padding: 25px;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .stat-card:hover {
+            border-color: var(--secondary);
+            transform: translateY(-3px);
+        }
+
+        .stat-icon {
+            font-size: 2rem;
+            margin-bottom: 10px;
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: bold;
+            color: var(--secondary);
+        }
+
+        .stat-label {
+            color: rgba(255, 255, 255, 0.7);
+            margin-top: 5px;
+        }
+
+        .record-section {
+            background: rgba(0, 0, 51, 0.8);
+            border: 2px solid rgba(255, 237, 0, 0.3);
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 30px;
+        }
+
+        .record-section h3 {
+            color: var(--secondary);
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .record-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 12px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .record-row:last-child {
+            border-bottom: none;
+        }
+
+        .record-label {
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        .record-value {
+            color: white;
+            font-weight: bold;
+        }
+
+        .record-value.positive {
+            color: #22c55e;
+        }
+
+        .record-value.negative {
+            color: #ef4444;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+    </style>
+</head>
+
+<body>
+    <nav class="navbar">
+        <div class="nav-brand">⚽ eFOOTBALL WANNABE</div>
+        <div class="top-bar-right">
+            <div class="currency-display">
+                <span class="currency-item">🪙 <span id="topEcoins">0</span></span>
+                <span class="currency-item">💰 <span id="topGP">0</span></span>
+            </div>
+            <div class="top-icons">
+                <button class="icon-btn" onclick="window.location.href='/dashboard'" title="Dashboard">📊</button>
+                <button class="icon-btn" onclick="window.location.href='/settings'" title="Settings">⚙️</button>
+                <button class="icon-btn" onclick="window.location.href='/logout'" title="Logout">🚪</button>
+            </div>
+        </div>
+    </nav>
+
+    <div class="profile-container">
+        <div class="profile-header">
+            <h1>📊 MY PROFILE 📊</h1>
+            <p>Your stats and achievements</p>
+        </div>
+
+        <div class="profile-card">
+            <img id="userAvatar" class="profile-avatar" src="" alt="Avatar">
+            <div class="profile-name" id="userName">Loading...</div>
+            <div class="profile-id" id="userId">ID: ---</div>
+        </div>
+
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-icon">💰</div>
+                <div class="stat-value" id="gpStat">0</div>
+                <div class="stat-label">GP</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">🪙</div>
+                <div class="stat-value" id="ecoinsStat">0</div>
+                <div class="stat-label">eCoins</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">👥</div>
+                <div class="stat-value" id="playersStat">0</div>
+                <div class="stat-label">Players</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">💪</div>
+                <div class="stat-value" id="strengthStat">0</div>
+                <div class="stat-label">Team Strength</div>
+            </div>
+        </div>
+
+        <div class="record-section">
+            <h3>⚽ Match Record</h3>
+            <div class="record-row">
+                <span class="record-label">🏆 Total Wins</span>
+                <span class="record-value positive" id="winsStat">0</span>
+            </div>
+            <div class="record-row">
+                <span class="record-label">🤝 Draws</span>
+                <span class="record-value" id="drawsStat">0</span>
+            </div>
+            <div class="record-row">
+                <span class="record-label">😞 Losses</span>
+                <span class="record-value negative" id="lossesStat">0</span>
+            </div>
+            <div class="record-row">
+                <span class="record-label">📊 Win Rate</span>
+                <span class="record-value" id="winRate">0%</span>
+            </div>
+        </div>
+
+        <div class="action-buttons">
+            <button class="btn btn-primary" onclick="window.location.href='/dashboard'">⬅️ Back to Dashboard</button>
+            <button class="btn btn-secondary" onclick="window.location.href='/settings'">⚙️ Settings</button>
+        </div>
+    </div>
+
+    <script src="/profile.js"></script>
+</body>
+
+</html>

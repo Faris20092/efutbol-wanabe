@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Leaderboard - eFotball wannabe</title>
+    <link rel="stylesheet" href="/styles.css">
+    <style>
+        .leaderboard-container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .leaderboard-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .leaderboard-header h1 {
+            color: var(--secondary);
+            font-size: 2.5em;
+            margin-bottom: 15px;
+        }
+
+        .leaderboard-controls {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+
+        .control-group {
+            display: flex;
+            gap: 10px;
+        }
+
+        .control-group label {
+            font-weight: bold;
+            color: var(--secondary);
+        }
+
+        .control-group select {
+            padding: 10px 15px;
+            border-radius: 8px;
+            border: 2px solid rgba(255, 237, 0, 0.3);
+            background: rgba(0, 0, 51, 0.8);
+            color: #fff;
+            cursor: pointer;
+        }
+
+        .leaderboard-table {
+            background: rgba(0, 0, 51, 0.8);
+            border: 2px solid rgba(255, 237, 0, 0.3);
+            border-radius: 15px;
+            overflow: hidden;
+            margin-bottom: 30px;
+        }
+
+        .table-header {
+            background: linear-gradient(90deg, rgba(0, 20, 220, 0.6), rgba(255, 237, 0, 0.1));
+            border-bottom: 2px solid rgba(255, 237, 0, 0.3);
+            display: grid;
+            grid-template-columns: 80px 1fr 150px 150px;
+            gap: 20px;
+            padding: 20px;
+            font-weight: bold;
+            color: var(--secondary);
+            text-align: center;
+        }
+
+        .table-body {
+            max-height: 600px;
+            overflow-y: auto;
+        }
+
+        .rank-row {
+            display: grid;
+            grid-template-columns: 80px 1fr 150px 150px;
+            gap: 20px;
+            padding: 15px 20px;
+            border-bottom: 1px solid rgba(255, 237, 0, 0.1);
+            align-items: center;
+            transition: background 0.3s;
+        }
+
+        .rank-row:hover {
+            background: rgba(255, 237, 0, 0.1);
+        }
+
+        .rank-row:last-child {
+            border-bottom: none;
+        }
+
+        .rank-position {
+            font-size: 1.5em;
+            font-weight: bold;
+            color: var(--secondary);
+            text-align: center;
+        }
+
+        .rank-position.gold {
+            color: #FFD700;
+            font-size: 2em;
+        }
+
+        .rank-position.silver {
+            color: #C0C0C0;
+            font-size: 1.8em;
+        }
+
+        .rank-position.bronze {
+            color: #CD7F32;
+            font-size: 1.6em;
+        }
+
+        .player-name {
+            text-align: left;
+            color: #fff;
+        }
+
+        .rank-value {
+            text-align: center;
+            color: #fff;
+        }
+
+        .pagination {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin-top: 20px;
+        }
+
+        .pagination button {
+            padding: 10px 15px;
+            border: none;
+            border-radius: 8px;
+            background: rgba(255, 237, 0, 0.2);
+            color: var(--secondary);
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+
+        .pagination button:hover:not(:disabled) {
+            background: rgba(255, 237, 0, 0.5);
+        }
+
+        .pagination button:disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #aaa;
+        }
+
+        .empty-state h3 {
+            font-size: 1.5em;
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-brand">⚽ eFOOTBALL WANNABE</div>
+        <div class="top-bar-right">
+            <div class="currency-display">
+                <span class="currency-item">🪙 <span id="topEcoins">0</span></span>
+                <span class="currency-item">💰 <span id="topGP">0</span></span>
+            </div>
+            <div class="top-icons">
+                <button class="icon-btn" onclick="window.location.href='/dashboard'" title="Dashboard">📊</button>
+                <button class="icon-btn" onclick="window.location.href='/mail'" title="Mail">📬</button>
+                <button class="icon-btn" onclick="window.location.href='/logout'" title="Logout">🚪</button>
+            </div>
+        </div>
+    </nav>
+
+    <div class="leaderboard-container">
+        <div class="leaderboard-header">
+            <h1>🏆 GLOBAL LEADERBOARD 🏆</h1>
+            <p>Compete with players worldwide!</p>
+        </div>
+
+        <div class="leaderboard-controls">
+            <div class="control-group">
+                <label>📊 Metric:</label>
+                <select id="metricSelect" onchange="loadLeaderboard()">
+                    <option value="gp">💰 Total GP</option>
+                    <option value="wins">⚽ Match Wins</option>
+                    <option value="strength">💪 Team Strength</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="leaderboard-table">
+            <div class="table-header">
+                <div>Rank</div>
+                <div>Player</div>
+                <div>Value</div>
+                <div>Players</div>
+            </div>
+            <div class="table-body" id="tableBody">
+                <div class="empty-state">
+                    <h3>Loading...</h3>
+                </div>
+            </div>
+        </div>
+
+        <div class="pagination">
+            <button id="prevBtn" onclick="previousPage()" disabled>◀️ Previous</button>
+            <span id="pageInfo" style="align-self: center; color: var(--secondary); font-weight: bold;">Page 1</span>
+            <button id="nextBtn" onclick="nextPage()">Next ▶️</button>
+        </div>
+    </div>
+
+    <script src="/leaderboard.js"></script>
+</body>
+</html>

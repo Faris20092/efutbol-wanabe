@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Match - eFotball wannabe</title>
+    <link rel="stylesheet" href="/styles.css">
+    <style>
+        .match-container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .match-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .match-header h1 {
+            color: var(--secondary);
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .match-setup {
+            background: rgba(0, 0, 51, 0.8);
+            border: 2px solid rgba(255, 237, 0, 0.3);
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        .team-comparison {
+            display: grid;
+            grid-template-columns: 1fr auto 1fr;
+            gap: 20px;
+            align-items: center;
+            margin: 20px 0;
+        }
+
+        .team-card {
+            background: rgba(0, 20, 220, 0.4);
+            border: 2px solid rgba(255, 237, 0, 0.3);
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .team-card h3 {
+            color: var(--secondary);
+            margin-bottom: 15px;
+        }
+
+        .vs-badge {
+            font-size: 2rem;
+            font-weight: bold;
+            color: var(--accent);
+        }
+
+        .team-stat {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .team-stat:last-child {
+            border-bottom: none;
+        }
+
+        .btn-match {
+            padding: 15px 40px;
+            font-size: 1.2em;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: bold;
+            background: var(--secondary);
+            color: #000;
+            text-transform: uppercase;
+        }
+
+        .btn-match:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 20px rgba(255, 237, 0, 0.5);
+        }
+
+        .btn-match:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        /* Live Match View */
+        .match-live {
+            display: none;
+            background: rgba(0, 0, 51, 0.9);
+            border: 3px solid var(--accent);
+            border-radius: 15px;
+            padding: 20px;
+        }
+
+        .match-live.active {
+            display: block;
+        }
+
+        .match-scoreboard {
+            display: grid;
+            grid-template-columns: 1fr auto 1fr;
+            gap: 20px;
+            align-items: center;
+            text-align: center;
+            padding: 20px;
+            background: linear-gradient(135deg, #1a1a2e, #16213e);
+            border-radius: 12px;
+            margin-bottom: 20px;
+        }
+
+        .team-name {
+            font-size: 1.3rem;
+            font-weight: bold;
+            color: var(--secondary);
+        }
+
+        .score-display {
+            font-size: 3rem;
+            font-weight: bold;
+            color: white;
+        }
+
+        .match-time {
+            text-align: center;
+            font-size: 1.5rem;
+            color: var(--accent);
+            margin-bottom: 20px;
+        }
+
+        .match-events {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 10px;
+            padding: 15px;
+            max-height: 200px;
+            overflow-y: auto;
+            margin-bottom: 20px;
+        }
+
+        .match-event {
+            padding: 10px;
+            margin: 5px 0;
+            border-radius: 8px;
+            animation: fadeIn 0.5s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .event-goal {
+            background: linear-gradient(135deg, rgba(34, 197, 94, 0.3), rgba(34, 197, 94, 0.1));
+            border-left: 4px solid #22c55e;
+        }
+
+        .event-goal-opponent {
+            background: linear-gradient(135deg, rgba(239, 68, 68, 0.3), rgba(239, 68, 68, 0.1));
+            border-left: 4px solid #ef4444;
+        }
+
+        .event-comment {
+            background: rgba(255, 255, 255, 0.05);
+            border-left: 4px solid #3b82f6;
+        }
+
+        .event-halftime {
+            background: rgba(251, 191, 36, 0.2);
+            border-left: 4px solid #fbbf24;
+            text-align: center;
+        }
+
+        /* Chance Buttons */
+        .chance-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            z-index: 100;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+        }
+
+        .chance-overlay.active {
+            display: flex;
+        }
+
+        .chance-title {
+            font-size: 2rem;
+            color: var(--accent);
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .chance-buttons {
+            display: flex;
+            gap: 20px;
+        }
+
+        .chance-btn {
+            padding: 30px 50px;
+            font-size: 1.5rem;
+            border: 3px solid var(--accent);
+            background: rgba(255, 215, 0, 0.1);
+            color: white;
+            border-radius: 15px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .chance-btn:hover {
+            background: rgba(255, 215, 0, 0.3);
+            transform: scale(1.1);
+        }
+
+        .chance-timer {
+            margin-top: 20px;
+            font-size: 1.2rem;
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        /* Match Result */
+        .match-result {
+            display: none;
+            background: rgba(0, 20, 220, 0.4);
+            border: 3px solid rgba(255, 237, 0, 0.5);
+            border-radius: 15px;
+            padding: 30px;
+            margin: 30px 0;
+            text-align: center;
+        }
+
+        .match-result.show {
+            display: block;
+            animation: slideIn 0.5s ease-out;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .final-score {
+            font-size: 3em;
+            color: var(--secondary);
+            margin: 20px 0;
+            font-weight: bold;
+        }
+
+        .match-outcome {
+            font-size: 2em;
+            font-weight: bold;
+            margin: 15px 0;
+        }
+
+        .match-outcome.win {
+            color: #27ae60;
+        }
+
+        .match-outcome.draw {
+            color: var(--warning);
+        }
+
+        .match-outcome.loss {
+            color: #e74c3c;
+        }
+
+        .rewards-display {
+            background: rgba(0, 0, 0, 0.3);
+            border: 2px solid rgba(255, 237, 0, 0.3);
+            border-radius: 12px;
+            padding: 20px;
+            margin: 20px 0;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .reward-item {
+            text-align: center;
+        }
+
+        .reward-value {
+            font-size: 2em;
+            color: var(--secondary);
+            font-weight: bold;
+        }
+
+        .cooldown-msg {
+            color: #f59e0b;
+            font-size: 1.2rem;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+
+<body>
+    <nav class="navbar">
+        <div class="nav-brand">⚽ eFOOTBALL WANNABE</div>
+        <div class="top-bar-right">
+            <div class="currency-display">
+                <span class="currency-item">🪙 <span id="topEcoins">0</span></span>
+                <span class="currency-item">💰 <span id="topGP">0</span></span>
+            </div>
+            <div class="top-icons">
+                <button class="icon-btn" onclick="window.location.href='/dashboard'" title="Dashboard">📊</button>
+                <button class="icon-btn" onclick="window.location.href='/mail'" title="Mail">📬</button>
+                <button class="icon-btn" onclick="window.location.href='/logout'" title="Logout">🚪</button>
+            </div>
+        </div>
+    </nav>
+
+    <div class="match-container">
+        <div class="match-header">
+            <h1>⚽ EPIC BATTLE 🔥</h1>
+            <p>Challenge AI opponents in real-time matches!</p>
+        </div>
+
+        <!-- Pre-Match Setup -->
+        <div class="match-setup" id="matchSetup">
+            <h2>🎯 Ready for Battle?</h2>
+            <p id="squadStatus" style="margin: 15px 0; font-size: 1.1em;"></p>
+
+            <div class="team-comparison">
+                <div class="team-card">
+                    <h3>Your Team</h3>
+                    <div class="team-stat">
+                        <span>Strength:</span>
+                        <span id="playerStrength">--</span>
+                    </div>
+                    <div class="team-stat">
+                        <span>Players:</span>
+                        <span id="playerCount">0/11</span>
+                    </div>
+                </div>
+                <div class="vs-badge">VS</div>
+                <div class="team-card">
+                    <h3 id="opponentName">???</h3>
+                    <div class="team-stat">
+                        <span>Strength:</span>
+                        <span id="opponentStrength">??</span>
+                    </div>
+                </div>
+            </div>
+
+            <button class="btn-match" id="playBtn" onclick="startMatch()" disabled>
+                ⚽ START MATCH
+            </button>
+            <div class="cooldown-msg" id="cooldownMsg" style="display: none;"></div>
+        </div>
+
+        <!-- Live Match View -->
+        <div class="match-live" id="matchLive">
+            <div class="match-scoreboard">
+                <div class="team-name" id="livePlayerName">Your Team</div>
+                <div class="score-display" id="liveScore">0 - 0</div>
+                <div class="team-name" id="liveOpponentName">Opponent</div>
+            </div>
+
+            <div class="match-time" id="matchTime">⏰ 0'</div>
+
+            <div class="match-events" id="matchEvents">
+                <!-- Events will be added here -->
+            </div>
+        </div>
+
+        <!-- Chance Overlay -->
+        <div class="chance-overlay" id="chanceOverlay">
+            <div class="chance-title" id="chanceTitle">🎯 CHANCE! Choose your shot!</div>
+            <div class="chance-buttons">
+                <button class="chance-btn" onclick="selectChance('left')">⬅️ Left</button>
+                <button class="chance-btn" onclick="selectChance('center')">⬆️ Center</button>
+                <button class="chance-btn" onclick="selectChance('right')">➡️ Right</button>
+            </div>
+            <div class="chance-timer" id="chanceTimer">Time remaining: 10s</div>
+        </div>
+
+        <!-- Match Result -->
+        <div class="match-result" id="matchResult">
+            <h2>🏆 Match Finished!</h2>
+            <div class="final-score" id="finalScore">0 - 0</div>
+            <div class="match-outcome" id="matchOutcome">Draw</div>
+
+            <div class="rewards-display">
+                <div class="reward-item">
+                    <div>💰 GP</div>
+                    <div class="reward-value" id="rewardGP">+0</div>
+                </div>
+                <div class="reward-item">
+                    <div>🪙 eCoins</div>
+                    <div class="reward-value" id="rewardECoins">+0</div>
+                </div>
+            </div>
+
+            <button class="btn btn-primary" onclick="resetMatch()" style="margin-top: 20px;">
+                🔄 Play Again
+            </button>
+        </div>
+    </div>
+
+    <script src="/match.js"></script>
+</body>
+
+</html>

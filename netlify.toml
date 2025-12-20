@@ -1,0 +1,9 @@
+[build]
+  # No build command needed - static files are already in public/
+  command = "echo 'No build step required'"
+  publish = "public"
+
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200

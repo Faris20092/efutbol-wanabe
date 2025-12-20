@@ -1,0 +1,556 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Training - eFotball wannabe</title>
+    <link rel="stylesheet" href="/styles.css">
+    <style>
+        .training-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .training-header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .training-header h1 {
+            color: var(--secondary);
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        /* Tab Navigation */
+        .training-tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .training-tab {
+            padding: 12px 25px;
+            background: rgba(0, 0, 51, 0.8);
+            border: 2px solid rgba(255, 237, 0, 0.3);
+            border-radius: 10px;
+            color: #aaa;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: bold;
+        }
+
+        .training-tab:hover {
+            border-color: var(--secondary);
+            color: white;
+        }
+
+        .training-tab.active {
+            background: var(--secondary);
+            color: #000;
+            border-color: var(--secondary);
+        }
+
+        /* Tab Content */
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        /* Training Grid */
+        .training-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+
+        .trainer-section,
+        .players-section {
+            background: rgba(0, 0, 51, 0.8);
+            border: 2px solid rgba(255, 237, 0, 0.3);
+            border-radius: 15px;
+            padding: 30px;
+        }
+
+        .trainer-section h2,
+        .players-section h2 {
+            color: var(--secondary);
+            margin-bottom: 20px;
+            font-size: 1.5em;
+        }
+
+        .trainer-card {
+            background: rgba(0, 20, 220, 0.3);
+            border: 2px solid rgba(255, 237, 0, 0.2);
+            border-radius: 12px;
+            padding: 15px;
+            margin-bottom: 15px;
+            transition: all 0.3s;
+        }
+
+        .trainer-card:hover {
+            border-color: var(--secondary);
+            background: rgba(0, 20, 220, 0.5);
+        }
+
+        .trainer-card.selected {
+            border-color: var(--secondary);
+            background: rgba(255, 237, 0, 0.1);
+        }
+
+        .trainer-name {
+            color: var(--secondary);
+            font-weight: bold;
+            margin-bottom: 5px;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .trainer-cost {
+            color: #aaa;
+            font-size: 0.9em;
+            margin-bottom: 8px;
+        }
+
+        .trainer-exp {
+            color: #fff;
+            font-size: 1.1em;
+            margin-bottom: 10px;
+        }
+
+        .trainer-button {
+            width: 100%;
+            padding: 8px;
+            background: var(--secondary);
+            color: #000;
+            border: none;
+            border-radius: 6px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .trainer-button:hover {
+            transform: scale(1.02);
+            box-shadow: 0 0 10px rgba(255, 237, 0, 0.5);
+        }
+
+        .trainer-button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        /* Player Item */
+        .players-list {
+            max-height: 500px;
+            overflow-y: auto;
+        }
+
+        .player-item {
+            background: rgba(0, 20, 220, 0.3);
+            border: 2px solid rgba(255, 237, 0, 0.2);
+            border-radius: 12px;
+            padding: 15px;
+            margin-bottom: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .player-item:hover {
+            border-color: var(--secondary);
+            background: rgba(0, 20, 220, 0.5);
+        }
+
+        .player-item.selected {
+            border-color: var(--secondary);
+            background: rgba(255, 237, 0, 0.1);
+        }
+
+        .player-info {
+            flex: 1;
+        }
+
+        .player-name {
+            color: #fff;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .player-stats {
+            color: #aaa;
+            font-size: 0.9em;
+        }
+
+        .player-level {
+            text-align: right;
+            font-size: 1.3em;
+            color: var(--secondary);
+            font-weight: bold;
+        }
+
+        .player-search {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .player-search input {
+            flex: 1;
+            padding: 10px 15px;
+            border-radius: 8px;
+            border: 2px solid rgba(255, 237, 0, 0.3);
+            background: rgba(0, 0, 51, 0.8);
+            color: #fff;
+        }
+
+        /* Convert Section */
+        .convert-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 20px;
+        }
+
+        .convert-card {
+            background: rgba(0, 0, 51, 0.8);
+            border: 2px solid rgba(255, 237, 0, 0.3);
+            border-radius: 15px;
+            padding: 30px;
+        }
+
+        .convert-info {
+            background: rgba(239, 68, 68, 0.2);
+            border: 2px solid #ef4444;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+
+        .convert-info h4 {
+            color: #ef4444;
+            margin-bottom: 10px;
+        }
+
+        .exp-preview {
+            background: rgba(34, 197, 94, 0.2);
+            border: 2px solid #22c55e;
+            border-radius: 10px;
+            padding: 15px;
+            text-align: center;
+            margin: 20px 0;
+        }
+
+        .exp-preview .exp-value {
+            font-size: 2rem;
+            color: #22c55e;
+            font-weight: bold;
+        }
+
+        /* Info Section */
+        .info-card {
+            background: rgba(0, 0, 51, 0.8);
+            border: 2px solid rgba(255, 237, 0, 0.3);
+            border-radius: 15px;
+            padding: 30px;
+        }
+
+        .info-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .info-table th,
+        .info-table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .info-table th {
+            color: var(--secondary);
+        }
+
+        /* Shop Section */
+        .shop-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 20px;
+        }
+
+        .shop-item {
+            background: rgba(0, 20, 220, 0.3);
+            border: 2px solid rgba(255, 237, 0, 0.3);
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .shop-item h3 {
+            color: var(--secondary);
+            margin-bottom: 10px;
+        }
+
+        .shop-price {
+            font-size: 1.5rem;
+            color: #f59e0b;
+            margin: 15px 0;
+        }
+
+        /* Result Modal */
+        .result-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            z-index: 100;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .result-modal.show {
+            display: flex;
+        }
+
+        .result-content {
+            background: linear-gradient(135deg, #1a1a2e, #16213e);
+            border: 3px solid var(--secondary);
+            border-radius: 20px;
+            padding: 40px;
+            text-align: center;
+            max-width: 400px;
+        }
+
+        .result-title {
+            font-size: 1.5rem;
+            color: var(--secondary);
+            margin-bottom: 20px;
+        }
+
+        .stat-change {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .stat-change .increase {
+            color: #22c55e;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: #aaa;
+        }
+
+        @media (max-width: 768px) {
+            .training-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <nav class="navbar">
+        <div class="nav-brand">⚽ eFOOTBALL WANNABE</div>
+        <div class="top-bar-right">
+            <div class="currency-display">
+                <span class="currency-item">🪙 <span id="topEcoins">0</span></span>
+                <span class="currency-item">💰 <span id="topGP">0</span></span>
+            </div>
+            <div class="top-icons">
+                <button class="icon-btn" onclick="window.location.href='/dashboard'" title="Dashboard">📊</button>
+                <button class="icon-btn" onclick="window.location.href='/mail'" title="Mail">📬</button>
+                <button class="icon-btn" onclick="window.location.href='/logout'" title="Logout">🚪</button>
+            </div>
+        </div>
+    </nav>
+
+    <div class="training-container">
+        <div class="training-header">
+            <h1>⚡ TRAINING CENTER ⚡</h1>
+            <p>Upgrade your players, convert to EXP, or buy trainers!</p>
+        </div>
+
+        <!-- Tab Navigation -->
+        <div class="training-tabs">
+            <div class="training-tab active" onclick="switchTab('train')">🎓 Train Player</div>
+            <div class="training-tab" onclick="switchTab('convert')">🔄 Convert to EXP</div>
+            <div class="training-tab" onclick="switchTab('info')">📊 Training Info</div>
+            <div class="training-tab" onclick="switchTab('shop')">🛒 Shop</div>
+        </div>
+
+        <!-- Train Player Tab -->
+        <div class="tab-content active" id="trainTab">
+            <div class="training-grid">
+                <div class="trainer-section">
+                    <h2>🎓 Available Trainers</h2>
+                    <div id="trainersContainer">
+                        <div class="empty-state">Loading trainers...</div>
+                    </div>
+                </div>
+
+                <div class="players-section">
+                    <h2>👥 Select Player</h2>
+                    <div class="player-search">
+                        <input type="text" id="playerSearch" placeholder="Search players..." onkeyup="filterPlayers()">
+                    </div>
+                    <div class="players-list" id="playersList">
+                        <div class="empty-state">Loading your players...</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Convert to EXP Tab -->
+        <div class="tab-content" id="convertTab">
+            <div class="convert-grid">
+                <div class="convert-card">
+                    <h2>🔄 Convert Player to EXP Trainer</h2>
+                    <div class="convert-info">
+                        <h4>⚠️ Warning</h4>
+                        <p>Converting a player will <strong>permanently remove</strong> them from your collection and
+                            create an EXP trainer you can use on other players.</p>
+                    </div>
+
+                    <div class="player-search">
+                        <input type="text" id="convertSearch" placeholder="Search players to convert..."
+                            onkeyup="filterConvertPlayers()">
+                    </div>
+
+                    <div class="players-list" id="convertPlayersList">
+                        <div class="empty-state">Select a player to convert</div>
+                    </div>
+
+                    <div class="exp-preview" id="expPreview" style="display: none;">
+                        <p>Selected player will convert to:</p>
+                        <div class="exp-value" id="convertExpValue">+0 EXP</div>
+                    </div>
+
+                    <button class="trainer-button" id="convertBtn" onclick="convertPlayer()" disabled>
+                        🔄 Convert Player
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Training Info Tab -->
+        <div class="tab-content" id="infoTab">
+            <div class="info-card">
+                <h2>📊 Training System Information</h2>
+
+                <h3 style="color: var(--secondary); margin: 20px 0 15px;">Trainer Types</h3>
+                <table class="info-table">
+                    <tr>
+                        <th>Trainer</th>
+                        <th>EXP</th>
+                        <th>Cost</th>
+                        <th>Effect</th>
+                    </tr>
+                    <tr>
+                        <td>⚪ Normal Trainer</td>
+                        <td>5,000</td>
+                        <td>1,500 GP</td>
+                        <td>Adds 10 random stat points</td>
+                    </tr>
+                    <tr>
+                        <td>🔵 Basic Trainer</td>
+                        <td>50,000</td>
+                        <td>3,000 GP</td>
+                        <td>Standard training</td>
+                    </tr>
+                    <tr>
+                        <td>🟣 Special Trainer</td>
+                        <td>500,000</td>
+                        <td>28,000 GP</td>
+                        <td>High-quality training</td>
+                    </tr>
+                    <tr>
+                        <td>💎 Premium Trainer</td>
+                        <td>500,000</td>
+                        <td>50 eCoins</td>
+                        <td>Premium training</td>
+                    </tr>
+                </table>
+
+                <h3 style="color: var(--secondary); margin: 30px 0 15px;">EXP Requirements per Level</h3>
+                <table class="info-table">
+                    <tr>
+                        <th>Level</th>
+                        <th>EXP Required</th>
+                        <th>Total EXP</th>
+                    </tr>
+                    <tr>
+                        <td>1 → 2</td>
+                        <td>1,000</td>
+                        <td>1,000</td>
+                    </tr>
+                    <tr>
+                        <td>2 → 3</td>
+                        <td>2,000</td>
+                        <td>3,000</td>
+                    </tr>
+                    <tr>
+                        <td>3 → 4</td>
+                        <td>4,000</td>
+                        <td>7,000</td>
+                    </tr>
+                    <tr>
+                        <td>4 → 5</td>
+                        <td>8,000</td>
+                        <td>15,000</td>
+                    </tr>
+                    <tr>
+                        <td>5 → 10</td>
+                        <td>15k - 50k each</td>
+                        <td>~200,000</td>
+                    </tr>
+                    <tr>
+                        <td>10 → MAX</td>
+                        <td>Varies by rarity</td>
+                        <td>1M - 10M+</td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+
+        <!-- Shop Tab -->
+        <div class="tab-content" id="shopTab">
+            <div class="info-card">
+                <h2>🛒 Training Shop</h2>
+                <p style="margin-bottom: 20px; color: #aaa;">Purchase trainers to level up your players faster!</p>
+
+                <div class="shop-grid" id="shopGrid">
+                    <!-- Shop items will be loaded here -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Result Modal -->
+    <div class="result-modal" id="resultModal">
+        <div class="result-content">
+            <div class="result-title" id="modalTitle">Training Complete!</div>
+            <div id="modalBody"></div>
+            <button class="trainer-button" onclick="closeModal()" style="margin-top: 20px;">Close</button>
+        </div>
+    </div>
+
+    <script src="/training.js"></script>
+</body>
+
+</html>

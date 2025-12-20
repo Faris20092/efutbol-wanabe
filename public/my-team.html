@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Team - eFotball wannabe</title>
+    <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-brand">⚽ eFOOTBALL WANNABE</div>
+        <div class="nav-menu">
+            <a href="/dashboard" class="nav-link nav-btn">HOME</a>
+            <a href="/my-team" class="nav-link active">My Team</a>
+            <a href="/contracts" class="nav-link">Contracts</a>
+            <a href="/logout" class="nav-link nav-btn-pink">LOGOUT</a>
+        </div>
+        <div class="user-info" id="userInfo">
+            <img id="userAvatar" src="" alt="Avatar" class="user-avatar">
+            <span id="username">Loading...</span>
+        </div>
+    </nav>
+
+    <div class="dashboard-container">
+        <!-- Tab Navigation -->
+        <div class="team-tabs">
+            <button class="team-tab active" onclick="showTeamTab('squad')">⚽ Squad Builder</button>
+            <button class="team-tab" onclick="showTeamTab('players')">👥 My Players</button>
+        </div>
+
+        <!-- Squad Builder Tab -->
+        <div id="squad-tab" class="team-tab-content active">
+            <div class="squad-builder">
+                <div class="squad-header">
+                    <h2>Squad Builder</h2>
+                    <div class="formation-selector">
+                        <label>Formation:</label>
+                        <select id="formationSelect" onchange="changeFormation()">
+                            <option value="4-3-3">4-3-3</option>
+                            <option value="4-4-2">4-4-2</option>
+                            <option value="3-5-2">3-5-2</option>
+                            <option value="4-2-3-1">4-2-3-1</option>
+                        </select>
+                    </div>
+                    <button class="btn btn-primary" onclick="saveSquad()">💾 Save Squad</button>
+                </div>
+
+                <div class="squad-pitch" id="squadPitch">
+                    <!-- Squad positions will be dynamically generated -->
+                </div>
+
+                <div class="bench-section" id="benchSection">
+                    <h3>🪑 Bench (Max 8 players - Drag here)</h3>
+                    <div class="bench-players" id="benchPlayers">
+                        <!-- Bench players will be shown here -->
+                    </div>
+                </div>
+            </div>
+
+            <div class="player-selector">
+                <h3>Available Players</h3>
+                <div class="player-filters">
+                    <input type="text" id="playerSearch" placeholder="Search players..." onkeyup="filterPlayers()">
+                    <select id="positionFilter" onchange="filterPlayers()">
+                        <option value="">All Positions</option>
+                        <option value="GK">GK</option>
+                        <option value="DEF">Defenders</option>
+                        <option value="MID">Midfielders</option>
+                        <option value="ATT">Attackers</option>
+                    </select>
+                    <select id="availableRatingSort" onchange="filterPlayers()">
+                        <option value="">Sort by Rating</option>
+                        <option value="high-low">⬇️ High to Low</option>
+                        <option value="low-high">⬆️ Low to High</option>
+                    </select>
+                </div>
+                <div class="available-players" id="availablePlayers">
+                    <!-- Available players will be shown here -->
+                </div>
+            </div>
+        </div>
+
+        <!-- My Players Tab -->
+        <div id="players-tab" class="team-tab-content">
+            <div class="players-header">
+                <h2>My Players</h2>
+                <div class="player-filters">
+                    <input type="text" id="allPlayersSearch" placeholder="Search..." onkeyup="filterAllPlayers()">
+                    <select id="rarityFilter" onchange="filterAllPlayers()">
+                        <option value="">All Rarities</option>
+                        <option value="Iconic">💎 Iconic</option>
+                        <option value="Legend">🌟 Legend</option>
+                        <option value="Black">⚫ Black</option>
+                        <option value="Gold">🟡 Gold</option>
+                        <option value="Silver">⚪ Silver</option>
+                        <option value="Bronze">🟤 Bronze</option>
+                        <option value="White">⬜ White</option>
+                    </select>
+                    <select id="ratingSort" onchange="filterAllPlayers()">
+                        <option value="">Sort by Rating</option>
+                        <option value="high-low">⬇️ High to Low</option>
+                        <option value="low-high">⬆️ Low to High</option>
+                    </select>
+                </div>
+            </div>
+            <div class="players-grid" id="allPlayersGrid">
+                <!-- All players will be shown here -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Player Modal -->
+    <div id="playerModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal()">&times;</span>
+            <div id="playerModalContent"></div>
+        </div>
+    </div>
+
+    <script src="/my-team.js"></script>
+</body>
+</html>
