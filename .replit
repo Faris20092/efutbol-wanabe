@@ -58,3 +58,4 @@ args = "node deploy-commands.js"
 [userenv.shared]
 GOOGLE_CLIENT_ID = "317539205506-980394s2l8gta051tvhcll61dvkhtlt4.apps.googleusercontent.com"
 GOOGLE_CLIENT_SECRET = "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"
+GOOGLE_CALLBACK_URL = "https://27a16e4f-372c-4a7d-bb7c-fbcc14650a7b-00-3r6d5p2tuomu6.kirk.replit.dev/auth/google/callback"
