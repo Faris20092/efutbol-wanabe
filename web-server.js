@@ -24,7 +24,7 @@ const CALLBACK_URL = process.env.CALLBACK_URL || ''; // Discord OAuth2 Strategy 
 // }, (accessToken, refreshToken, profile, done) => {
 //     return done(null, profile);
 // }));
-// Google OAuth2 Strategy (only configure if credentials are provided)
+// Google OAuth2 Strategy - Register with error handling for missing credentials
 if (process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET) {
     passport.use('google', new GoogleStrategy({
         clientID: process.env.GOOGLE_CLIENT_ID,
@@ -41,7 +41,13 @@ if (process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET) {
         return done(null, user);
     }));
 } else {
-    console.log('Google OAuth not configured - GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET not set');
+    // Register a placeholder strategy that returns an error
+    passport.use('google', {
+        authenticate: function(req, options, done) {
+            return done(new Error('Google OAuth not configured. Please set GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET environment variables.'));
+        }
+    });
+    console.log('⚠️ Google OAuth not configured - GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET not set');
 }
 
 passport.serializeUser((user, done) => {
