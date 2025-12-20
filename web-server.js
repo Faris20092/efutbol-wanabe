@@ -24,7 +24,6 @@ const CALLBACK_URL = process.env.CALLBACK_URL || ''; // Discord OAuth2 Strategy 
 // }, (accessToken, refreshToken, profile, done) => {
 //     return done(null, profile);
 // }));
-
 // Google OAuth2 Strategy (only configure if credentials are provided)
 if (process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET) {
     passport.use(new GoogleStrategy({
@@ -43,6 +42,35 @@ if (process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET) {
     }));
 } else {
     console.log('Google OAuth not configured - GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET not set');
+
+// Google OAuth2 Strategy
+// Google OAuth2 Strategy
+if (!process.env.GOOGLE_CLIENT_ID || !process.env.GOOGLE_CLIENT_SECRET) {
+    console.warn('⚠️ WARNING: GOOGLE_CLIENT_ID or GOOGLE_CLIENT_SECRET is missing!');
+    console.warn('Authentication will not work. Please set these in your .env file or environment variables.');
+} else {
+    console.log('✅ Registering Google OAuth2 Strategy...');
+    try {
+        passport.use('google', new GoogleStrategy({
+            clientID: process.env.GOOGLE_CLIENT_ID,
+            clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+            callbackURL: process.env.GOOGLE_CALLBACK_URL || '/auth/google/callback'
+        }, (accessToken, refreshToken, profile, done) => {
+            // Create a user object similar to what Discord provided
+            const user = {
+                id: profile.id,
+                username: profile.displayName,
+                avatar: profile.photos && profile.photos[0] ? profile.photos[0].value : null,
+                email: profile.emails && profile.emails[0] ? profile.emails[0].value : null,
+                provider: 'google'
+            };
+            return done(null, user);
+        }));
+        console.log('✅ Google Strategy registered successfully.');
+    } catch (error) {
+        console.error('❌ Failed to register Google Strategy:', error);
+    }
+
 }
 
 passport.serializeUser((user, done) => {
