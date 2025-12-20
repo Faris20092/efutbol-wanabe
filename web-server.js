@@ -1200,7 +1200,10 @@ app.post('/api/penalty', isAuthenticated, (req, res) => {
             reward = { gp: 2500, eCoins: 7 };
         }
 
-        const userData = getUserData(req.user.id);
+        let userData = getUserData(req.user.id);
+        if (!userData) {
+            userData = { id: req.user.id, gp: 0, eCoins: 0 };
+        }
         userData.gp = (userData.gp || 0) + reward.gp;
         userData.eCoins = (userData.eCoins || 0) + reward.eCoins;
 
