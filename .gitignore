@@ -5,3 +5,5 @@ data/
 .DS_Store
 players_backup_*.json
 sessions.db
+client_secret_*.json
+*.swp
