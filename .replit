@@ -52,3 +52,9 @@ author = 48699840
 [[workflows.workflow.tasks]]
 task = "shell.exec"
 args = "node deploy-commands.js"
+
+[userenv]
+
+[userenv.shared]
+GOOGLE_CLIENT_ID = "317539205506-980394s2l8gta051tvhcll61dvkhtlt4.apps.googleusercontent.com"
+GOOGLE_CLIENT_SECRET = "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"

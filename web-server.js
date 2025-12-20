@@ -37,12 +37,16 @@ MockGoogleStrategy.prototype.authenticate = function(req, options) {
     this.error(new Error('Google OAuth not configured. Please set GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET environment variables.'));
 };
 
+// Get the Replit domain for OAuth callback URL
+const REPLIT_DOMAIN = process.env.REPLIT_DOMAINS || process.env.REPLIT_DEV_DOMAIN || 'localhost:5000';
+const DEFAULT_CALLBACK_URL = `https://${REPLIT_DOMAIN}/auth/google/callback`;
+
 // Google OAuth2 Strategy - Register with proper handling for missing credentials
 if (process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET) {
     passport.use('google', new GoogleStrategy({
         clientID: process.env.GOOGLE_CLIENT_ID,
         clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-        callbackURL: process.env.GOOGLE_CALLBACK_URL || '/auth/google/callback'
+        callbackURL: process.env.GOOGLE_CALLBACK_URL || DEFAULT_CALLBACK_URL
     }, (accessToken, refreshToken, profile, done) => {
         const user = {
             id: profile.id,
