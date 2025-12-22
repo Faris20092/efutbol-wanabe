@@ -7,7 +7,7 @@
     <title>eFotball wannabe</title>
     <link rel="stylesheet" href="/styles.css">
     <style>
-        /* eFootball-style Dashboard - Fixed Layout */
+        /* eFootball-style Dashboard */
         * {
             margin: 0;
             padding: 0;
@@ -139,6 +139,7 @@
             cursor: pointer;
             border-radius: 20px;
             transition: all 0.3s;
+            position: relative;
         }
 
         .efb-main-tab:hover {
@@ -150,7 +151,18 @@
             color: #fff;
         }
 
-        /* Featured Banner */
+        .efb-main-tab .dot {
+            position: absolute;
+            top: 50%;
+            right: 8px;
+            transform: translateY(-50%);
+            width: 6px;
+            height: 6px;
+            background: #ff6633;
+            border-radius: 50%;
+        }
+
+        /* Featured Banner - Fixed, shows pack info */
         .efb-banner {
             background: rgba(0, 30, 60, 0.6);
             border-radius: 15px;
@@ -241,7 +253,179 @@
             letter-spacing: 1px;
         }
 
-        /* Bottom Navigation - Exact match to reference */
+        /* Tab Cards Grid - for Shop/Academy/Extras */
+        .tab-cards-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .tab-card {
+            background: linear-gradient(135deg, rgba(30, 40, 60, 0.9), rgba(20, 30, 50, 0.95));
+            border-radius: 15px;
+            overflow: hidden;
+            cursor: pointer;
+            transition: all 0.3s;
+            min-height: 180px;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4);
+        }
+
+        .tab-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 35px rgba(0, 0, 0, 0.6);
+        }
+
+        .tab-card-image {
+            height: 100px;
+            background-size: cover;
+            background-position: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3em;
+            position: relative;
+        }
+
+        .tab-card-badge {
+            position: absolute;
+            bottom: 10px;
+            left: 10px;
+            padding: 4px 10px;
+            border-radius: 5px;
+            font-size: 0.65em;
+            font-weight: bold;
+        }
+
+        .badge-sale {
+            background: #22c55e;
+            color: #fff;
+        }
+
+        .badge-campaign {
+            background: #f59e0b;
+            color: #000;
+        }
+
+        .tab-card-content {
+            padding: 15px;
+            flex: 1;
+        }
+
+        .tab-card-title {
+            font-size: 1.1em;
+            font-weight: bold;
+            margin-bottom: 8px;
+        }
+
+        .tab-card-desc {
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 0.85em;
+            line-height: 1.4;
+        }
+
+        /* Shop Cards */
+        .card-points .tab-card-image {
+            background: linear-gradient(135deg, #ec4899, #9333ea);
+        }
+
+        .card-gp .tab-card-image {
+            background: linear-gradient(135deg, #1e3a5f, #0a1a3a);
+        }
+
+        /* Academy Cards */
+        .card-skillup .tab-card-image {
+            background: linear-gradient(135deg, #1a4a6a, #0a2a4a);
+        }
+
+        /* Extras Cards */
+        .extras-layout {
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            gap: 15px;
+            flex: 1;
+        }
+
+        .extras-profile {
+            background: linear-gradient(135deg, rgba(30, 40, 60, 0.9), rgba(20, 30, 50, 0.95));
+            border-radius: 15px;
+            padding: 25px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+        }
+
+        .extras-avatar {
+            width: 100px;
+            height: 100px;
+            border-radius: 15px;
+            background: linear-gradient(135deg, #3a4a6a, #2a3a5a);
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3em;
+            overflow: hidden;
+        }
+
+        .extras-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .extras-username {
+            font-size: 1.2em;
+            font-weight: bold;
+        }
+
+        .extras-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+        }
+
+        .extras-card {
+            background: #fff;
+            border-radius: 12px;
+            padding: 15px;
+            cursor: pointer;
+            transition: all 0.3s;
+            color: #333;
+        }
+
+        .extras-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .extras-card-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 8px;
+        }
+
+        .extras-card-icon {
+            font-size: 1.5em;
+        }
+
+        .extras-card-title {
+            font-weight: bold;
+            font-size: 0.95em;
+        }
+
+        .extras-card-desc {
+            color: #666;
+            font-size: 0.8em;
+            line-height: 1.4;
+        }
+
+        /* Bottom Navigation */
         .efb-bottom-nav {
             display: flex;
             justify-content: center;
@@ -319,17 +503,6 @@
             border: 2px solid #fff;
         }
 
-        /* Tab Content */
-        .efb-tab-content {
-            display: none;
-            flex: 1;
-        }
-
-        .efb-tab-content.active {
-            display: flex;
-            flex-direction: column;
-        }
-
         /* Loading */
         #loading {
             position: fixed;
@@ -344,6 +517,17 @@
             z-index: 9999;
             color: #fff;
             font-size: 1.5em;
+        }
+
+        /* Tab content hidden by default */
+        .tab-content {
+            display: none;
+            flex: 1;
+        }
+
+        .tab-content.active {
+            display: flex;
+            flex-direction: column;
         }
 
         /* Responsive */
@@ -375,36 +559,14 @@
                 padding: 8px 18px;
                 font-size: 0.85em;
             }
-        }
 
-        /* Shop/Academy/Extras Tab Content */
-        .tab-placeholder {
-            text-align: center;
-            padding: 40px;
-            color: rgba(255, 255, 255, 0.6);
-        }
+            .extras-layout {
+                grid-template-columns: 1fr;
+            }
 
-        .tab-placeholder h2 {
-            margin-bottom: 15px;
-            color: #fff;
-        }
-
-        .tab-placeholder-btn {
-            display: inline-flex;
-            align-items: center;
-            gap: 10px;
-            padding: 12px 25px;
-            border-radius: 12px;
-            border: none;
-            font-weight: bold;
-            cursor: pointer;
-            color: #fff;
-            margin: 10px;
-            transition: all 0.3s;
-        }
-
-        .tab-placeholder-btn:hover {
-            transform: translateY(-2px);
+            .tab-cards-grid {
+                grid-template-columns: 1fr;
+            }
         }
     </style>
 </head>
@@ -440,26 +602,26 @@
 
         <!-- Main Tabs - Centered -->
         <div class="efb-main-tabs">
-            <button class="efb-main-tab active" onclick="showMainTab('home', this)">Home</button>
-            <button class="efb-main-tab" onclick="showMainTab('shop', this)">Shop</button>
-            <button class="efb-main-tab" onclick="showMainTab('academy', this)">Academy</button>
-            <button class="efb-main-tab" onclick="showMainTab('extras', this)">Extras</button>
+            <button class="efb-main-tab active" onclick="showTab('home', this)">Home</button>
+            <button class="efb-main-tab" onclick="showTab('shop', this)">Shop<span class="dot"></span></button>
+            <button class="efb-main-tab" onclick="showTab('academy', this)">Academy</button>
+            <button class="efb-main-tab" onclick="showTab('extras', this)">Extras</button>
         </div>
 
         <!-- HOME Tab -->
-        <div id="homeTab" class="efb-tab-content active">
-            <!-- Featured Banner -->
+        <div id="homeContent" class="tab-content active">
+            <!-- Featured Banner - Pack Info -->
             <div class="efb-banner">
                 <div class="efb-banner-info">
-                    <div class="efb-banner-title">Featured Pack</div>
-                    <div class="efb-banner-subtitle">Special Selection</div>
-                    <div class="efb-banner-timer">🔵 Limited Time Offer!</div>
+                    <div class="efb-banner-title" id="bannerTitle">Featured Pack</div>
+                    <div class="efb-banner-subtitle" id="bannerSubtitle">Special Selection</div>
+                    <div class="efb-banner-timer" id="bannerTimer">🔵 Limited Time Offer!</div>
                     <div class="efb-banner-desc">
                         Featuring players with brilliant accolades!<br>
                         *The displayed Overall Ratings reflect the highest possible Ratings of the players.
                     </div>
                 </div>
-                <div class="efb-banner-cards">
+                <div class="efb-banner-cards" id="bannerCards">
                     <div class="efb-preview-card">
                         <span class="efb-preview-rating">96</span>
                         <span class="efb-preview-pos">LWF</span>
@@ -483,85 +645,156 @@
         </div>
 
         <!-- SHOP Tab -->
-        <div id="shopTab" class="efb-tab-content">
-            <div class="efb-banner" style="justify-content: center;">
-                <div class="tab-placeholder">
-                    <h2>🛒 Shop</h2>
-                    <p>Visit Contracts to purchase player packs!</p>
-                    <button class="tab-placeholder-btn" style="background: linear-gradient(135deg, #06b6d4, #0891b2);"
-                        onclick="window.location.href='/contracts'">
-                        🎁 Open Contracts
-                    </button>
+        <div id="shopContent" class="tab-content">
+            <div class="tab-cards-grid">
+                <!-- eFootball Points Card -->
+                <div class="tab-card card-points" onclick="window.location.href='/contracts'">
+                    <div class="tab-card-image">💎</div>
+                    <div class="tab-card-content">
+                        <div class="tab-card-title">eFootball™ Points</div>
+                        <div class="tab-card-desc">You can exchange eFootball™ Points for rewards here.</div>
+                    </div>
                 </div>
-            </div>
-        </div>
-
-        <!-- ACADEMY Tab -->
-        <div id="academyTab" class="efb-tab-content">
-            <div class="efb-banner" style="justify-content: center;">
-                <div class="tab-placeholder">
-                    <h2>🎓 Academy</h2>
-                    <p>Train and develop your players!</p>
-                    <button class="tab-placeholder-btn" style="background: linear-gradient(135deg, #a855f7, #9333ea);"
-                        onclick="window.location.href='/training'">
-                        ⚡ Training Center
-                    </button>
-                </div>
-            </div>
-        </div>
-
-        <!-- EXTRAS Tab -->
-        <div id="extrasTab" class="efb-tab-content">
-            <div class="efb-banner" style="justify-content: center;">
-                <div class="tab-placeholder">
-                    <h2>🎮 Extras</h2>
-                    <p>Additional features and settings</p>
-                    <div>
-                        <button class="tab-placeholder-btn"
-                            style="background: linear-gradient(135deg, #3b82f6, #1d4ed8);"
-                            onclick="window.location.href='/profile'">
-                            👤 Profile
-                        </button>
-                        <button class="tab-placeholder-btn"
-                            style="background: linear-gradient(135deg, #f59e0b, #d97706);"
-                            onclick="window.location.href='/collection'">
-                            📚 Collection
-                        </button>
+                <!-- GP Card -->
+                <div class="tab-card card-gp" onclick="window.location.href='/contracts'">
+                    <div class="tab-card-image">
+                        Ⓖ
+                        <span class="tab-card-badge badge-campaign">Campaign Now</span>
+                    </div>
+                    <div class="tab-card-content">
+                        <div class="tab-card-title">GP</div>
+                        <div class="tab-card-desc">Exchange GP for items that update weekly.</div>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- Bottom Navigation - Exact size match -->
-        <div class="efb-bottom-nav">
-            <button class="efb-nav-btn pink" onclick="window.location.href='/match'">
-                <span class="icon">⚽</span>
-                <span>Match</span>
-            </button>
-            <button class="efb-nav-btn red" onclick="window.location.href='/my-team'">
-                <span class="icon">🛡️</span>
-                <span>My Team</span>
-            </button>
-            <button class="efb-nav-btn cyan" onclick="window.location.href='/contracts'">
-                <span class="icon">👤</span>
-                <span>Contracts</span>
-            </button>
-            <button class="efb-nav-btn green" onclick="window.location.href='/leaderboard'">
-                <span class="icon">🏆</span>
-                <span>Missions</span>
-            </button>
-            <button class="efb-nav-btn orange" onclick="window.location.href='/penalty'">
-                <span class="icon">🎯</span>
-                <span>Daily Game</span>
-            </button>
+        <!-- ACADEMY Tab -->
+        <div id="academyContent" class="tab-content">
+            <div class="tab-cards-grid" style="max-width: 300px;">
+                <!-- Skill Up Card Only -->
+                <div class="tab-card card-skillup" onclick="window.location.href='/training'">
+                    <div class="tab-card-image">⚡</div>
+                    <div class="tab-card-content">
+                        <div class="tab-card-title">Skill Up</div>
+                        <div class="tab-card-desc">Cleared: 10/10<br>Learn while enjoying playing the game.</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- EXTRAS Tab -->
+        <div id="extrasContent" class="tab-content">
+            <div class="extras-layout">
+                <!-- Profile Section -->
+                <div class="extras-profile">
+                    <div class="extras-avatar" id="userAvatar">👤</div>
+                    <div class="extras-username" id="userName">Player</div>
+                </div>
+                <!-- Options Grid -->
+                <div class="extras-grid">
+                    <div class="extras-card" onclick="window.location.href='/profile'">
+                        <div class="extras-card-header">
+                            <span class="extras-card-icon">🪪</span>
+                            <span class="extras-card-title">User Information</span>
+                        </div>
+                        <div class="extras-card-desc">Configure your personal information.</div>
+                    </div>
+                    <div class="extras-card" onclick="alert('Coming Soon!')">
+                        <div class="extras-card-header">
+                            <span class="extras-card-icon">⚙️</span>
+                            <span class="extras-card-title">Game Settings</span>
+                        </div>
+                        <div class="extras-card-desc">Configure your play settings.</div>
+                    </div>
+                    <div class="extras-card" onclick="alert('Coming Soon!')">
+                        <div class="extras-card-header">
+                            <span class="extras-card-icon">❓</span>
+                            <span class="extras-card-title">Help</span>
+                        </div>
+                        <div class="extras-card-desc">You can view how to play.</div>
+                    </div>
+                    <div class="extras-card" onclick="alert('Coming Soon!')">
+                        <div class="extras-card-header">
+                            <span class="extras-card-icon">🎧</span>
+                            <span class="extras-card-title">Support</span>
+                        </div>
+                        <div class="extras-card-desc">View your Balance Sheet, link your KONAMI ID, etc.</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Bottom Navigation - Changes based on tab -->
+        <div class="efb-bottom-nav" id="bottomNav">
+            <!-- Default Home nav buttons -->
         </div>
     </div>
 
     <script>
+        let userData = null;
+        let currentTab = 'home';
+
+        const NAV_BUTTONS = {
+            home: `
+                <button class="efb-nav-btn pink" onclick="window.location.href='/match'">
+                    <span class="icon">⚽</span>
+                    <span>Match</span>
+                </button>
+                <button class="efb-nav-btn red" onclick="window.location.href='/my-team'">
+                    <span class="icon">🛡️</span>
+                    <span>My Team</span>
+                </button>
+                <button class="efb-nav-btn cyan" onclick="window.location.href='/contracts'">
+                    <span class="icon">👤</span>
+                    <span>Contracts</span>
+                </button>
+                <button class="efb-nav-btn green" onclick="window.location.href='/leaderboard'">
+                    <span class="icon">🏆</span>
+                    <span>Missions</span>
+                </button>
+                <button class="efb-nav-btn orange" onclick="window.location.href='/penalty'">
+                    <span class="icon">🎯</span>
+                    <span>Daily Game</span>
+                </button>
+            `,
+            shop: `
+                <button class="efb-nav-btn cyan" onclick="window.location.href='/contracts'">
+                    <span class="icon">💎</span>
+                    <span>eCoins</span>
+                </button>
+                <button class="efb-nav-btn purple" onclick="window.location.href='/contracts'">
+                    <span class="icon">🎁</span>
+                    <span>Contracts</span>
+                </button>
+            `,
+            academy: `
+                <button class="efb-nav-btn purple" onclick="window.location.href='/training'">
+                    <span class="icon">⚡</span>
+                    <span>Training</span>
+                </button>
+            `,
+            extras: `
+                <button class="efb-nav-btn cyan" onclick="window.location.href='/profile'">
+                    <span class="icon">👤</span>
+                    <span>Profile</span>
+                </button>
+                <button class="efb-nav-btn green" onclick="window.location.href='/collection'">
+                    <span class="icon">📚</span>
+                    <span>Collection</span>
+                </button>
+                <button class="efb-nav-btn orange" onclick="window.location.href='/news'">
+                    <span class="icon">📰</span>
+                    <span>News</span>
+                </button>
+            `
+        };
+
         async function init() {
             try {
                 const response = await fetch('/api/user');
                 const data = await response.json();
+                userData = data;
 
                 if (data.gameData) {
                     document.getElementById('topGP').textContent = (data.gameData.gp || 0).toLocaleString();
@@ -576,6 +809,16 @@
                     }
                 }
 
+                if (data.user) {
+                    document.getElementById('userName').textContent = data.user.username || 'Player';
+                    if (data.user.avatar) {
+                        document.getElementById('userAvatar').innerHTML = `<img src="${data.user.avatar}" alt="avatar">`;
+                    }
+                }
+
+                // Set initial nav
+                updateBottomNav('home');
+
                 document.getElementById('loading').style.display = 'none';
             } catch (error) {
                 console.error('Init error:', error);
@@ -583,14 +826,23 @@
             }
         }
 
-        function showMainTab(tabName, btn) {
-            // Update buttons
+        function showTab(tabName, btn) {
+            currentTab = tabName;
+
+            // Update tab buttons
             document.querySelectorAll('.efb-main-tab').forEach(b => b.classList.remove('active'));
             btn.classList.add('active');
 
             // Update content
-            document.querySelectorAll('.efb-tab-content').forEach(tab => tab.classList.remove('active'));
-            document.getElementById(tabName + 'Tab').classList.add('active');
+            document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
+            document.getElementById(tabName + 'Content').classList.add('active');
+
+            // Update bottom nav
+            updateBottomNav(tabName);
+        }
+
+        function updateBottomNav(tabName) {
+            document.getElementById('bottomNav').innerHTML = NAV_BUTTONS[tabName] || NAV_BUTTONS.home;
         }
 
         document.addEventListener('DOMContentLoaded', init);
