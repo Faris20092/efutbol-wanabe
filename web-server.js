@@ -77,12 +77,20 @@ passport.deserializeUser((obj, done) => {
 // Create the session store
 // const BetterSqlite3SessionStore = expressSessionBetterSqlite3(expressSession, sqliteDb);
 
+// File-based session store for persistence across restarts
+const FileStore = require('session-file-store')(expressSession);
+
 // Middleware
 app.use(cookieParser());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(expressSession({
-    // store: new BetterSqlite3SessionStore(),
+    store: new FileStore({
+        path: path.join(__dirname, 'sessions'),
+        ttl: 7 * 24 * 60 * 60, // 7 days in seconds
+        retries: 0,
+        secret: process.env.SESSION_SECRET || 'efotball-secret-key-change-this'
+    }),
     secret: process.env.SESSION_SECRET || 'efotball-secret-key-change-this',
     resave: false,
     saveUninitialized: false,
