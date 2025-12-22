@@ -535,6 +535,7 @@
             .efb-banner {
                 flex-direction: column;
                 text-align: center;
+                padding: 20px;
             }
 
             .efb-banner-cards {
@@ -543,21 +544,34 @@
 
             .efb-bottom-nav {
                 gap: 8px;
+                flex-wrap: wrap;
+                padding: 10px;
             }
 
             .efb-nav-btn {
-                width: 70px;
-                height: 70px;
-                font-size: 0.7em;
+                width: 65px;
+                height: 65px;
+                font-size: 0.65em;
+                border-radius: 14px;
             }
 
             .efb-nav-btn .icon {
-                font-size: 1.6em;
+                font-size: 1.5em;
             }
 
             .efb-main-tab {
-                padding: 8px 18px;
-                font-size: 0.85em;
+                padding: 8px 15px;
+                font-size: 0.8em;
+            }
+
+            .efb-top-icons {
+                gap: 6px;
+            }
+
+            .efb-top-icon {
+                width: 34px;
+                height: 34px;
+                font-size: 1em;
             }
 
             .extras-layout {
@@ -566,6 +580,58 @@
 
             .tab-cards-grid {
                 grid-template-columns: 1fr;
+            }
+
+            .extras-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Very small phones */
+        @media (max-width: 400px) {
+            .efb-container {
+                padding: 10px;
+            }
+
+            .efb-bottom-nav {
+                gap: 6px;
+            }
+
+            .efb-nav-btn {
+                width: 58px;
+                height: 58px;
+                font-size: 0.6em;
+                border-radius: 12px;
+            }
+
+            .efb-nav-btn .icon {
+                font-size: 1.3em;
+            }
+
+            .efb-main-tabs {
+                padding: 3px;
+            }
+
+            .efb-main-tab {
+                padding: 6px 12px;
+                font-size: 0.75em;
+            }
+
+            .efb-currency-item {
+                font-size: 0.85em;
+            }
+
+            .efb-currency {
+                gap: 10px;
+            }
+
+            .efb-banner-title {
+                font-size: 1.4em;
+            }
+
+            .efb-preview-card {
+                width: 70px;
+                height: 85px;
             }
         }
     </style>

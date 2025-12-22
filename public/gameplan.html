@@ -497,6 +497,14 @@
                 flex-direction: row;
                 width: 100%;
                 justify-content: center;
+                padding: 8px;
+                gap: 8px;
+            }
+
+            .sidebar-item {
+                width: 40px;
+                height: 40px;
+                font-size: 1.1em;
             }
 
             .right-sidebar {
@@ -504,11 +512,21 @@
                 flex-direction: row;
                 flex-wrap: wrap;
                 justify-content: space-around;
+                padding: 15px 10px;
+                gap: 15px;
+            }
+
+            .stat-block {
+                text-align: center;
+            }
+
+            .stat-value {
+                font-size: 1.8em;
             }
 
             .pitch-container {
                 margin: 10px;
-                min-height: 350px;
+                min-height: 320px;
             }
 
             .player-slot {
@@ -517,7 +535,75 @@
             }
 
             .slot-rating {
-                font-size: 1.1em;
+                font-size: 1em;
+            }
+
+            .slot-pos {
+                font-size: 0.6em;
+            }
+
+            .slot-name {
+                font-size: 0.5em;
+            }
+
+            .action-btn {
+                width: 38px;
+                height: 38px;
+                font-size: 1em;
+            }
+
+            .back-btn {
+                padding: 8px 18px;
+                font-size: 0.9em;
+            }
+
+            .bottom-bar {
+                padding: 10px;
+            }
+
+            .bottom-actions {
+                gap: 8px;
+            }
+        }
+
+        @media (max-width: 400px) {
+            .player-slot {
+                width: 42px;
+                height: 55px;
+            }
+
+            .slot-rating {
+                font-size: 0.9em;
+            }
+
+            .pitch-container {
+                min-height: 280px;
+                margin: 5px;
+            }
+
+            .action-btn {
+                width: 34px;
+                height: 34px;
+                font-size: 0.9em;
+            }
+
+            .currency-item {
+                font-size: 0.85em;
+            }
+
+            .home-btn {
+                width: 32px;
+                height: 32px;
+                font-size: 1em;
+            }
+
+            .modal-content {
+                margin: 10px;
+                padding: 15px;
+            }
+
+            .players-grid {
+                grid-template-columns: repeat(auto-fill, minmax(70px, 1fr));
             }
         }
     </style>
