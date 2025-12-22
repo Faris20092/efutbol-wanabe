@@ -33,7 +33,7 @@ function MockGoogleStrategy() {
 }
 util.inherits(MockGoogleStrategy, Strategy);
 
-MockGoogleStrategy.prototype.authenticate = function(req, options) {
+MockGoogleStrategy.prototype.authenticate = function (req, options) {
     this.error(new Error('Google OAuth not configured. Please set GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET environment variables.'));
 };
 
@@ -797,6 +797,154 @@ app.post('/api/account/reset', isAuthenticated, (req, res) => {
     }
 });
 
+// Remove player from collection
+app.post('/api/player/remove', isAuthenticated, (req, res) => {
+    try {
+        const { playerId } = req.body;
+        const userData = getUserData(req.user.id);
+
+        if (!userData || !userData.players) {
+            return res.status(404).json({ error: 'User data not found' });
+        }
+
+        // Check if player is in squad or bench
+        if (userData.squad) {
+            const inSquad = userData.squad.main && userData.squad.main.includes(playerId);
+            const inBench = userData.squad.bench && userData.squad.bench.includes(playerId);
+
+            if (inSquad || inBench) {
+                return res.status(400).json({
+                    error: 'Cannot remove player currently in squad or bench. Remove them from squad first.'
+                });
+            }
+        }
+
+        // Find and remove player
+        const playerIndex = userData.players.findIndex(p => p.id === playerId);
+        if (playerIndex === -1) {
+            return res.status(404).json({ error: 'Player not found' });
+        }
+
+        const playerName = userData.players[playerIndex].name;
+        userData.players.splice(playerIndex, 1);
+
+        setUserData(req.user.id, userData);
+
+        res.json({ success: true, message: `${playerName} has been removed from your collection` });
+    } catch (error) {
+        console.error('Remove player error:', error);
+        res.status(500).json({ error: 'Failed to remove player' });
+    }
+});
+
+// Squad auto-set endpoint
+app.post('/api/squad/autoset', isAuthenticated, (req, res) => {
+    try {
+        const userData = getUserData(req.user.id);
+
+        if (!userData || !userData.players || userData.players.length === 0) {
+            return res.status(400).json({ error: 'No players available to auto-set' });
+        }
+
+        const formation = userData.formation || '4-3-3';
+        const FORMATIONS = {
+            '4-3-3': ['GK', 'LB', 'CB', 'CB', 'RB', 'CMF', 'CMF', 'CMF', 'LWF', 'CF', 'RWF'],
+            '4-4-2': ['GK', 'LB', 'CB', 'CB', 'RB', 'LMF', 'CMF', 'CMF', 'RMF', 'CF', 'CF'],
+            '3-5-2': ['GK', 'CB', 'CB', 'CB', 'LMF', 'CMF', 'CMF', 'CMF', 'RMF', 'CF', 'CF'],
+            '4-2-3-1': ['GK', 'LB', 'CB', 'CB', 'RB', 'DMF', 'DMF', 'AMF', 'AMF', 'AMF', 'CF'],
+            '3-4-3': ['GK', 'CB', 'CB', 'CB', 'LMF', 'CMF', 'CMF', 'RMF', 'LWF', 'CF', 'RWF'],
+            '4-1-4-1': ['GK', 'LB', 'CB', 'CB', 'RB', 'DMF', 'LMF', 'CMF', 'CMF', 'RMF', 'CF']
+        };
+
+        const positions = FORMATIONS[formation] || FORMATIONS['4-3-3'];
+        const taken = new Set();
+        const newMain = new Array(11).fill(null);
+
+        // Position compatibility
+        const compatibility = {
+            'GK': ['GK'],
+            'CB': ['CB', 'LB', 'RB'],
+            'LB': ['LB', 'CB', 'LMF'],
+            'RB': ['RB', 'CB', 'RMF'],
+            'DMF': ['DMF', 'CMF', 'CB'],
+            'CMF': ['CMF', 'DMF', 'AMF'],
+            'AMF': ['AMF', 'CMF', 'CF'],
+            'LMF': ['LMF', 'LB', 'LWF'],
+            'RMF': ['RMF', 'RB', 'RWF'],
+            'CF': ['CF', 'AMF'],
+            'LWF': ['LWF', 'CF', 'LMF'],
+            'RWF': ['RWF', 'CF', 'RMF']
+        };
+
+        // First pass: exact position matches
+        for (let i = 0; i < positions.length; i++) {
+            const pos = positions[i];
+            const candidates = userData.players
+                .filter(p => p.position === pos && !taken.has(p.id))
+                .sort((a, b) => b.overall - a.overall);
+
+            if (candidates.length > 0) {
+                newMain[i] = candidates[0].id;
+                taken.add(candidates[0].id);
+            }
+        }
+
+        // Second pass: compatible positions
+        for (let i = 0; i < positions.length; i++) {
+            if (!newMain[i]) {
+                const requiredPos = positions[i];
+                const compatiblePos = compatibility[requiredPos] || [requiredPos];
+
+                for (const pos of compatiblePos) {
+                    const candidates = userData.players
+                        .filter(p => p.position === pos && !taken.has(p.id))
+                        .sort((a, b) => b.overall - a.overall);
+
+                    if (candidates.length > 0) {
+                        newMain[i] = candidates[0].id;
+                        taken.add(candidates[0].id);
+                        break;
+                    }
+                }
+            }
+        }
+
+        // Third pass: fill with best available
+        for (let i = 0; i < positions.length; i++) {
+            if (!newMain[i]) {
+                const candidates = userData.players
+                    .filter(p => !taken.has(p.id))
+                    .sort((a, b) => b.overall - a.overall);
+
+                if (candidates.length > 0) {
+                    newMain[i] = candidates[0].id;
+                    taken.add(candidates[0].id);
+                }
+            }
+        }
+
+        // Fill bench with top 7 remaining
+        const newBench = userData.players
+            .filter(p => !taken.has(p.id))
+            .sort((a, b) => b.overall - a.overall)
+            .slice(0, 7)
+            .map(p => p.id);
+
+        // Update user data
+        userData.squad = { main: newMain, bench: newBench };
+        setUserData(req.user.id, userData);
+
+        res.json({
+            success: true,
+            squad: userData.squad,
+            message: 'Squad auto-set successfully!'
+        });
+    } catch (error) {
+        console.error('Squad autoset error:', error);
+        res.status(500).json({ error: 'Failed to auto-set squad' });
+    }
+});
+
 // Training endpoint - enhanced with all trainer types
 app.post('/api/training', isAuthenticated, (req, res) => {
     try {
@@ -1213,6 +1361,253 @@ app.post('/api/penalty', isAuthenticated, (req, res) => {
     } catch (error) {
         console.error('Penalty error:', error);
         res.status(500).json({ error: 'Failed to process penalty shootout' });
+    }
+});
+
+// ====== ADMIN PANEL ======
+
+// Admin email whitelist
+const ADMIN_EMAILS = ['pijiiies@gmail.com'];
+
+// Admin authentication middleware
+function isAdmin(req, res, next) {
+    if (!req.isAuthenticated()) {
+        return res.status(401).json({ error: 'Not authenticated' });
+    }
+    const userEmail = req.user.email?.toLowerCase();
+    if (!userEmail || !ADMIN_EMAILS.includes(userEmail)) {
+        return res.status(403).json({ error: 'Admin access denied' });
+    }
+    return next();
+}
+
+// Admin page route (hidden - direct URL access only)
+app.get('/admin', isAuthenticated, (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'admin.html'));
+});
+
+// Get user by ID or email (admin only)
+app.get('/api/admin/user/:search', isAdmin, (req, res) => {
+    try {
+        const search = req.params.search.toLowerCase();
+        const dataDir = path.join(__dirname, 'data');
+        const users = loadAllUsers(dataDir);
+
+        const user = users.find(u =>
+            u.id === search ||
+            u.id === req.params.search ||
+            (u.email && u.email.toLowerCase() === search)
+        );
+
+        if (!user) {
+            return res.json({ success: false, error: 'User not found' });
+        }
+
+        res.json({ success: true, user });
+    } catch (error) {
+        console.error('Admin user search error:', error);
+        res.status(500).json({ error: 'Failed to search user' });
+    }
+});
+
+// List all users (admin only)
+app.get('/api/admin/users', isAdmin, (req, res) => {
+    try {
+        const dataDir = path.join(__dirname, 'data');
+        const users = loadAllUsers(dataDir);
+        res.json({ success: true, users });
+    } catch (error) {
+        console.error('Admin users list error:', error);
+        res.status(500).json({ error: 'Failed to list users' });
+    }
+});
+
+// Give currency to user (admin only)
+app.post('/api/admin/give-currency', isAdmin, (req, res) => {
+    try {
+        const { userId, currencyType, amount } = req.body;
+
+        if (!userId || !currencyType || !amount) {
+            return res.status(400).json({ error: 'Missing required fields' });
+        }
+
+        let userData = getUserData(userId);
+        if (!userData) {
+            userData = { id: userId, gp: 0, eCoins: 0, players: [], squad: { main: [], bench: [] } };
+        }
+
+        if (currencyType === 'gp') {
+            userData.gp = (userData.gp || 0) + parseInt(amount);
+        } else if (currencyType === 'eCoins') {
+            userData.eCoins = (userData.eCoins || 0) + parseInt(amount);
+        } else {
+            return res.status(400).json({ error: 'Invalid currency type' });
+        }
+
+        setUserData(userId, userData);
+        res.json({ success: true, newBalance: { gp: userData.gp, eCoins: userData.eCoins } });
+    } catch (error) {
+        console.error('Admin give currency error:', error);
+        res.status(500).json({ error: 'Failed to give currency' });
+    }
+});
+
+// Add player to user collection (admin only)
+app.post('/api/admin/add-player', isAdmin, (req, res) => {
+    try {
+        const { userId, player } = req.body;
+
+        if (!userId || !player) {
+            return res.status(400).json({ error: 'Missing required fields' });
+        }
+
+        let userData = getUserData(userId);
+        if (!userData) {
+            userData = { id: userId, gp: 0, eCoins: 0, players: [], squad: { main: [], bench: [] } };
+        }
+
+        if (!userData.players) userData.players = [];
+
+        // Create new player entry with unique ID
+        const newPlayer = {
+            id: Math.random().toString(36).slice(2, 10),
+            name: player.name,
+            position: player.position,
+            rarity: player.rarity,
+            overall: player.overall,
+            stats: player.stats || {},
+            playingStyle: player.playingStyle,
+            club: player.club,
+            level: 1,
+            exp: 0
+        };
+
+        userData.players.push(newPlayer);
+        setUserData(userId, userData);
+
+        res.json({ success: true, player: newPlayer });
+    } catch (error) {
+        console.error('Admin add player error:', error);
+        res.status(500).json({ error: 'Failed to add player' });
+    }
+});
+
+// Send mail to user(s) (admin only)
+app.post('/api/admin/send-mail', isAdmin, (req, res) => {
+    try {
+        const { userId, title, message, rewards } = req.body;
+
+        if (!title || !message) {
+            return res.status(400).json({ error: 'Missing title or message' });
+        }
+
+        const mailItem = {
+            id: Math.random().toString(36).slice(2, 10),
+            title: title,
+            message: message,
+            rewards: rewards || {},
+            date: new Date().toISOString().slice(0, 10),
+            claimed: false
+        };
+
+        if (userId) {
+            // Send to specific user
+            let userData = getUserData(userId);
+            if (!userData) {
+                return res.status(404).json({ error: 'User not found' });
+            }
+            if (!userData.mail) userData.mail = [];
+            userData.mail.unshift(mailItem);
+            setUserData(userId, userData);
+            res.json({ success: true, sentTo: 1 });
+        } else {
+            // Broadcast to all users
+            const dataDir = path.join(__dirname, 'data');
+            const users = loadAllUsers(dataDir);
+            let count = 0;
+
+            users.forEach(user => {
+                if (!user.mail) user.mail = [];
+                user.mail.unshift({ ...mailItem, id: Math.random().toString(36).slice(2, 10) });
+                setUserData(user.id, user);
+                count++;
+            });
+
+            res.json({ success: true, sentTo: count });
+        }
+    } catch (error) {
+        console.error('Admin send mail error:', error);
+        res.status(500).json({ error: 'Failed to send mail' });
+    }
+});
+
+// Create news (admin only)
+app.post('/api/admin/news', isAdmin, (req, res) => {
+    try {
+        const { title, content, category } = req.body;
+
+        if (!title || !content) {
+            return res.status(400).json({ error: 'Missing title or content' });
+        }
+
+        const newsFile = path.join(__dirname, 'news.json');
+        let newsData = [];
+
+        if (fs.existsSync(newsFile)) {
+            try {
+                newsData = JSON.parse(fs.readFileSync(newsFile, 'utf8'));
+                if (!Array.isArray(newsData)) newsData = [];
+            } catch (e) {
+                newsData = [];
+            }
+        }
+
+        const newsItem = {
+            id: Math.random().toString(36).slice(2, 10),
+            title: title,
+            content: content,
+            category: category || 'update',
+            date: new Date().toISOString().slice(0, 10),
+            createdAt: new Date().toISOString()
+        };
+
+        newsData.unshift(newsItem);
+        fs.writeFileSync(newsFile, JSON.stringify(newsData, null, 2));
+
+        res.json({ success: true, news: newsItem });
+    } catch (error) {
+        console.error('Admin create news error:', error);
+        res.status(500).json({ error: 'Failed to create news' });
+    }
+});
+
+// Delete news (admin only)
+app.delete('/api/admin/news/:id', isAdmin, (req, res) => {
+    try {
+        const newsId = req.params.id;
+        const newsFile = path.join(__dirname, 'news.json');
+
+        if (!fs.existsSync(newsFile)) {
+            return res.status(404).json({ error: 'No news found' });
+        }
+
+        let newsData = JSON.parse(fs.readFileSync(newsFile, 'utf8'));
+        if (!Array.isArray(newsData)) {
+            return res.status(404).json({ error: 'No news found' });
+        }
+
+        const index = newsData.findIndex(n => n.id === newsId);
+        if (index === -1) {
+            return res.status(404).json({ error: 'News not found' });
+        }
+
+        newsData.splice(index, 1);
+        fs.writeFileSync(newsFile, JSON.stringify(newsData, null, 2));
+
+        res.json({ success: true });
+    } catch (error) {
+        console.error('Admin delete news error:', error);
+        res.status(500).json({ error: 'Failed to delete news' });
     }
 });
 
