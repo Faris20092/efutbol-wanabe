@@ -1,122 +1,801 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>My Team - eFotball wannabe</title>
     <link rel="stylesheet" href="/styles.css">
+    <style>
+        /* My Team Page - eFootball Style */
+        body {
+            background: linear-gradient(135deg, #0a0a1a 0%, #1a1a3a 50%, #0a1a2a 100%);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        .myteam-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 15px 20px;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Top Bar */
+        .myteam-top-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 0;
+            margin-bottom: 20px;
+        }
+
+        .myteam-currency {
+            display: flex;
+            gap: 20px;
+            align-items: center;
+        }
+
+        .myteam-currency-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: bold;
+            font-size: 1.1em;
+            color: #fff;
+        }
+
+        .myteam-currency-icon {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.9em;
+        }
+
+        .myteam-currency-icon.ecoins {
+            background: linear-gradient(135deg, #ffd700, #ffaa00);
+            color: #000;
+        }
+
+        .myteam-currency-icon.gp {
+            background: linear-gradient(135deg, #888, #666);
+            color: #fff;
+        }
+
+        .myteam-home-btn {
+            width: 45px;
+            height: 45px;
+            border-radius: 10px;
+            background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+            border: none;
+            color: #fff;
+            font-size: 1.5em;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .myteam-home-btn:hover {
+            transform: scale(1.1);
+        }
+
+        /* Cards Grid */
+        .myteam-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+            flex: 1;
+        }
+
+        .myteam-card {
+            background: linear-gradient(135deg, rgba(30, 40, 60, 0.9), rgba(20, 30, 50, 0.95));
+            border-radius: 20px;
+            overflow: hidden;
+            cursor: pointer;
+            transition: all 0.3s;
+            position: relative;
+            min-height: 200px;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+        }
+
+        .myteam-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.6);
+        }
+
+        .myteam-card-image {
+            height: 150px;
+            background-size: cover;
+            background-position: center;
+            position: relative;
+        }
+
+        .myteam-card-image::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 60%;
+            background: linear-gradient(transparent, rgba(20, 30, 50, 1));
+        }
+
+        .myteam-card-content {
+            padding: 20px;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+        }
+
+        .myteam-card-title {
+            color: #fff;
+            font-size: 1.4em;
+            font-weight: bold;
+            margin-bottom: 8px;
+        }
+
+        .myteam-card-subtitle {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 0.95em;
+        }
+
+        .myteam-card-badge {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: rgba(0, 0, 0, 0.7);
+            color: #fff;
+            padding: 5px 12px;
+            border-radius: 15px;
+            font-size: 0.85em;
+            font-weight: bold;
+        }
+
+        /* Specific Card Styles */
+        .myteam-card.game-plan {
+            background: linear-gradient(135deg, #1a3a5a, #0a2a4a);
+        }
+
+        .myteam-card.game-plan .myteam-card-image {
+            background: linear-gradient(135deg, #2a4a6a, #1a3a5a);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .game-plan-icon {
+            font-size: 4em;
+            color: rgba(255, 255, 255, 0.3);
+        }
+
+        .myteam-card.players {
+            grid-column: span 1;
+        }
+
+        .myteam-card.players .myteam-card-image {
+            background: linear-gradient(135deg, #1a4a3a, #0a3a2a);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .players-icon {
+            font-size: 4em;
+        }
+
+        /* Bottom Bar */
+        .myteam-bottom-bar {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            padding: 20px 0;
+            margin-top: auto;
+        }
+
+        .myteam-bottom-btn {
+            padding: 15px 40px;
+            border-radius: 10px;
+            border: none;
+            font-weight: bold;
+            font-size: 1em;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .myteam-bottom-btn.back {
+            background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+            color: #fff;
+        }
+
+        .myteam-bottom-btn.secondary {
+            background: rgba(255, 255, 255, 0.1);
+            color: #fff;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .myteam-bottom-btn:hover {
+            transform: translateY(-2px);
+        }
+
+        /* Stats Display */
+        .capacity-text {
+            color: #00d4ff;
+            font-weight: bold;
+        }
+
+        /* Modal Styles */
+        .team-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.9);
+            z-index: 1000;
+            overflow-y: auto;
+        }
+
+        .team-modal.active {
+            display: block;
+        }
+
+        .team-modal-content {
+            max-width: 1200px;
+            margin: 20px auto;
+            padding: 20px;
+        }
+
+        .team-modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .team-modal-title {
+            color: #fff;
+            font-size: 1.8em;
+            font-weight: bold;
+        }
+
+        .team-modal-close {
+            background: none;
+            border: none;
+            color: #fff;
+            font-size: 2em;
+            cursor: pointer;
+        }
+
+        /* Squad Pitch */
+        .squad-pitch-container {
+            background: linear-gradient(180deg, #1a8f3c 0%, #156b2f 50%, #1a8f3c 100%);
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 20px;
+            position: relative;
+            min-height: 500px;
+        }
+
+        .pitch-lines {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            pointer-events: none;
+            opacity: 0.3;
+        }
+
+        .squad-grid {
+            display: grid;
+            grid-template-rows: repeat(4, 1fr);
+            gap: 20px;
+            height: 100%;
+            position: relative;
+        }
+
+        .squad-row {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+        }
+
+        .squad-slot {
+            width: 80px;
+            height: 100px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 10px;
+            border: 2px dashed rgba(255, 255, 255, 0.3);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .squad-slot:hover {
+            border-color: #00d4ff;
+            background: rgba(0, 200, 255, 0.2);
+        }
+
+        .squad-slot.filled {
+            background: linear-gradient(135deg, #1a3a5a, #0a2a4a);
+            border: 2px solid #00d4ff;
+        }
+
+        .squad-slot .player-overall {
+            font-size: 1.2em;
+            font-weight: bold;
+            color: #fff;
+        }
+
+        .squad-slot .player-pos {
+            font-size: 0.8em;
+            color: #00d4ff;
+        }
+
+        .squad-slot .player-name {
+            font-size: 0.7em;
+            color: rgba(255, 255, 255, 0.8);
+            text-align: center;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            max-width: 100%;
+            padding: 0 5px;
+        }
+
+        /* Players Grid */
+        .players-grid-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+            gap: 15px;
+            max-height: 400px;
+            overflow-y: auto;
+            padding: 10px;
+        }
+
+        .player-card-mini {
+            background: linear-gradient(135deg, #1a3a5a, #0a2a4a);
+            border-radius: 10px;
+            padding: 10px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: 2px solid transparent;
+        }
+
+        .player-card-mini:hover {
+            border-color: #00d4ff;
+            transform: scale(1.05);
+        }
+
+        .player-card-mini .overall {
+            font-size: 1.5em;
+            font-weight: bold;
+            color: #fff;
+        }
+
+        .player-card-mini .name {
+            font-size: 0.8em;
+            color: rgba(255, 255, 255, 0.8);
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .player-card-mini .pos {
+            font-size: 0.75em;
+            color: #00d4ff;
+        }
+
+        /* Filters */
+        .filters-bar {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .filter-input {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 8px;
+            padding: 10px 15px;
+            color: #fff;
+            font-size: 1em;
+        }
+
+        .filter-input:focus {
+            outline: none;
+            border-color: #00d4ff;
+        }
+
+        .filter-select {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 8px;
+            padding: 10px 15px;
+            color: #fff;
+            font-size: 1em;
+        }
+
+        /* Action Buttons */
+        .action-buttons {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .action-btn {
+            padding: 12px 25px;
+            border-radius: 10px;
+            border: none;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .action-btn.primary {
+            background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+            color: #fff;
+        }
+
+        .action-btn.success {
+            background: linear-gradient(135deg, #22c55e, #16a34a);
+            color: #fff;
+        }
+
+        .action-btn.danger {
+            background: linear-gradient(135deg, #ef4444, #dc2626);
+            color: #fff;
+        }
+
+        .action-btn:hover {
+            transform: translateY(-2px);
+        }
+
+        /* Formation Selector */
+        .formation-selector {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .formation-selector label {
+            color: #fff;
+            font-weight: bold;
+        }
+
+        .formation-select {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 8px;
+            padding: 10px 20px;
+            color: #fff;
+            font-size: 1em;
+        }
+
+        /* Loading */
+        #loading {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: #0a0a1a;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+            color: #fff;
+            font-size: 1.5em;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .myteam-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .myteam-card {
+                min-height: 150px;
+            }
+        }
+    </style>
 </head>
+
 <body>
-    <nav class="navbar">
-        <div class="nav-brand">⚽ eFOOTBALL WANNABE</div>
-        <div class="nav-menu">
-            <a href="/dashboard" class="nav-link nav-btn">HOME</a>
-            <a href="/my-team" class="nav-link active">My Team</a>
-            <a href="/contracts" class="nav-link">Contracts</a>
-            <a href="/logout" class="nav-link nav-btn-pink">LOGOUT</a>
-        </div>
-        <div class="user-info" id="userInfo">
-            <img id="userAvatar" src="" alt="Avatar" class="user-avatar">
-            <span id="username">Loading...</span>
-        </div>
-    </nav>
+    <div id="loading">⏳ Loading...</div>
 
-    <div class="dashboard-container">
-        <!-- Tab Navigation -->
-        <div class="team-tabs">
-            <button class="team-tab active" onclick="showTeamTab('squad')">⚽ Squad Builder</button>
-            <button class="team-tab" onclick="showTeamTab('players')">👥 My Players</button>
-        </div>
-
-        <!-- Squad Builder Tab -->
-        <div id="squad-tab" class="team-tab-content active">
-            <div class="squad-builder">
-                <div class="squad-header">
-                    <h2>Squad Builder</h2>
-                    <div class="formation-selector">
-                        <label>Formation:</label>
-                        <select id="formationSelect" onchange="changeFormation()">
-                            <option value="4-3-3">4-3-3</option>
-                            <option value="4-4-2">4-4-2</option>
-                            <option value="3-5-2">3-5-2</option>
-                            <option value="4-2-3-1">4-2-3-1</option>
-                        </select>
-                    </div>
-                    <button class="btn btn-primary" onclick="saveSquad()">💾 Save Squad</button>
+    <div class="myteam-container">
+        <!-- Top Bar -->
+        <div class="myteam-top-bar">
+            <div class="myteam-currency">
+                <div class="myteam-currency-item">
+                    <span class="myteam-currency-icon ecoins">🪙</span>
+                    <span id="topEcoins">0</span>
                 </div>
-
-                <div class="squad-pitch" id="squadPitch">
-                    <!-- Squad positions will be dynamically generated -->
+                <div class="myteam-currency-item">
+                    <span class="myteam-currency-icon gp">G</span>
+                    <span id="topGP">0</span>
                 </div>
+            </div>
 
-                <div class="bench-section" id="benchSection">
-                    <h3>🪑 Bench (Max 8 players - Drag here)</h3>
-                    <div class="bench-players" id="benchPlayers">
-                        <!-- Bench players will be shown here -->
+            <button class="myteam-home-btn" onclick="window.location.href='/dashboard'" title="Home">🏠</button>
+        </div>
+
+        <!-- Cards Grid -->
+        <div class="myteam-grid">
+            <!-- Game Plan Card -->
+            <div class="myteam-card game-plan" onclick="openModal('gameplan')">
+                <div class="myteam-card-image">
+                    <span class="game-plan-icon">📋</span>
+                </div>
+                <div class="myteam-card-content">
+                    <div class="myteam-card-title">Game Plan</div>
+                    <div class="myteam-card-subtitle">You can edit your Game Plan.</div>
+                </div>
+            </div>
+
+            <!-- Players Card -->
+            <div class="myteam-card players" onclick="openModal('players')">
+                <div class="myteam-card-image">
+                    <span class="players-icon">👥</span>
+                </div>
+                <div class="myteam-card-content">
+                    <div class="myteam-card-title">Players</div>
+                    <div class="myteam-card-subtitle">
+                        Capacity: <span class="capacity-text" id="playersCapacity">0/900</span><br>
+                        Backup Players<br>
+                        Capacity: <span class="capacity-text" id="benchCapacity">0/500</span>
                     </div>
                 </div>
             </div>
 
-            <div class="player-selector">
-                <h3>Available Players</h3>
-                <div class="player-filters">
-                    <input type="text" id="playerSearch" placeholder="Search players..." onkeyup="filterPlayers()">
-                    <select id="positionFilter" onchange="filterPlayers()">
-                        <option value="">All Positions</option>
-                        <option value="GK">GK</option>
-                        <option value="DEF">Defenders</option>
-                        <option value="MID">Midfielders</option>
-                        <option value="ATT">Attackers</option>
-                    </select>
-                    <select id="availableRatingSort" onchange="filterPlayers()">
-                        <option value="">Sort by Rating</option>
-                        <option value="high-low">⬇️ High to Low</option>
-                        <option value="low-high">⬆️ Low to High</option>
-                    </select>
+            <!-- Squad Card -->
+            <div class="myteam-card" onclick="openModal('squad')">
+                <div class="myteam-card-image"
+                    style="background: linear-gradient(135deg, #2a3a5a, #1a2a4a); display: flex; align-items: center; justify-content: center;">
+                    <span style="font-size: 4em;">🛡️</span>
                 </div>
-                <div class="available-players" id="availablePlayers">
-                    <!-- Available players will be shown here -->
+                <div class="myteam-card-content">
+                    <div class="myteam-card-title">Squad</div>
+                    <div class="myteam-card-subtitle">Build your starting XI</div>
+                </div>
+                <span class="myteam-card-badge" id="squadRating">0</span>
+            </div>
+
+            <!-- Collection Card -->
+            <div class="myteam-card" onclick="window.location.href='/collection'">
+                <div class="myteam-card-image"
+                    style="background: linear-gradient(135deg, #4a2a5a, #3a1a4a); display: flex; align-items: center; justify-content: center;">
+                    <span style="font-size: 4em;">📚</span>
+                </div>
+                <div class="myteam-card-content">
+                    <div class="myteam-card-title">Collection</div>
+                    <div class="myteam-card-subtitle">Browse all players</div>
+                </div>
+            </div>
+
+            <!-- Training Card -->
+            <div class="myteam-card" onclick="window.location.href='/training'">
+                <div class="myteam-card-image"
+                    style="background: linear-gradient(135deg, #5a4a2a, #4a3a1a); display: flex; align-items: center; justify-content: center;">
+                    <span style="font-size: 4em;">⚡</span>
+                </div>
+                <div class="myteam-card-content">
+                    <div class="myteam-card-title">Training</div>
+                    <div class="myteam-card-subtitle">Level up your players</div>
+                </div>
+            </div>
+
+            <!-- Formation Card -->
+            <div class="myteam-card" onclick="openModal('formation')">
+                <div class="myteam-card-image"
+                    style="background: linear-gradient(135deg, #1a5a4a, #0a4a3a); display: flex; align-items: center; justify-content: center;">
+                    <span style="font-size: 4em;">📐</span>
+                </div>
+                <div class="myteam-card-content">
+                    <div class="myteam-card-title">Formation</div>
+                    <div class="myteam-card-subtitle">Current: <span id="currentFormation">4-3-3</span></div>
                 </div>
             </div>
         </div>
 
-        <!-- My Players Tab -->
-        <div id="players-tab" class="team-tab-content">
-            <div class="players-header">
-                <h2>My Players</h2>
-                <div class="player-filters">
-                    <input type="text" id="allPlayersSearch" placeholder="Search..." onkeyup="filterAllPlayers()">
-                    <select id="rarityFilter" onchange="filterAllPlayers()">
-                        <option value="">All Rarities</option>
-                        <option value="Iconic">💎 Iconic</option>
-                        <option value="Legend">🌟 Legend</option>
-                        <option value="Black">⚫ Black</option>
-                        <option value="Gold">🟡 Gold</option>
-                        <option value="Silver">⚪ Silver</option>
-                        <option value="Bronze">🟤 Bronze</option>
-                        <option value="White">⬜ White</option>
-                    </select>
-                    <select id="ratingSort" onchange="filterAllPlayers()">
-                        <option value="">Sort by Rating</option>
-                        <option value="high-low">⬇️ High to Low</option>
-                        <option value="low-high">⬆️ Low to High</option>
-                    </select>
-                </div>
+        <!-- Bottom Bar -->
+        <div class="myteam-bottom-bar">
+            <button class="myteam-bottom-btn back" onclick="window.location.href='/dashboard'">
+                ◀ Back
+            </button>
+            <button class="myteam-bottom-btn secondary" onclick="openModal('squad')">
+                Squad Builder
+            </button>
+            <button class="myteam-bottom-btn secondary" onclick="autoSetSquad()">
+                Auto Set
+            </button>
+        </div>
+    </div>
+
+    <!-- Squad Modal -->
+    <div id="squadModal" class="team-modal">
+        <div class="team-modal-content">
+            <div class="team-modal-header">
+                <h2 class="team-modal-title">🛡️ Squad Builder</h2>
+                <button class="team-modal-close" onclick="closeModal('squad')">&times;</button>
             </div>
-            <div class="players-grid" id="allPlayersGrid">
-                <!-- All players will be shown here -->
+
+            <div class="formation-selector">
+                <label>Formation:</label>
+                <select class="formation-select" id="formationSelect" onchange="changeFormation()">
+                    <option value="4-3-3">4-3-3</option>
+                    <option value="4-4-2">4-4-2</option>
+                    <option value="3-5-2">3-5-2</option>
+                    <option value="4-2-3-1">4-2-3-1</option>
+                    <option value="3-4-3">3-4-3</option>
+                    <option value="4-1-4-1">4-1-4-1</option>
+                </select>
+            </div>
+
+            <div class="action-buttons">
+                <button class="action-btn success" onclick="autoSetSquad()">⚡ Auto Set</button>
+                <button class="action-btn primary" onclick="saveSquad()">💾 Save Squad</button>
+                <button class="action-btn danger" onclick="clearSquad()">🗑️ Clear</button>
+            </div>
+
+            <div class="squad-pitch-container" id="squadPitch">
+                <!-- Squad positions rendered by JS -->
+            </div>
+
+            <h3 style="color: #fff; margin: 20px 0;">Available Players</h3>
+            <div class="filters-bar">
+                <input type="text" class="filter-input" id="playerSearch" placeholder="Search players..."
+                    onkeyup="filterPlayers()">
+                <select class="filter-select" id="positionFilter" onchange="filterPlayers()">
+                    <option value="">All Positions</option>
+                    <option value="GK">GK</option>
+                    <option value="DEF">Defenders</option>
+                    <option value="MID">Midfielders</option>
+                    <option value="ATT">Attackers</option>
+                </select>
+            </div>
+            <div class="players-grid-container" id="availablePlayers">
+                <!-- Players rendered by JS -->
             </div>
         </div>
     </div>
 
-    <!-- Player Modal -->
-    <div id="playerModal" class="modal">
-        <div class="modal-content">
-            <span class="close" onclick="closeModal()">&times;</span>
-            <div id="playerModalContent"></div>
+    <!-- Players Modal -->
+    <div id="playersModal" class="team-modal">
+        <div class="team-modal-content">
+            <div class="team-modal-header">
+                <h2 class="team-modal-title">👥 My Players</h2>
+                <button class="team-modal-close" onclick="closeModal('players')">&times;</button>
+            </div>
+
+            <div class="filters-bar">
+                <input type="text" class="filter-input" id="allPlayersSearch" placeholder="Search..."
+                    onkeyup="filterAllPlayers()">
+                <select class="filter-select" id="rarityFilter" onchange="filterAllPlayers()">
+                    <option value="">All Rarities</option>
+                    <option value="Iconic">💎 Iconic</option>
+                    <option value="Legend">🌟 Legend</option>
+                    <option value="Black">⚫ Black</option>
+                    <option value="Gold">🟡 Gold</option>
+                    <option value="Silver">⚪ Silver</option>
+                    <option value="Bronze">🟤 Bronze</option>
+                    <option value="White">⬜ White</option>
+                </select>
+            </div>
+            <div class="players-grid-container" id="allPlayersGrid" style="max-height: 600px;">
+                <!-- All players rendered by JS -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Game Plan Modal -->
+    <div id="gameplanModal" class="team-modal">
+        <div class="team-modal-content">
+            <div class="team-modal-header">
+                <h2 class="team-modal-title">📋 Game Plan</h2>
+                <button class="team-modal-close" onclick="closeModal('gameplan')">&times;</button>
+            </div>
+            <div style="text-align: center; padding: 50px; color: rgba(255,255,255,0.7);">
+                <p style="font-size: 1.2em;">Your current formation: <strong id="gameplanFormation"
+                        style="color: #00d4ff;">4-3-3</strong></p>
+                <p style="margin-top: 20px;">Use the Squad Builder to manage your team!</p>
+                <button class="action-btn primary" style="margin-top: 20px;"
+                    onclick="closeModal('gameplan'); openModal('squad');">
+                    Open Squad Builder
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Formation Modal -->
+    <div id="formationModal" class="team-modal">
+        <div class="team-modal-content">
+            <div class="team-modal-header">
+                <h2 class="team-modal-title">📐 Change Formation</h2>
+                <button class="team-modal-close" onclick="closeModal('formation')">&times;</button>
+            </div>
+            <div
+                style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 15px; padding: 20px;">
+                <button class="action-btn primary" onclick="selectFormation('4-3-3')">4-3-3</button>
+                <button class="action-btn primary" onclick="selectFormation('4-4-2')">4-4-2</button>
+                <button class="action-btn primary" onclick="selectFormation('3-5-2')">3-5-2</button>
+                <button class="action-btn primary" onclick="selectFormation('4-2-3-1')">4-2-3-1</button>
+                <button class="action-btn primary" onclick="selectFormation('3-4-3')">3-4-3</button>
+                <button class="action-btn primary" onclick="selectFormation('4-1-4-1')">4-1-4-1</button>
+            </div>
         </div>
     </div>
 
     <script src="/my-team.js"></script>
+    <script>
+        // Additional initialization for new UI
+        document.addEventListener('DOMContentLoaded', async () => {
+            await init();
+
+            // Update capacity displays
+            if (userData && userData.gameData) {
+                const players = userData.gameData.players || [];
+                document.getElementById('playersCapacity').textContent = `${players.length}/900`;
+                document.getElementById('benchCapacity').textContent = `${(userData.gameData.squad?.bench || []).length}/500`;
+                document.getElementById('topGP').textContent = (userData.gameData.gp || 0).toLocaleString();
+                document.getElementById('topEcoins').textContent = (userData.gameData.eCoins || 0).toLocaleString();
+
+                // Calculate squad rating
+                if (userData.gameData.squad?.main) {
+                    let total = 0, count = 0;
+                    userData.gameData.squad.main.forEach(id => {
+                        if (id) {
+                            const p = players.find(pl => pl.id === id);
+                            if (p) { total += p.overall || 0; count++; }
+                        }
+                    });
+                    document.getElementById('squadRating').textContent = count > 0 ? Math.round(total / count) : 0;
+                }
+
+                document.getElementById('currentFormation').textContent = userData.gameData.formation || '4-3-3';
+                document.getElementById('gameplanFormation').textContent = userData.gameData.formation || '4-3-3';
+            }
+
+            document.getElementById('loading').style.display = 'none';
+        });
+
+        function openModal(name) {
+            document.getElementById(name + 'Modal').classList.add('active');
+            if (name === 'squad') {
+                renderSquadPitch();
+                renderAvailablePlayers();
+            } else if (name === 'players') {
+                renderAllPlayers();
+            }
+        }
+
+        function closeModal(name) {
+            document.getElementById(name + 'Modal').classList.remove('active');
+        }
+
+        function selectFormation(formation) {
+            document.getElementById('formationSelect').value = formation;
+            changeFormation();
+            document.getElementById('currentFormation').textContent = formation;
+            document.getElementById('gameplanFormation').textContent = formation;
+            closeModal('formation');
+        }
+    </script>
 </body>
+
 </html>
