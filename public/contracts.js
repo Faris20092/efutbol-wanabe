@@ -210,7 +210,7 @@ function showPackDetails(packKey) {
     document.getElementById('packDetailsContainer').scrollIntoView({ behavior: 'smooth' });
 }
 
-// Buy pack function
+// Buy pack function with animation sequencing
 async function buyPack(count) {
     if (!currentPack) {
         alert('Please select a pack first');
@@ -255,8 +255,8 @@ async function buyPack(count) {
             }
         });
 
-        // Show results
-        showPackResult(data.players);
+        // Show results with animation sequence
+        await showPackResultWithAnimation(data.players, currentPack, count);
 
         // Refresh player grid
         filterAndRenderPlayers();
@@ -267,27 +267,126 @@ async function buyPack(count) {
     }
 }
 
-// Show pack opening result
-function showPackResult(players) {
+// Show pack opening result with animation
+async function showPackResultWithAnimation(players, packType, count) {
     const modal = document.getElementById('packResultModal');
     const content = document.getElementById('packResultContent');
-
-    content.innerHTML = players.map(player => {
-        const rarityClass = (player.rarity || 'standard').toLowerCase();
-        return `
-            <div class="contract-player-card" data-rarity="${player.rarity}" style="width: 130px;">
-                <div class="player-image-container" style="height: 80px;">
-                    <div class="player-overall">${player.overall}</div>
-                    <div class="player-position">${player.position}</div>
-                </div>
-                <div class="player-rarity">${RARITY_EMOJIS[player.rarity] || '⚽'}</div>
-                <div class="player-name" title="${player.name}">${player.name}</div>
-                ${player.isDuplicate ? '<div style="color: #f59e0b; font-size: 0.8em;">+Converted</div>' : ''}
-            </div>
-        `;
-    }).join('');
-
+    
+    // Show modal first
     modal.style.display = 'flex';
+    
+    // Step 1: Show opening text
+    content.innerHTML = `
+        <div style="width: 100%; text-align: center; padding: 40px;">
+            <h2 style="color: var(--secondary); font-size: 2em; margin-bottom: 20px;">
+                🎁 Opening ${count} Pack${count > 1 ? 's' : ''}...
+            </h2>
+            <div style="font-size: 1.2em; color: #fff;">Preparing your cards...</div>
+        </div>
+    `;
+    
+    await delay(1000);
+    
+    // Step 2: Show rarity GIF animation (10 seconds)
+    // Get the highest rarity from pulled players
+    const rarities = ['Iconic', 'Legend', 'Black', 'Gold', 'Silver', 'Bronze', 'White'];
+    const highestRarity = rarities.find(r => players.some(p => p.rarity === r)) || 'White';
+    
+    content.innerHTML = `
+        <div style="width: 100%; text-align: center;">
+            <h2 style="color: var(--secondary); font-size: 2em; margin-bottom: 20px;">
+                ${RARITY_EMOJIS[highestRarity]} ${highestRarity} Reveal!
+            </h2>
+            <img src="/assets/gifs/${highestRarity.toLowerCase()}.gif" 
+                 alt="${highestRarity} Animation" 
+                 style="max-width: 500px; width: 100%; border-radius: 15px; box-shadow: 0 0 30px rgba(255,237,0,0.5);"
+                 onerror="this.style.display='none'" />
+            <div style="margin-top: 20px; font-size: 1.2em; color: #fff;">
+                ✨ Revealing your players...
+            </div>
+        </div>
+    `;
+    
+    await delay(10000);
+    
+    // Step 3: Reveal all cards in a grid
+    if (count === 1) {
+        // Single card - large display
+        showSingleCard(content, players[0]);
+    } else {
+        // Multiple cards - grid display
+        showMultipleCards(content, players);
+    }
+}
+
+// Show single card (large)
+function showSingleCard(content, player) {
+    content.innerHTML = `
+        <div style="width: 100%; text-align: center;">
+            <h2 style="color: var(--secondary); font-size: 2em; margin-bottom: 20px;">
+                🎉 You got!
+            </h2>
+            <div class="contract-player-card" data-rarity="${player.rarity}" 
+                 style="width: 300px; margin: 0 auto; padding: 20px; animation: cardReveal 0.5s ease-out;">
+                <div class="player-image-container" style="height: 200px;">
+                    <div class="player-overall" style="font-size: 1.5em;">${player.overall}</div>
+                    <div class="player-position" style="font-size: 1.2em;">${player.position}</div>
+                </div>
+                <div class="player-rarity" style="font-size: 2em; margin: 15px 0;">
+                    ${RARITY_EMOJIS[player.rarity] || '⚽'} ${player.rarity}
+                </div>
+                <div class="player-name" style="font-size: 1.5em; font-weight: bold;" title="${player.name}">
+                    ${player.name}
+                </div>
+                ${player.isDuplicate ? 
+                    '<div style="color: #f59e0b; font-size: 1em; margin-top: 10px;">💰 Duplicate - Converted to GP</div>' : 
+                    '<div style="color: #10b981; font-size: 1em; margin-top: 10px;">✨ NEW!</div>'
+                }
+            </div>
+        </div>
+    `;
+}
+
+// Show multiple cards in grid
+function showMultipleCards(content, players) {
+    const gridColumns = players.length <= 3 ? players.length : players.length <= 6 ? 3 : players.length <= 9 ? 3 : 5;
+    
+    content.innerHTML = `
+        <div style="width: 100%; text-align: center;">
+            <h2 style="color: var(--secondary); font-size: 2em; margin-bottom: 20px;">
+                🎉 Your ${players.length} Cards!
+            </h2>
+            <div style="display: grid; grid-template-columns: repeat(${gridColumns}, 1fr); gap: 15px; justify-content: center;">
+                ${players.map((player, index) => `
+                    <div class="contract-player-card" data-rarity="${player.rarity}" 
+                         style="width: 140px; animation: cardReveal 0.5s ease-out ${index * 0.1}s both;">
+                        <div class="player-image-container" style="height: 100px;">
+                            <div class="player-overall">${player.overall}</div>
+                            <div class="player-position">${player.position}</div>
+                        </div>
+                        <div class="player-rarity">${RARITY_EMOJIS[player.rarity] || '⚽'}</div>
+                        <div class="player-name" style="font-size: 0.9em;" title="${player.name}">
+                            ${player.name}
+                        </div>
+                        ${player.isDuplicate ? 
+                            '<div style="color: #f59e0b; font-size: 0.75em;">💰 +GP</div>' : 
+                            '<div style="color: #10b981; font-size: 0.75em;">✨ NEW</div>'
+                        }
+                    </div>
+                `).join('')}
+            </div>
+        </div>
+    `;
+}
+
+// Utility function for delays
+function delay(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+// Legacy function kept for compatibility
+function showPackResult(players) {
+    showPackResultWithAnimation(players, currentPack, players.length);
 }
 
 // Close pack result modal
@@ -295,8 +394,98 @@ function closePackResult() {
     document.getElementById('packResultModal').style.display = 'none';
 }
 
+function showPackInfoModal() {
+    if (!currentPack) {
+        alert('Please select a pack first!');
+        return;
+    }
+
+    const pack = window.packsData[currentPack];
+    const packConfig = PACKS_CONFIG[currentPack];
+
+    const modal = document.getElementById('packInfoModal');
+    const content = document.getElementById('packInfoContent');
+
+    // Calculate total players per rarity
+    const rarityCount = {};
+    Object.keys(packConfig.rarity_chances).forEach(rarity => {
+        if (packConfig.rarity_chances[rarity] > 0) {
+            rarityCount[rarity] = allPlayers.filter(p => p.rarity === rarity).length;
+        }
+    });
+
+    const currencySymbol = pack.currency === 'eCoins' ? '🪙' : '💰';
+
+    content.innerHTML = `
+        <div style="background: rgba(0,0,51,0.6); padding: 20px; border-radius: 10px; margin-bottom: 20px;">
+            <h3 style="color: var(--secondary); margin-bottom: 10px;">${PACK_EMOJIS[currentPack]} ${pack.name}</h3>
+            <p style="color: #ccc; margin-bottom: 15px;">${pack.description}</p>
+            <div style="display: flex; justify-content: space-around; margin-top: 15px;">
+                <div>
+                    <div style="color: #aaa; font-size: 0.9em;">Cost per Pack</div>
+                    <div style="color: var(--secondary); font-size: 1.5em; font-weight: bold;">
+                        ${currencySymbol} ${pack.cost.toLocaleString()}
+                    </div>
+                </div>
+                <div>
+                    <div style="color: #aaa; font-size: 0.9em;">Currency</div>
+                    <div style="color: #fff; font-size: 1.2em; font-weight: bold;">${pack.currency}</div>
+                </div>
+            </div>
+        </div>
+
+        <h3 style="color: var(--secondary); margin: 20px 0 15px;">📊 Drop Rates</h3>
+        <div style="background: rgba(0,0,51,0.4); border-radius: 10px; padding: 15px;">
+            ${Object.entries(packConfig.rarity_chances)
+                .filter(([_, chance]) => chance > 0)
+                .sort((a, b) => b[1] - a[1])
+                .map(([rarity, chance]) => {
+                    const percentage = (chance * 100).toFixed(2);
+                    const count = rarityCount[rarity] || 0;
+                    const emoji = RARITY_EMOJIS[rarity] || '⚽';
+                    return `
+                        <div style="display: flex; justify-content: space-between; align-items: center; padding: 12px; 
+                                    border-bottom: 1px solid rgba(255,255,255,0.1); margin-bottom: 8px;">
+                            <div style="display: flex; align-items: center; gap: 10px;">
+                                <span style="font-size: 1.5em;">${emoji}</span>
+                                <span style="color: #fff; font-weight: bold;">${rarity}</span>
+                                <span style="color: #aaa; font-size: 0.9em;">(${count} players)</span>
+                            </div>
+                            <div style="text-align: right;">
+                                <div style="color: var(--secondary); font-size: 1.2em; font-weight: bold;">${percentage}%</div>
+                                <div style="color: #aaa; font-size: 0.8em;">${(1 / chance).toFixed(1)} pulls avg</div>
+                            </div>
+                        </div>
+                    `;
+                }).join('')}
+        </div>
+
+        <div style="margin-top: 20px; padding: 15px; background: rgba(0,20,220,0.2); border-radius: 10px; border: 1px solid rgba(255,237,0,0.3);">
+            <h4 style="color: var(--secondary); margin-bottom: 10px;">💡 Tips</h4>
+            <ul style="color: #ccc; line-height: 1.8; padding-left: 20px;">
+                <li>Multi-pull (10x) gives you more chances for high rarities</li>
+                <li>Duplicate players are automatically converted to GP</li>
+                <li>Check your collection to see which players you still need</li>
+                <li>Higher rarity = better stats and higher max level</li>
+            </ul>
+        </div>
+
+        <button class="btn btn-primary" onclick="closePackInfoModal()" style="width: 100%; margin-top: 20px; padding: 12px;">
+            Close
+        </button>
+    `;
+
+    modal.style.display = 'flex';
+}
+
+function closePackInfoModal() {
+    document.getElementById('packInfoModal').style.display = 'none';
+}
+
 window.buyPack = buyPack;
 window.closePackResult = closePackResult;
+window.showPackInfoModal = showPackInfoModal;
+window.closePackInfoModal = closePackInfoModal;
 
 // Make function globally accessible
 window.showPackDetails = showPackDetails;

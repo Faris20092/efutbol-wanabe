@@ -7,7 +7,6 @@
     <title>My Team - eFotball wannabe</title>
     <link rel="stylesheet" href="/styles.css">
     <style>
-        /* Squad Builder - eFootball Style (3rd Reference) */
         * {
             margin: 0;
             padding: 0;
@@ -15,65 +14,19 @@
         }
 
         body {
-            background: linear-gradient(135deg, #0a0a1a 0%, #0a1a2a 100%);
+            background: linear-gradient(135deg, #0a0a1a 0%, #1a1a3a 50%, #0a1a2a 100%);
             min-height: 100vh;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             color: #fff;
-            overflow-x: hidden;
         }
 
-        .squad-page {
-            display: flex;
+        .myteam-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 15px 20px;
             min-height: 100vh;
-        }
-
-        /* Left Sidebar */
-        .left-sidebar {
-            width: 80px;
-            background: linear-gradient(180deg, rgba(0, 50, 100, 0.5), rgba(0, 30, 60, 0.5));
             display: flex;
             flex-direction: column;
-            align-items: center;
-            padding: 15px 10px;
-            gap: 15px;
-        }
-
-        .sidebar-item {
-            width: 55px;
-            height: 55px;
-            border-radius: 10px;
-            background: rgba(255, 255, 255, 0.1);
-            border: 2px solid rgba(255, 255, 255, 0.2);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            transition: all 0.3s;
-            font-size: 1.5em;
-        }
-
-        .sidebar-item:hover {
-            background: rgba(255, 255, 255, 0.2);
-            border-color: #00d4ff;
-        }
-
-        .sidebar-item.active {
-            background: #fff;
-            border-color: #fff;
-        }
-
-        .sidebar-item.manager {
-            background-size: cover;
-            background-position: center;
-            background-color: rgba(100, 100, 100, 0.5);
-        }
-
-        /* Main Content - Pitch */
-        .main-content {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            position: relative;
         }
 
         /* Top Bar */
@@ -81,13 +34,13 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 10px 20px;
+            padding: 10px 0;
+            margin-bottom: 20px;
         }
 
         .currency-display {
             display: flex;
             gap: 15px;
-            align-items: center;
         }
 
         .currency-item {
@@ -118,402 +71,151 @@
         }
 
         .home-btn {
-            width: 40px;
-            height: 40px;
+            width: 42px;
+            height: 42px;
             border-radius: 8px;
             background: linear-gradient(135deg, #3b82f6, #1d4ed8);
             border: none;
             color: #fff;
-            font-size: 1.3em;
-            cursor: pointer;
-        }
-
-        /* Pitch Container */
-        .pitch-container {
-            flex: 1;
-            background: linear-gradient(180deg, #1a8f3c 0%, #156b2f 30%, #1a8f3c 60%, #156b2f 100%);
-            margin: 10px 20px;
-            border-radius: 15px;
-            position: relative;
-            overflow: hidden;
-        }
-
-        /* Pitch Lines */
-        .pitch-lines {
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            pointer-events: none;
-        }
-
-        .center-circle {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            width: 120px;
-            height: 120px;
-            border: 2px solid rgba(255, 255, 255, 0.3);
-            border-radius: 50%;
-        }
-
-        .center-line {
-            position: absolute;
-            top: 50%;
-            left: 0;
-            right: 0;
-            height: 2px;
-            background: rgba(255, 255, 255, 0.3);
-        }
-
-        .penalty-box {
-            position: absolute;
-            bottom: 0;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 200px;
-            height: 80px;
-            border: 2px solid rgba(255, 255, 255, 0.3);
-            border-bottom: none;
-        }
-
-        .goal-box {
-            position: absolute;
-            bottom: 0;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 100px;
-            height: 40px;
-            border: 2px solid rgba(255, 255, 255, 0.3);
-            border-bottom: none;
-        }
-
-        /* Player Positions Grid */
-        .positions-grid {
-            position: relative;
-            width: 100%;
-            height: 100%;
-            padding: 20px;
-        }
-
-        .player-slot {
-            position: absolute;
-            width: 70px;
-            height: 85px;
-            background: linear-gradient(135deg, rgba(30, 50, 70, 0.9), rgba(20, 40, 60, 0.95));
-            border-radius: 8px;
-            border: 2px solid rgba(0, 200, 255, 0.5);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
+            font-size: 1.4em;
             cursor: pointer;
             transition: all 0.3s;
-            transform: translateX(-50%);
         }
 
-        .player-slot:hover {
-            border-color: #00d4ff;
-            transform: translateX(-50%) scale(1.05);
-            z-index: 10;
+        .home-btn:hover {
+            transform: scale(1.1);
         }
 
-        .player-slot.empty {
-            background: rgba(0, 0, 0, 0.3);
-            border: 2px dashed rgba(255, 255, 255, 0.3);
+        /* Cards Grid */
+        .cards-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            flex: 1;
         }
 
-        .player-slot .slot-pos {
-            font-size: 0.7em;
-            color: #00d4ff;
-            margin-bottom: 2px;
-        }
-
-        .player-slot .slot-rating {
-            font-size: 1.4em;
-            font-weight: bold;
-            color: #fff;
-        }
-
-        .player-slot .slot-name {
-            font-size: 0.6em;
-            color: rgba(255, 255, 255, 0.7);
-            text-align: center;
+        .myteam-card {
+            background: linear-gradient(135deg, rgba(30, 40, 60, 0.9), rgba(20, 30, 50, 0.95));
+            border-radius: 15px;
             overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
-            max-width: 95%;
-        }
-
-        .player-slot .slot-icon {
-            font-size: 1.5em;
-            margin-bottom: 5px;
-        }
-
-        .player-badge {
-            position: absolute;
-            bottom: 3px;
-            right: 3px;
-            width: 16px;
-            height: 10px;
-            border-radius: 2px;
-            font-size: 0.5em;
-        }
-
-        /* Right Sidebar - Stats */
-        .right-sidebar {
-            width: 180px;
-            background: rgba(0, 20, 40, 0.8);
-            padding: 20px 15px;
+            cursor: pointer;
+            transition: all 0.3s;
+            min-height: 180px;
             display: flex;
             flex-direction: column;
-            gap: 20px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4);
+            position: relative;
         }
 
-        .stat-block {
-            text-align: center;
+        .myteam-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 35px rgba(0, 0, 0, 0.6);
         }
 
-        .stat-label {
-            color: rgba(255, 255, 255, 0.6);
-            font-size: 0.8em;
+        .myteam-card.large {
+            grid-row: span 2;
+            min-height: 380px;
+        }
+
+        .card-image {
+            height: 120px;
+            background-size: cover;
+            background-position: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+
+        .myteam-card.large .card-image {
+            height: 250px;
+        }
+
+        .card-icon {
+            font-size: 3.5em;
+            opacity: 0.8;
+        }
+
+        .card-content {
+            padding: 15px;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+        }
+
+        .card-title {
+            font-size: 1.1em;
+            font-weight: bold;
             margin-bottom: 5px;
         }
 
-        .stat-value {
-            font-size: 2em;
-            font-weight: bold;
+        .card-subtitle {
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 0.85em;
+        }
+
+        .card-subtitle .highlight {
             color: #00d4ff;
-        }
-
-        .stat-value.strength {
-            color: #ffd700;
-        }
-
-        .playstyle-value {
-            font-size: 1em;
             font-weight: bold;
-            color: #fff;
         }
 
-        .formation-value {
-            font-size: 1.2em;
-            font-weight: bold;
-            color: #00d4ff;
+        /* Card Backgrounds */
+        .card-gameplan .card-image {
+            background: linear-gradient(135deg, #2a3a5a, #1a2a4a);
+        }
+
+        .card-players .card-image {
+            background: linear-gradient(135deg, #1a4a3a, #0a3a2a);
+        }
+
+        .card-strips .card-image {
+            background: linear-gradient(135deg, #4a4a2a, #3a3a1a);
+        }
+
+        .card-managers .card-image {
+            background: linear-gradient(135deg, #4a2a4a, #3a1a3a);
+        }
+
+        .card-stadium .card-image {
+            background: linear-gradient(135deg, #2a4a4a, #1a3a3a);
+        }
+
+        .card-analysis .card-image {
+            background: linear-gradient(135deg, #2a2a5a, #1a1a4a);
         }
 
         /* Bottom Bar */
         .bottom-bar {
             display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 15px 20px;
-            background: rgba(0, 0, 0, 0.3);
+            justify-content: flex-start;
+            gap: 15px;
+            padding: 20px 0;
+            margin-top: auto;
         }
 
-        .back-btn {
-            display: flex;
-            align-items: center;
-            gap: 10px;
+        .bottom-btn {
             padding: 12px 30px;
+            border-radius: 8px;
+            border: none;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .bottom-btn.primary {
             background: linear-gradient(135deg, #3b82f6, #1d4ed8);
-            border: none;
-            border-radius: 8px;
             color: #fff;
-            font-weight: bold;
-            cursor: pointer;
-            transition: all 0.3s;
         }
 
-        .back-btn:hover {
-            transform: translateY(-2px);
-        }
-
-        .bottom-actions {
-            display: flex;
-            gap: 15px;
-        }
-
-        .action-icon-btn {
-            width: 45px;
-            height: 45px;
-            border-radius: 10px;
+        .bottom-btn.secondary {
             background: rgba(255, 255, 255, 0.1);
-            border: 2px solid rgba(255, 255, 255, 0.3);
-            color: #fff;
-            font-size: 1.3em;
-            cursor: pointer;
-            transition: all 0.3s;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .action-icon-btn:hover {
-            background: rgba(255, 255, 255, 0.2);
-            border-color: #00d4ff;
-        }
-
-        /* Player Selection Modal */
-        .player-modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(0, 0, 0, 0.9);
-            z-index: 1000;
-            overflow-y: auto;
-        }
-
-        .player-modal.active {
-            display: block;
-        }
-
-        .player-modal-content {
-            max-width: 900px;
-            margin: 30px auto;
-            padding: 20px;
-        }
-
-        .player-modal-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-        }
-
-        .player-modal-title {
-            font-size: 1.5em;
-            font-weight: bold;
-        }
-
-        .modal-close {
-            background: none;
-            border: none;
-            color: #fff;
-            font-size: 2em;
-            cursor: pointer;
-        }
-
-        .players-filter {
-            display: flex;
-            gap: 15px;
-            margin-bottom: 20px;
-        }
-
-        .filter-input {
-            flex: 1;
-            background: rgba(255, 255, 255, 0.1);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            border-radius: 8px;
-            padding: 10px 15px;
-            color: #fff;
-        }
-
-        .filter-input:focus {
-            outline: none;
-            border-color: #00d4ff;
-        }
-
-        .players-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
-            gap: 10px;
-            max-height: 500px;
-            overflow-y: auto;
-        }
-
-        .player-card-select {
-            background: linear-gradient(135deg, rgba(30, 50, 70, 0.9), rgba(20, 40, 60, 0.95));
-            border-radius: 8px;
-            padding: 10px;
-            text-align: center;
-            cursor: pointer;
-            border: 2px solid transparent;
-            transition: all 0.3s;
-        }
-
-        .player-card-select:hover {
-            border-color: #00d4ff;
-            transform: scale(1.05);
-        }
-
-        .player-card-select .rating {
-            font-size: 1.5em;
-            font-weight: bold;
-        }
-
-        .player-card-select .name {
-            font-size: 0.75em;
-            color: rgba(255, 255, 255, 0.7);
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
-        }
-
-        .player-card-select .pos {
-            font-size: 0.7em;
             color: #00d4ff;
+            border: 2px solid rgba(0, 200, 255, 0.3);
         }
 
-        /* Formation Modal */
-        .formation-modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(0, 0, 0, 0.9);
-            z-index: 1000;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .formation-modal.active {
-            display: flex;
-        }
-
-        .formation-modal-content {
-            background: rgba(20, 30, 50, 0.95);
-            border-radius: 15px;
-            padding: 30px;
-            max-width: 400px;
-            width: 90%;
-        }
-
-        .formation-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 10px;
-            margin-top: 20px;
-        }
-
-        .formation-option {
-            padding: 15px;
-            background: rgba(255, 255, 255, 0.1);
-            border: 2px solid rgba(255, 255, 255, 0.2);
-            border-radius: 10px;
-            color: #fff;
-            font-weight: bold;
-            cursor: pointer;
-            transition: all 0.3s;
-            text-align: center;
-        }
-
-        .formation-option:hover {
-            border-color: #00d4ff;
-            background: rgba(0, 200, 255, 0.2);
-        }
-
-        .formation-option.active {
-            border-color: #00d4ff;
-            background: linear-gradient(135deg, #00d4ff, #0097a7);
-            color: #000;
+        .bottom-btn:hover {
+            transform: translateY(-2px);
         }
 
         /* Loading */
@@ -532,38 +234,18 @@
             font-size: 1.5em;
         }
 
-        /* Responsive */
         @media (max-width: 768px) {
-            .squad-page {
-                flex-direction: column;
+            .cards-grid {
+                grid-template-columns: repeat(2, 1fr);
             }
 
-            .left-sidebar {
-                flex-direction: row;
-                width: 100%;
-                height: auto;
-                justify-content: center;
+            .myteam-card.large {
+                grid-row: span 1;
+                min-height: 180px;
             }
 
-            .right-sidebar {
-                width: 100%;
-                flex-direction: row;
-                flex-wrap: wrap;
-                justify-content: center;
-            }
-
-            .pitch-container {
-                margin: 10px;
-                min-height: 400px;
-            }
-
-            .player-slot {
-                width: 55px;
-                height: 70px;
-            }
-
-            .player-slot .slot-rating {
-                font-size: 1.1em;
+            .myteam-card.large .card-image {
+                height: 100px;
             }
         }
     </style>
@@ -572,267 +254,117 @@
 <body>
     <div id="loading">⏳ Loading...</div>
 
-    <div class="squad-page">
-        <!-- Left Sidebar -->
-        <div class="left-sidebar">
-            <div class="sidebar-item manager" title="Manager">👤</div>
-            <div class="sidebar-item" title="Nationality">🏴</div>
-            <div class="sidebar-item" title="Home Kit">👕</div>
-            <div class="sidebar-item" title="Away Kit">👕</div>
+    <div class="myteam-container">
+        <!-- Top Bar -->
+        <div class="top-bar">
+            <div class="currency-display">
+                <div class="currency-item">
+                    <span class="currency-icon ecoins">🪙</span>
+                    <span id="topEcoins">0</span>
+                </div>
+                <div class="currency-item">
+                    <span class="currency-icon gp">G</span>
+                    <span id="topGP">0</span>
+                </div>
+            </div>
+            <button class="home-btn" onclick="window.location.href='/dashboard'" title="Home">🏠</button>
         </div>
 
-        <!-- Main Content -->
-        <div class="main-content">
-            <!-- Top Bar -->
-            <div class="top-bar">
-                <div class="currency-display">
-                    <div class="currency-item">
-                        <span class="currency-icon ecoins">🪙</span>
-                        <span id="topEcoins">0</span>
+        <!-- Cards Grid -->
+        <div class="cards-grid">
+            <!-- Game Plan - Large Card -->
+            <div class="myteam-card large card-gameplan" onclick="window.location.href='/gameplan'">
+                <div class="card-image">
+                    <span class="card-icon">📋</span>
+                </div>
+                <div class="card-content">
+                    <div class="card-title">Game Plan</div>
+                    <div class="card-subtitle">You can edit your Game Plan.</div>
+                </div>
+            </div>
+
+            <!-- Players - Large Card -->
+            <div class="myteam-card large card-players" onclick="window.location.href='/collection'">
+                <div class="card-image">
+                    <span class="card-icon">👥</span>
+                </div>
+                <div class="card-content">
+                    <div class="card-title">Players</div>
+                    <div class="card-subtitle">
+                        Capacity: <span class="highlight" id="playersCapacity">0/900</span><br>
+                        Backup Players<br>
+                        Capacity: <span class="highlight" id="benchCapacity">0/500</span>
                     </div>
-                    <div class="currency-item">
-                        <span class="currency-icon gp">G</span>
-                        <span id="topGP">0</span>
-                    </div>
-                </div>
-                <button class="home-btn" onclick="window.location.href='/dashboard'" title="Home">🏠</button>
-            </div>
-
-            <!-- Pitch Container -->
-            <div class="pitch-container">
-                <div class="pitch-lines">
-                    <div class="center-circle"></div>
-                    <div class="center-line"></div>
-                    <div class="penalty-box"></div>
-                    <div class="goal-box"></div>
-                </div>
-                <div class="positions-grid" id="positionsGrid">
-                    <!-- Player positions will be rendered by JS -->
                 </div>
             </div>
 
-            <!-- Bottom Bar -->
-            <div class="bottom-bar">
-                <button class="back-btn" onclick="window.location.href='/dashboard'">
-                    ◀ Back
-                </button>
-                <div class="bottom-actions">
-                    <button class="action-icon-btn" onclick="autoSetSquad()" title="Auto Set">⚡</button>
-                    <button class="action-icon-btn" onclick="openFormationModal()" title="Formation">📐</button>
-                    <button class="action-icon-btn" onclick="clearSquad()" title="Clear Squad">🗑️</button>
-                    <button class="action-icon-btn" onclick="saveSquad()" title="Save Squad">💾</button>
+            <!-- Strips -->
+            <div class="myteam-card card-strips" onclick="showComingSoon('Strips')">
+                <div class="card-image">
+                    <span class="card-icon">👕</span>
+                </div>
+                <div class="card-content">
+                    <div class="card-title">Strips</div>
+                    <div class="card-subtitle">Capacity: <span class="highlight">0/100</span></div>
+                </div>
+            </div>
+
+            <!-- Managers -->
+            <div class="myteam-card card-managers" onclick="showComingSoon('Managers')">
+                <div class="card-image">
+                    <span class="card-icon">👔</span>
+                </div>
+                <div class="card-content">
+                    <div class="card-title">Managers</div>
+                    <div class="card-subtitle">Capacity: <span class="highlight">0/19</span></div>
+                </div>
+            </div>
+
+            <!-- Custom Stadium -->
+            <div class="myteam-card card-stadium" onclick="showComingSoon('Custom Stadium')">
+                <div class="card-image">
+                    <span class="card-icon">🏟️</span>
+                </div>
+                <div class="card-content">
+                    <div class="card-title">Custom Stadium</div>
+                    <div class="card-subtitle">Customize your home</div>
+                </div>
+            </div>
+
+            <!-- Analysis -->
+            <div class="myteam-card card-analysis" onclick="showComingSoon('Analysis')">
+                <div class="card-image">
+                    <span class="card-icon">📊</span>
+                </div>
+                <div class="card-content">
+                    <div class="card-title">Analysis</div>
+                    <div class="card-subtitle">View team stats</div>
                 </div>
             </div>
         </div>
 
-        <!-- Right Sidebar -->
-        <div class="right-sidebar">
-            <div class="stat-block">
-                <div class="stat-label">Collective Strength</div>
-                <div class="stat-value strength" id="collectiveStrength">0</div>
-            </div>
-            <div class="stat-block">
-                <div class="stat-label">Team Playstyle</div>
-                <div class="playstyle-value" id="teamPlaystyle">Balanced</div>
-            </div>
-            <div class="stat-block">
-                <div class="stat-label">Formation</div>
-                <div class="formation-value" id="currentFormation">4-3-3</div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Player Selection Modal -->
-    <div id="playerModal" class="player-modal">
-        <div class="player-modal-content">
-            <div class="player-modal-header">
-                <h2 class="player-modal-title">Select Player for <span id="slotPosition">GK</span></h2>
-                <button class="modal-close" onclick="closePlayerModal()">&times;</button>
-            </div>
-            <div class="players-filter">
-                <input type="text" class="filter-input" id="playerSearch" placeholder="Search players..."
-                    onkeyup="filterPlayers()">
-            </div>
-            <div class="players-grid" id="playersGrid">
-                <!-- Players will be rendered here -->
-            </div>
-        </div>
-    </div>
-
-    <!-- Formation Modal -->
-    <div id="formationModal" class="formation-modal">
-        <div class="formation-modal-content">
-            <div class="player-modal-header">
-                <h2 class="player-modal-title">Select Formation</h2>
-                <button class="modal-close" onclick="closeFormationModal()">&times;</button>
-            </div>
-            <div class="formation-grid">
-                <button class="formation-option" onclick="setFormation('4-3-3')">4-3-3</button>
-                <button class="formation-option" onclick="setFormation('4-4-2')">4-4-2</button>
-                <button class="formation-option" onclick="setFormation('3-5-2')">3-5-2</button>
-                <button class="formation-option" onclick="setFormation('4-2-3-1')">4-2-3-1</button>
-                <button class="formation-option" onclick="setFormation('3-4-3')">3-4-3</button>
-                <button class="formation-option" onclick="setFormation('4-1-4-1')">4-1-4-1</button>
-                <button class="formation-option" onclick="setFormation('5-3-2')">5-3-2</button>
-                <button class="formation-option" onclick="setFormation('3-2-3-2')">3-2-3-2</button>
-                <button class="formation-option" onclick="setFormation('4-5-1')">4-5-1</button>
-            </div>
+        <!-- Bottom Bar -->
+        <div class="bottom-bar">
+            <button class="bottom-btn primary" onclick="window.location.href='/dashboard'">◀ Back</button>
+            <button class="bottom-btn secondary" onclick="window.location.href='/training'">Development</button>
+            <button class="bottom-btn secondary" onclick="showComingSoon('Unlock')">Unlock</button>
         </div>
     </div>
 
     <script>
-        let userData = null;
-        let allPlayers = [];
-        let currentFormation = '4-3-3';
-        let squad = { main: new Array(11).fill(null), bench: [] };
-        let selectedSlot = null;
-
-        // Formation positions (percentage-based for responsive)
-        const FORMATIONS = {
-            '4-3-3': [
-                { pos: 'GK', x: 50, y: 90 },
-                { pos: 'LB', x: 15, y: 70 },
-                { pos: 'CB', x: 35, y: 75 },
-                { pos: 'CB', x: 65, y: 75 },
-                { pos: 'RB', x: 85, y: 70 },
-                { pos: 'CM', x: 30, y: 50 },
-                { pos: 'CM', x: 50, y: 45 },
-                { pos: 'CM', x: 70, y: 50 },
-                { pos: 'LW', x: 20, y: 20 },
-                { pos: 'CF', x: 50, y: 15 },
-                { pos: 'RW', x: 80, y: 20 }
-            ],
-            '4-4-2': [
-                { pos: 'GK', x: 50, y: 90 },
-                { pos: 'LB', x: 15, y: 70 },
-                { pos: 'CB', x: 35, y: 75 },
-                { pos: 'CB', x: 65, y: 75 },
-                { pos: 'RB', x: 85, y: 70 },
-                { pos: 'LM', x: 15, y: 45 },
-                { pos: 'CM', x: 35, y: 50 },
-                { pos: 'CM', x: 65, y: 50 },
-                { pos: 'RM', x: 85, y: 45 },
-                { pos: 'CF', x: 35, y: 18 },
-                { pos: 'CF', x: 65, y: 18 }
-            ],
-            '3-5-2': [
-                { pos: 'GK', x: 50, y: 90 },
-                { pos: 'CB', x: 25, y: 75 },
-                { pos: 'CB', x: 50, y: 78 },
-                { pos: 'CB', x: 75, y: 75 },
-                { pos: 'LM', x: 10, y: 50 },
-                { pos: 'CM', x: 30, y: 52 },
-                { pos: 'CM', x: 50, y: 48 },
-                { pos: 'CM', x: 70, y: 52 },
-                { pos: 'RM', x: 90, y: 50 },
-                { pos: 'CF', x: 35, y: 18 },
-                { pos: 'CF', x: 65, y: 18 }
-            ],
-            '4-2-3-1': [
-                { pos: 'GK', x: 50, y: 90 },
-                { pos: 'LB', x: 15, y: 70 },
-                { pos: 'CB', x: 35, y: 75 },
-                { pos: 'CB', x: 65, y: 75 },
-                { pos: 'RB', x: 85, y: 70 },
-                { pos: 'DMF', x: 35, y: 55 },
-                { pos: 'DMF', x: 65, y: 55 },
-                { pos: 'LW', x: 20, y: 35 },
-                { pos: 'AMF', x: 50, y: 32 },
-                { pos: 'RW', x: 80, y: 35 },
-                { pos: 'CF', x: 50, y: 15 }
-            ],
-            '3-4-3': [
-                { pos: 'GK', x: 50, y: 90 },
-                { pos: 'CB', x: 25, y: 75 },
-                { pos: 'CB', x: 50, y: 78 },
-                { pos: 'CB', x: 75, y: 75 },
-                { pos: 'LM', x: 15, y: 50 },
-                { pos: 'CM', x: 40, y: 52 },
-                { pos: 'CM', x: 60, y: 52 },
-                { pos: 'RM', x: 85, y: 50 },
-                { pos: 'LW', x: 20, y: 20 },
-                { pos: 'CF', x: 50, y: 15 },
-                { pos: 'RW', x: 80, y: 20 }
-            ],
-            '4-1-4-1': [
-                { pos: 'GK', x: 50, y: 90 },
-                { pos: 'LB', x: 15, y: 70 },
-                { pos: 'CB', x: 35, y: 75 },
-                { pos: 'CB', x: 65, y: 75 },
-                { pos: 'RB', x: 85, y: 70 },
-                { pos: 'DMF', x: 50, y: 58 },
-                { pos: 'LM', x: 15, y: 40 },
-                { pos: 'CM', x: 40, y: 42 },
-                { pos: 'CM', x: 60, y: 42 },
-                { pos: 'RM', x: 85, y: 40 },
-                { pos: 'CF', x: 50, y: 15 }
-            ],
-            '5-3-2': [
-                { pos: 'GK', x: 50, y: 90 },
-                { pos: 'LWB', x: 10, y: 65 },
-                { pos: 'CB', x: 30, y: 75 },
-                { pos: 'CB', x: 50, y: 78 },
-                { pos: 'CB', x: 70, y: 75 },
-                { pos: 'RWB', x: 90, y: 65 },
-                { pos: 'CM', x: 30, y: 48 },
-                { pos: 'CM', x: 50, y: 45 },
-                { pos: 'CM', x: 70, y: 48 },
-                { pos: 'CF', x: 35, y: 18 },
-                { pos: 'CF', x: 65, y: 18 }
-            ],
-            '3-2-3-2': [
-                { pos: 'GK', x: 50, y: 90 },
-                { pos: 'CB', x: 25, y: 75 },
-                { pos: 'CB', x: 50, y: 78 },
-                { pos: 'CB', x: 75, y: 75 },
-                { pos: 'DMF', x: 35, y: 58 },
-                { pos: 'DMF', x: 65, y: 58 },
-                { pos: 'LW', x: 20, y: 38 },
-                { pos: 'AMF', x: 50, y: 35 },
-                { pos: 'RW', x: 80, y: 38 },
-                { pos: 'CF', x: 35, y: 15 },
-                { pos: 'CF', x: 65, y: 15 }
-            ],
-            '4-5-1': [
-                { pos: 'GK', x: 50, y: 90 },
-                { pos: 'LB', x: 15, y: 70 },
-                { pos: 'CB', x: 35, y: 75 },
-                { pos: 'CB', x: 65, y: 75 },
-                { pos: 'RB', x: 85, y: 70 },
-                { pos: 'LM', x: 15, y: 45 },
-                { pos: 'CM', x: 35, y: 48 },
-                { pos: 'CM', x: 50, y: 42 },
-                { pos: 'CM', x: 65, y: 48 },
-                { pos: 'RM', x: 85, y: 45 },
-                { pos: 'CF', x: 50, y: 15 }
-            ]
-        };
-
         async function init() {
             try {
                 const response = await fetch('/api/user');
                 const data = await response.json();
-                userData = data;
 
                 if (data.gameData) {
                     document.getElementById('topGP').textContent = (data.gameData.gp || 0).toLocaleString();
                     document.getElementById('topEcoins').textContent = (data.gameData.eCoins || 0).toLocaleString();
 
-                    allPlayers = data.gameData.players || [];
-                    currentFormation = data.gameData.formation || '4-3-3';
-
-                    if (data.gameData.squad?.main) {
-                        squad.main = data.gameData.squad.main.slice(0, 11);
-                        while (squad.main.length < 11) squad.main.push(null);
-                    }
-                    if (data.gameData.squad?.bench) {
-                        squad.bench = data.gameData.squad.bench;
-                    }
-
-                    document.getElementById('currentFormation').textContent = currentFormation;
-                    updateFormationButtons();
-                    renderPitch();
-                    updateStats();
+                    const players = data.gameData.players || [];
+                    const bench = data.gameData.squad?.bench || [];
+                    document.getElementById('playersCapacity').textContent = `${players.length}/900`;
+                    document.getElementById('benchCapacity').textContent = `${bench.length}/500`;
                 }
 
                 document.getElementById('loading').style.display = 'none';
@@ -842,181 +374,8 @@
             }
         }
 
-        function renderPitch() {
-            const grid = document.getElementById('positionsGrid');
-            const positions = FORMATIONS[currentFormation] || FORMATIONS['4-3-3'];
-
-            grid.innerHTML = positions.map((p, i) => {
-                const playerId = squad.main[i];
-                const player = playerId ? allPlayers.find(pl => pl.id === playerId) : null;
-
-                if (player) {
-                    return `
-                        <div class="player-slot filled" style="left: ${p.x}%; top: ${p.y}%;" onclick="openPlayerModal(${i})">
-                            <div class="slot-pos">${p.pos}</div>
-                            <div class="slot-rating">${player.overall || 0}</div>
-                            <div class="slot-name">${player.name?.split(' ').pop() || 'Player'}</div>
-                        </div>
-                    `;
-                } else {
-                    return `
-                        <div class="player-slot empty" style="left: ${p.x}%; top: ${p.y}%;" onclick="openPlayerModal(${i})">
-                            <div class="slot-pos">${p.pos}</div>
-                            <div class="slot-icon">➕</div>
-                        </div>
-                    `;
-                }
-            }).join('');
-        }
-
-        function openPlayerModal(slotIndex) {
-            selectedSlot = slotIndex;
-            const positions = FORMATIONS[currentFormation] || FORMATIONS['4-3-3'];
-            document.getElementById('slotPosition').textContent = positions[slotIndex].pos;
-            document.getElementById('playerModal').classList.add('active');
-            renderPlayersGrid();
-        }
-
-        function closePlayerModal() {
-            document.getElementById('playerModal').classList.remove('active');
-            selectedSlot = null;
-        }
-
-        function renderPlayersGrid() {
-            const grid = document.getElementById('playersGrid');
-            const search = document.getElementById('playerSearch').value.toLowerCase();
-
-            // Filter out players already in squad
-            const usedIds = squad.main.filter(id => id);
-            const available = allPlayers.filter(p =>
-                !usedIds.includes(p.id) &&
-                (p.name?.toLowerCase().includes(search) || !search)
-            ).sort((a, b) => (b.overall || 0) - (a.overall || 0));
-
-            if (available.length === 0) {
-                grid.innerHTML = '<p style="color: rgba(255,255,255,0.5); text-align: center; grid-column: 1/-1;">No available players</p>';
-                return;
-            }
-
-            grid.innerHTML = available.map(p => `
-                <div class="player-card-select" onclick="selectPlayer('${p.id}')">
-                    <div class="rating">${p.overall || 0}</div>
-                    <div class="pos">${p.position || 'N/A'}</div>
-                    <div class="name">${p.name}</div>
-                </div>
-            `).join('');
-        }
-
-        function filterPlayers() {
-            renderPlayersGrid();
-        }
-
-        function selectPlayer(playerId) {
-            if (selectedSlot !== null) {
-                squad.main[selectedSlot] = playerId;
-                renderPitch();
-                updateStats();
-                closePlayerModal();
-            }
-        }
-
-        function openFormationModal() {
-            document.getElementById('formationModal').classList.add('active');
-            updateFormationButtons();
-        }
-
-        function closeFormationModal() {
-            document.getElementById('formationModal').classList.remove('active');
-        }
-
-        function updateFormationButtons() {
-            document.querySelectorAll('.formation-option').forEach(btn => {
-                btn.classList.toggle('active', btn.textContent === currentFormation);
-            });
-        }
-
-        function setFormation(formation) {
-            currentFormation = formation;
-            document.getElementById('currentFormation').textContent = formation;
-            updateFormationButtons();
-            renderPitch();
-            closeFormationModal();
-        }
-
-        function updateStats() {
-            let total = 0;
-            let count = 0;
-
-            squad.main.forEach(id => {
-                if (id) {
-                    const player = allPlayers.find(p => p.id === id);
-                    if (player) {
-                        total += player.overall || 0;
-                        count++;
-                    }
-                }
-            });
-
-            const strength = count > 0 ? Math.round(total * count / 11 * 3) : 0;
-            document.getElementById('collectiveStrength').textContent = strength;
-
-            // Simple playstyle determination
-            const styles = ['Balanced', 'Possession', 'Quick Counter', 'Long Ball', 'Out Wide'];
-            document.getElementById('teamPlaystyle').textContent = styles[Math.floor(Math.random() * styles.length)];
-        }
-
-        async function autoSetSquad() {
-            try {
-                const response = await fetch('/api/squad/autoset', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' }
-                });
-                const data = await response.json();
-
-                if (data.success) {
-                    squad.main = data.squad.main;
-                    squad.bench = data.squad.bench;
-                    renderPitch();
-                    updateStats();
-                    alert('Squad auto-set successfully!');
-                } else {
-                    alert(data.error || 'Failed to auto-set squad');
-                }
-            } catch (error) {
-                console.error('Auto-set error:', error);
-                alert('Failed to auto-set squad');
-            }
-        }
-
-        function clearSquad() {
-            if (confirm('Clear all players from squad?')) {
-                squad.main = new Array(11).fill(null);
-                renderPitch();
-                updateStats();
-            }
-        }
-
-        async function saveSquad() {
-            try {
-                const response = await fetch('/api/squad', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        squad: squad,
-                        formation: currentFormation
-                    })
-                });
-                const data = await response.json();
-
-                if (data.success) {
-                    alert('Squad saved successfully!');
-                } else {
-                    alert(data.error || 'Failed to save squad');
-                }
-            } catch (error) {
-                console.error('Save error:', error);
-                alert('Failed to save squad');
-            }
+        function showComingSoon(feature) {
+            alert(`${feature} - Coming Soon!`);
         }
 
         document.addEventListener('DOMContentLoaded', init);

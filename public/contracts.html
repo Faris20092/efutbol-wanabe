@@ -343,6 +343,38 @@
             font-size: 1.2em;
             color: var(--secondary);
         }
+
+        /* Card reveal animation */
+        @keyframes cardReveal {
+            0% {
+                opacity: 0;
+                transform: scale(0.8) rotateY(180deg);
+            }
+            50% {
+                transform: scale(1.05) rotateY(90deg);
+            }
+            100% {
+                opacity: 1;
+                transform: scale(1) rotateY(0deg);
+            }
+        }
+
+        /* Modal styling for better animations */
+        #packResultModal .modal-content {
+            max-width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        /* Pulse animation for opening text */
+        @keyframes pulse {
+            0%, 100% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.05);
+            }
+        }
     </style>
 </head>
 
@@ -379,6 +411,10 @@
             style="display: none; text-align: center; margin-bottom: 30px; padding: 20px; background: rgba(0,0,51,0.8); border: 2px solid rgba(255,237,0,0.3); border-radius: 12px;">
             <h3 id="selectedPackName" style="color: var(--secondary); margin-bottom: 10px;">Select a Pack</h3>
             <p id="selectedPackCost" style="color: #ccc; margin-bottom: 15px;">Cost: -</p>
+            <button class="btn btn-secondary" onclick="showPackInfoModal()" 
+                style="margin-bottom: 15px; padding: 8px 20px;">
+                📊 View Pack Details & Rates
+            </button>
             <div style="display: flex; gap: 15px; justify-content: center; flex-wrap: wrap;">
                 <button class="btn btn-primary" id="buyPackBtn" onclick="buyPack(1)"
                     style="padding: 12px 30px; font-size: 1.1rem;">🎁 Open 1 Pack</button>
@@ -494,6 +530,17 @@
                 <!-- Results will be shown here -->
             </div>
             <button class="btn btn-primary" onclick="closePackResult()" style="margin-top: 20px;">Close</button>
+        </div>
+    </div>
+
+    <!-- Pack Info Modal -->
+    <div id="packInfoModal" class="modal" style="display: none;">
+        <div class="modal-content" style="max-width: 700px;">
+            <span class="close" onclick="closePackInfoModal()">&times;</span>
+            <h2 style="color: var(--secondary); margin-bottom: 20px; text-align: center;">📊 Pack Information</h2>
+            <div id="packInfoContent">
+                <!-- Pack info will be shown here -->
+            </div>
         </div>
     </div>
 

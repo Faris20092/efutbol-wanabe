@@ -10,7 +10,9 @@ const FORMATIONS = {
     '4-3-3': ['GK', 'LB', 'CB', 'CB', 'RB', 'CMF', 'CMF', 'CMF', 'LWF', 'CF', 'RWF'],
     '4-4-2': ['GK', 'LB', 'CB', 'CB', 'RB', 'LMF', 'CMF', 'CMF', 'RMF', 'CF', 'CF'],
     '3-5-2': ['GK', 'CB', 'CB', 'CB', 'LMF', 'CMF', 'CMF', 'CMF', 'RMF', 'CF', 'CF'],
-    '4-2-3-1': ['GK', 'LB', 'CB', 'CB', 'RB', 'DMF', 'DMF', 'AMF', 'AMF', 'AMF', 'CF']
+    '4-2-3-1': ['GK', 'LB', 'CB', 'CB', 'RB', 'DMF', 'DMF', 'AMF', 'AMF', 'AMF', 'CF'],
+    '3-4-3': ['GK', 'CB', 'CB', 'CB', 'LMF', 'CMF', 'CMF', 'RMF', 'LWF', 'CF', 'RWF'],
+    '4-1-4-1': ['GK', 'LB', 'CB', 'CB', 'RB', 'DMF', 'LMF', 'CMF', 'CMF', 'RMF', 'CF']
 };
 
 const RARITY_EMOJIS = {
@@ -374,15 +376,67 @@ function renderAllPlayers() {
     const container = document.getElementById('allPlayersGrid');
     container.innerHTML = '';
     
+    // Update player count
+    document.getElementById('totalPlayerCount').textContent = allPlayers.length;
+    
     if (allPlayers.length === 0) {
         container.innerHTML = '<p style="color: #999; padding: 20px;">No players in collection</p>';
         return;
     }
     
     allPlayers.forEach(player => {
-        const card = createPlayerCard(player, () => showPlayerDetails(player));
+        const card = createPlayerCardWithRemove(player, () => showPlayerDetails(player));
         container.appendChild(card);
     });
+}
+
+// Create player card with remove button for My Players tab
+function createPlayerCardWithRemove(player, onClick) {
+    const card = document.createElement('div');
+    card.className = 'player-card';
+    card.dataset.playerId = player.id;
+    card.dataset.rarity = player.rarity;
+    
+    // Check if player is in squad/bench
+    const inSquad = currentSquad.main.includes(player.id);
+    const inBench = currentSquad.bench.includes(player.id);
+    const isUsed = inSquad || inBench;
+    
+    // Sanitize player name for image
+    const playerImageName = player.name.replace(/[^a-zA-Z0-9\-_]/g, '_').toLowerCase().replace(/_+/g, '_').replace(/_+$/g, '');
+    const playerImagePng = `/assets/faces/${playerImageName}.png`;
+    const playerImageJpg = `/assets/faces/${playerImageName}.jpg`;
+    
+    card.innerHTML = `
+        <div class="player-image-container" onclick="event.stopPropagation(); arguments[0].target.closest('.player-card').click();">
+            <div class="player-overall">${player.overall}</div>
+            <div class="player-position">${player.position}</div>
+            ${isUsed ? '<div class="player-in-squad-badge">✓</div>' : ''}
+            <img src="${playerImagePng}" alt="${player.name}" 
+                 onerror="this.onerror=null; this.src='${playerImageJpg}'; this.onerror=function(){this.src='/assets/faces/default_player.png'}">
+        </div>
+        <div class="rarity">${RARITY_EMOJIS[player.rarity] || '⚽'}</div>
+        <div class="name">${player.name}</div>
+        <button class="btn btn-danger btn-sm" 
+                style="margin-top: 8px; padding: 5px 10px; font-size: 0.8em; width: 100%;" 
+                onclick="event.stopPropagation(); showRemovePlayerModal('${player.id}');"
+                ${isUsed ? 'disabled title="Remove from squad first"' : ''}>
+            🗑️ Remove
+        </button>
+    `;
+    
+    // Add onclick to card (but not the button)
+    const cardContent = card.querySelector('.player-image-container, .rarity, .name');
+    if (onClick) {
+        card.onclick = (e) => {
+            // Only trigger if click wasn't on the button
+            if (!e.target.closest('button')) {
+                onClick();
+            }
+        };
+    }
+    
+    return card;
 }
 
 // Show player details modal
@@ -494,6 +548,205 @@ function closeModal() {
     modal.classList.remove('active');
     modal.style.display = 'none';
 }
+
+// Auto-Set Squad - automatically fill best XI and bench
+async function autoSetSquad() {
+    if (!confirm('Auto-fill your squad with the best players based on their positions and ratings?')) {
+        return;
+    }
+
+    const positions = FORMATIONS[currentFormation];
+    const taken = new Set();
+    const newMain = new Array(11).fill(null);
+
+    // Helper: Get best player by position
+    function pickBestByPosition(position, takenIds) {
+        const candidates = allPlayers
+            .filter(p => p.position === position && !takenIds.has(p.id))
+            .sort((a, b) => b.overall - a.overall);
+        return candidates.length ? candidates[0] : null;
+    }
+
+    // Helper: Get best compatible player
+    function pickBestCompatible(requiredPosition, takenIds) {
+        const compatibility = {
+            'GK': ['GK'],
+            'CB': ['CB', 'LB', 'RB'],
+            'LB': ['LB', 'CB', 'LMF'],
+            'RB': ['RB', 'CB', 'RMF'],
+            'DMF': ['DMF', 'CMF', 'CB'],
+            'CMF': ['CMF', 'DMF', 'AMF'],
+            'AMF': ['AMF', 'CMF', 'CF'],
+            'LMF': ['LMF', 'LB', 'LWF'],
+            'RMF': ['RMF', 'RB', 'RWF'],
+            'CF': ['CF', 'AMF'],
+            'LWF': ['LWF', 'CF', 'LMF'],
+            'RWF': ['RWF', 'CF', 'RMF']
+        };
+
+        const compatiblePositions = compatibility[requiredPosition] || [requiredPosition];
+        
+        for (const pos of compatiblePositions) {
+            const candidate = pickBestByPosition(pos, takenIds);
+            if (candidate) return candidate;
+        }
+        
+        return null;
+    }
+
+    // Helper: Pick best any position
+    function pickBestAny(takenIds) {
+        const candidates = allPlayers
+            .filter(p => !takenIds.has(p.id))
+            .sort((a, b) => b.overall - a.overall);
+        return candidates.length ? candidates[0] : null;
+    }
+
+    // First pass: exact position matches
+    for (let i = 0; i < positions.length; i++) {
+        const pos = positions[i];
+        const best = pickBestByPosition(pos, taken);
+        if (best) {
+            newMain[i] = best.id;
+            taken.add(best.id);
+        }
+    }
+
+    // Second pass: compatible positions
+    for (let i = 0; i < positions.length; i++) {
+        if (!newMain[i]) {
+            const pos = positions[i];
+            const compatible = pickBestCompatible(pos, taken);
+            if (compatible) {
+                newMain[i] = compatible.id;
+                taken.add(compatible.id);
+            }
+        }
+    }
+
+    // Third pass: fill remaining with best available
+    for (let i = 0; i < positions.length; i++) {
+        if (!newMain[i]) {
+            const bestAny = pickBestAny(taken);
+            if (bestAny) {
+                newMain[i] = bestAny.id;
+                taken.add(bestAny.id);
+            }
+        }
+    }
+
+    // Fill bench with top 7 remaining players
+    const newBench = allPlayers
+        .filter(p => !taken.has(p.id))
+        .sort((a, b) => b.overall - a.overall)
+        .slice(0, 7)
+        .map(p => p.id);
+
+    // Update squad
+    currentSquad.main = newMain;
+    currentSquad.bench = newBench;
+
+    // Render and save
+    renderSquadPitch();
+    renderAvailablePlayers();
+    calculateTeamRating();
+    
+    await saveSquad();
+    alert('✅ Squad auto-filled successfully!');
+}
+
+// Clear Squad
+function clearSquad() {
+    if (!confirm('Clear all players from your squad and bench?')) {
+        return;
+    }
+
+    currentSquad.main = new Array(11).fill(null);
+    currentSquad.bench = [];
+
+    renderSquadPitch();
+    renderAvailablePlayers();
+    calculateTeamRating();
+}
+
+// Remove Player from collection
+let playerToRemove = null;
+
+function showRemovePlayerModal(playerId) {
+    const player = allPlayers.find(p => p.id === playerId);
+    if (!player) return;
+
+    // Check if player is in squad or bench
+    const inSquad = currentSquad.main.includes(playerId);
+    const inBench = currentSquad.bench.includes(playerId);
+
+    if (inSquad || inBench) {
+        alert('⚠️ Cannot remove this player! They are currently in your squad or bench. Remove them from the squad first.');
+        return;
+    }
+
+    playerToRemove = player;
+    const modal = document.getElementById('removePlayerModal');
+    const content = document.getElementById('removePlayerContent');
+
+    content.innerHTML = `
+        <div class="player-card" data-rarity="${player.rarity}" style="width: 200px; margin: 0 auto;">
+            <div class="player-card-header">
+                <span class="player-card-position">${player.position}</span>
+                <span class="player-card-rating">${player.overall}</span>
+            </div>
+            <div class="player-card-body">
+                <div class="player-rarity">${RARITY_EMOJIS[player.rarity] || '⚽'}</div>
+                <div class="player-name">${player.name}</div>
+            </div>
+        </div>
+    `;
+
+    modal.style.display = 'flex';
+}
+
+function closeRemovePlayerModal() {
+    document.getElementById('removePlayerModal').style.display = 'none';
+    playerToRemove = null;
+}
+
+async function confirmRemovePlayer() {
+    if (!playerToRemove) return;
+
+    try {
+        const response = await fetch('/api/player/remove', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ playerId: playerToRemove.id })
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+            // Remove from local array
+            allPlayers = allPlayers.filter(p => p.id !== playerToRemove.id);
+            
+            // Re-render
+            renderAllPlayers();
+            renderAvailablePlayers();
+            
+            closeRemovePlayerModal();
+            alert('✅ ' + data.message);
+        } else {
+            alert('❌ ' + data.error);
+        }
+    } catch (error) {
+        console.error('Error removing player:', error);
+        alert('❌ Failed to remove player');
+    }
+}
+
+// Make functions global
+window.autoSetSquad = autoSetSquad;
+window.clearSquad = clearSquad;
+window.showRemovePlayerModal = showRemovePlayerModal;
+window.closeRemovePlayerModal = closeRemovePlayerModal;
+window.confirmRemovePlayer = confirmRemovePlayer;
 
 // Open player selector for position
 let selectedPosition = null;

@@ -203,6 +203,11 @@ app.get('/my-team', isAuthenticated, (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'my-team.html'));
 });
 
+// Game Plan route (Squad Builder)
+app.get('/gameplan', isAuthenticated, (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'gameplan.html'));
+});
+
 // Mail route
 app.get('/mail', isAuthenticated, (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'mail.html'));
