@@ -7,53 +7,60 @@
     <title>eFotball wannabe</title>
     <link rel="stylesheet" href="/styles.css">
     <style>
-        /* eFootball-style Dashboard */
+        /* eFootball-style Dashboard - Fixed Layout */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
         body {
             background: linear-gradient(135deg, #0a0a1a 0%, #1a1a3a 50%, #0a1a2a 100%);
             min-height: 100vh;
-            overflow-x: hidden;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            color: #fff;
         }
 
         .efb-container {
-            max-width: 1400px;
+            max-width: 1200px;
             margin: 0 auto;
-            padding: 10px 20px;
+            padding: 15px 20px;
             min-height: 100vh;
             display: flex;
             flex-direction: column;
         }
 
-        /* Top Bar */
+        /* Top Bar - Currency Left, Icons Right */
         .efb-top-bar {
             display: flex;
             justify-content: space-between;
             align-items: center;
             padding: 10px 0;
-            margin-bottom: 10px;
+            margin-bottom: 15px;
         }
 
         .efb-currency {
             display: flex;
-            gap: 20px;
+            gap: 15px;
             align-items: center;
         }
 
         .efb-currency-item {
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 6px;
             font-weight: bold;
-            font-size: 1.1em;
+            font-size: 1em;
         }
 
         .efb-currency-icon {
-            width: 24px;
-            height: 24px;
+            width: 22px;
+            height: 22px;
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 0.9em;
+            font-size: 0.8em;
         }
 
         .efb-currency-icon.ecoins {
@@ -64,22 +71,24 @@
         .efb-currency-icon.gp {
             background: linear-gradient(135deg, #888, #666);
             color: #fff;
+            font-weight: bold;
+            font-size: 0.7em;
         }
 
         .efb-top-icons {
             display: flex;
-            gap: 15px;
+            gap: 10px;
             align-items: center;
         }
 
         .efb-top-icon {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
+            width: 38px;
+            height: 38px;
+            border-radius: 8px;
             background: rgba(255, 255, 255, 0.1);
             border: none;
             color: #fff;
-            font-size: 1.3em;
+            font-size: 1.2em;
             cursor: pointer;
             transition: all 0.3s;
             position: relative;
@@ -87,7 +96,6 @@
 
         .efb-top-icon:hover {
             background: rgba(255, 255, 255, 0.2);
-            transform: scale(1.1);
         }
 
         .efb-badge {
@@ -96,35 +104,40 @@
             right: -5px;
             background: #e74c3c;
             color: #fff;
-            font-size: 0.6em;
-            padding: 2px 6px;
-            border-radius: 10px;
+            font-size: 0.55em;
+            min-width: 16px;
+            height: 16px;
+            padding: 0 4px;
+            border-radius: 8px;
             font-weight: bold;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
-        /* Main Tabs */
+        /* Main Tabs - Centered */
         .efb-main-tabs {
             display: flex;
             justify-content: center;
             gap: 0;
             margin-bottom: 20px;
-            background: rgba(0, 0, 0, 0.4);
-            border-radius: 30px;
-            padding: 5px;
-            max-width: 600px;
+            background: rgba(0, 0, 0, 0.5);
+            border-radius: 25px;
+            padding: 4px;
+            width: fit-content;
             margin-left: auto;
             margin-right: auto;
         }
 
         .efb-main-tab {
-            padding: 12px 35px;
+            padding: 10px 30px;
             border: none;
             background: transparent;
-            color: rgba(255, 255, 255, 0.7);
-            font-size: 1em;
-            font-weight: bold;
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 0.95em;
+            font-weight: 600;
             cursor: pointer;
-            border-radius: 25px;
+            border-radius: 20px;
             transition: all 0.3s;
         }
 
@@ -139,32 +152,16 @@
 
         /* Featured Banner */
         .efb-banner {
-            background: linear-gradient(135deg, rgba(0, 50, 100, 0.8), rgba(0, 30, 60, 0.9));
-            border-radius: 20px;
+            background: rgba(0, 30, 60, 0.6);
+            border-radius: 15px;
             padding: 25px;
             margin-bottom: 20px;
-            position: relative;
-            overflow: hidden;
-            border: 2px solid rgba(0, 200, 255, 0.3);
-            box-shadow: 0 0 30px rgba(0, 200, 255, 0.2);
-        }
-
-        .efb-banner::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: linear-gradient(90deg, transparent, rgba(0, 200, 255, 0.1), transparent);
-            pointer-events: none;
-        }
-
-        .efb-banner-content {
+            border: 2px solid rgba(0, 150, 200, 0.4);
             display: flex;
             justify-content: space-between;
             align-items: center;
             gap: 30px;
+            flex: 1;
         }
 
         .efb-banner-info {
@@ -172,83 +169,55 @@
         }
 
         .efb-banner-title {
-            font-size: 2.5em;
+            font-size: 1.8em;
             font-weight: 900;
-            color: #fff;
-            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
-            margin-bottom: 5px;
             font-style: italic;
+            color: #fff;
+            margin-bottom: 5px;
         }
 
         .efb-banner-subtitle {
-            color: rgba(255, 255, 255, 0.8);
-            font-size: 1.1em;
-            margin-bottom: 5px;
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 0.95em;
+            margin-bottom: 8px;
         }
 
         .efb-banner-timer {
-            color: #ffaa00;
-            font-weight: bold;
-            font-size: 1em;
+            color: #00d4ff;
+            font-size: 0.9em;
             margin-bottom: 15px;
         }
 
         .efb-banner-desc {
-            color: rgba(255, 255, 255, 0.7);
-            font-size: 0.95em;
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 0.85em;
             line-height: 1.5;
-            max-width: 400px;
         }
 
         .efb-banner-cards {
             display: flex;
-            gap: 10px;
+            gap: 8px;
         }
 
         .efb-preview-card {
-            width: 100px;
-            height: 140px;
+            width: 85px;
+            height: 100px;
             background: linear-gradient(135deg, #1a3a5a, #0a2a4a);
-            border-radius: 10px;
-            border: 2px solid rgba(0, 200, 255, 0.5);
+            border-radius: 8px;
+            border: 2px solid rgba(0, 150, 200, 0.5);
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
             position: relative;
-            overflow: hidden;
-        }
-
-        .efb-preview-card::before {
-            content: '';
-            position: absolute;
-            top: -50%;
-            left: -50%;
-            width: 200%;
-            height: 200%;
-            background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.1), transparent);
-            animation: shine 3s infinite;
-        }
-
-        @keyframes shine {
-            0% {
-                transform: translateX(-100%) rotate(45deg);
-            }
-
-            100% {
-                transform: translateX(100%) rotate(45deg);
-            }
         }
 
         .efb-preview-rating {
             position: absolute;
             top: 5px;
             left: 5px;
-            background: rgba(0, 0, 0, 0.7);
             color: #fff;
-            padding: 2px 6px;
-            border-radius: 5px;
-            font-size: 0.8em;
+            font-size: 0.85em;
             font-weight: bold;
         }
 
@@ -257,67 +226,68 @@
             top: 5px;
             right: 5px;
             color: #00d4ff;
-            font-size: 0.7em;
+            font-size: 0.65em;
             font-weight: bold;
         }
 
         .efb-preview-player {
-            font-size: 2.5em;
+            font-size: 2em;
             margin-bottom: 5px;
         }
 
         .efb-preview-stars {
             color: #ffd700;
-            font-size: 0.6em;
+            font-size: 0.5em;
+            letter-spacing: 1px;
         }
 
-        /* Bottom Navigation */
+        /* Bottom Navigation - Exact match to reference */
         .efb-bottom-nav {
             display: flex;
             justify-content: center;
-            gap: 20px;
-            padding: 20px 0;
+            gap: 12px;
+            padding: 15px 0;
             margin-top: auto;
         }
 
         .efb-nav-btn {
-            width: 100px;
-            height: 100px;
-            border-radius: 20px;
+            width: 90px;
+            height: 90px;
+            border-radius: 18px;
             border: none;
             cursor: pointer;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            gap: 8px;
-            font-weight: bold;
-            font-size: 0.9em;
+            gap: 6px;
+            font-weight: 600;
+            font-size: 0.8em;
             color: #fff;
             transition: all 0.3s;
             position: relative;
-            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.4);
         }
 
         .efb-nav-btn:hover {
-            transform: translateY(-5px) scale(1.05);
-            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.6);
+            transform: translateY(-4px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
         }
 
         .efb-nav-btn .icon {
-            font-size: 2.2em;
+            font-size: 2em;
         }
 
         .efb-nav-btn.pink {
-            background: linear-gradient(135deg, #ff3366, #e6194b);
+            background: linear-gradient(135deg, #ec4899, #db2777);
         }
 
         .efb-nav-btn.red {
-            background: linear-gradient(135deg, #dc2626, #991b1b);
+            background: linear-gradient(135deg, #ef4444, #dc2626);
         }
 
         .efb-nav-btn.cyan {
-            background: linear-gradient(135deg, #00bcd4, #0097a7);
+            background: linear-gradient(135deg, #06b6d4, #0891b2);
         }
 
         .efb-nav-btn.green {
@@ -329,42 +299,24 @@
         }
 
         .efb-nav-btn.purple {
-            background: linear-gradient(135deg, #a855f7, #7c3aed);
-        }
-
-        .efb-nav-btn.blue {
-            background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+            background: linear-gradient(135deg, #a855f7, #9333ea);
         }
 
         .efb-nav-badge {
             position: absolute;
-            top: -5px;
-            right: -5px;
+            top: -4px;
+            right: -4px;
             background: #ff3366;
             color: #fff;
-            font-size: 0.7em;
-            width: 22px;
-            height: 22px;
+            font-size: 0.65em;
+            width: 20px;
+            height: 20px;
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
             font-weight: bold;
             border: 2px solid #fff;
-        }
-
-        /* User Avatar */
-        .efb-user {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .efb-user-avatar {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            border: 2px solid rgba(255, 255, 255, 0.3);
         }
 
         /* Tab Content */
@@ -374,76 +326,8 @@
         }
 
         .efb-tab-content.active {
-            display: block;
-        }
-
-        /* Quick Stats */
-        .efb-quick-stats {
-            display: flex;
-            gap: 15px;
-            margin-bottom: 20px;
-        }
-
-        .efb-stat-card {
-            background: rgba(0, 0, 0, 0.4);
-            border-radius: 15px;
-            padding: 15px 25px;
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-        }
-
-        .efb-stat-icon {
-            font-size: 2em;
-        }
-
-        .efb-stat-info {
             display: flex;
             flex-direction: column;
-        }
-
-        .efb-stat-label {
-            color: rgba(255, 255, 255, 0.6);
-            font-size: 0.85em;
-        }
-
-        .efb-stat-value {
-            color: #fff;
-            font-size: 1.3em;
-            font-weight: bold;
-        }
-
-        /* Responsive */
-        @media (max-width: 768px) {
-            .efb-banner-content {
-                flex-direction: column;
-                text-align: center;
-            }
-
-            .efb-banner-cards {
-                justify-content: center;
-            }
-
-            .efb-bottom-nav {
-                flex-wrap: wrap;
-                gap: 10px;
-            }
-
-            .efb-nav-btn {
-                width: 80px;
-                height: 80px;
-                font-size: 0.8em;
-            }
-
-            .efb-nav-btn .icon {
-                font-size: 1.8em;
-            }
-
-            .efb-main-tab {
-                padding: 10px 20px;
-                font-size: 0.9em;
-            }
         }
 
         /* Loading */
@@ -461,6 +345,67 @@
             color: #fff;
             font-size: 1.5em;
         }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .efb-banner {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .efb-banner-cards {
+                justify-content: center;
+            }
+
+            .efb-bottom-nav {
+                gap: 8px;
+            }
+
+            .efb-nav-btn {
+                width: 70px;
+                height: 70px;
+                font-size: 0.7em;
+            }
+
+            .efb-nav-btn .icon {
+                font-size: 1.6em;
+            }
+
+            .efb-main-tab {
+                padding: 8px 18px;
+                font-size: 0.85em;
+            }
+        }
+
+        /* Shop/Academy/Extras Tab Content */
+        .tab-placeholder {
+            text-align: center;
+            padding: 40px;
+            color: rgba(255, 255, 255, 0.6);
+        }
+
+        .tab-placeholder h2 {
+            margin-bottom: 15px;
+            color: #fff;
+        }
+
+        .tab-placeholder-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            padding: 12px 25px;
+            border-radius: 12px;
+            border: none;
+            font-weight: bold;
+            cursor: pointer;
+            color: #fff;
+            margin: 10px;
+            transition: all 0.3s;
+        }
+
+        .tab-placeholder-btn:hover {
+            transform: translateY(-2px);
+        }
     </style>
 </head>
 
@@ -468,7 +413,7 @@
     <div id="loading">⏳ Loading...</div>
 
     <div class="efb-container">
-        <!-- Top Bar -->
+        <!-- Top Bar - Currency Left, Icons Right -->
         <div class="efb-top-bar">
             <div class="efb-currency">
                 <div class="efb-currency-item">
@@ -483,132 +428,111 @@
 
             <div class="efb-top-icons">
                 <button class="efb-top-icon" onclick="window.location.href='/news'" title="Info">ℹ️</button>
-                <button class="efb-top-icon" onclick="window.location.href='/leaderboard'" title="Friends">👥</button>
-                <button class="efb-top-icon" onclick="window.location.href='/mail'" title="Inbox">
+                <button class="efb-top-icon" onclick="window.location.href='/leaderboard'"
+                    title="Leaderboard">👥</button>
+                <button class="efb-top-icon" onclick="window.location.href='/mail'" title="Mail">
                     📬
                     <span class="efb-badge" id="mailBadge" style="display:none;">0</span>
                 </button>
-                <button class="efb-top-icon" onclick="window.location.href='/settings'" title="Settings">⚙️</button>
-            </div>
-
-            <div class="efb-user">
-                <img id="userAvatar" src="" alt="Avatar" class="efb-user-avatar" onerror="this.style.display='none'">
+                <button class="efb-top-icon" onclick="window.location.href='/profile'" title="Settings">⚙️</button>
             </div>
         </div>
 
-        <!-- Main Tabs -->
+        <!-- Main Tabs - Centered -->
         <div class="efb-main-tabs">
-            <button class="efb-main-tab active" onclick="showMainTab('home')">Home</button>
-            <button class="efb-main-tab" onclick="showMainTab('shop')">Shop</button>
-            <button class="efb-main-tab" onclick="showMainTab('academy')">Academy</button>
-            <button class="efb-main-tab" onclick="showMainTab('extras')">Extras</button>
+            <button class="efb-main-tab active" onclick="showMainTab('home', this)">Home</button>
+            <button class="efb-main-tab" onclick="showMainTab('shop', this)">Shop</button>
+            <button class="efb-main-tab" onclick="showMainTab('academy', this)">Academy</button>
+            <button class="efb-main-tab" onclick="showMainTab('extras', this)">Extras</button>
         </div>
 
-        <!-- Tab Contents -->
+        <!-- HOME Tab -->
         <div id="homeTab" class="efb-tab-content active">
             <!-- Featured Banner -->
             <div class="efb-banner">
-                <div class="efb-banner-content">
-                    <div class="efb-banner-info">
-                        <div class="efb-banner-title">Featured Pack</div>
-                        <div class="efb-banner-subtitle">Special Selection</div>
-                        <div class="efb-banner-timer">🕐 Limited Time Offer!</div>
-                        <div class="efb-banner-desc">
-                            Featuring players with brilliant accolades!<br>
-                            <small>*The displayed Overall Ratings reflect the highest possible Ratings of the
-                                players.</small>
-                        </div>
-                    </div>
-                    <div class="efb-banner-cards">
-                        <div class="efb-preview-card">
-                            <span class="efb-preview-rating">96</span>
-                            <span class="efb-preview-pos">LWF</span>
-                            <span class="efb-preview-player">⚽</span>
-                            <span class="efb-preview-stars">⭐⭐⭐⭐⭐</span>
-                        </div>
-                        <div class="efb-preview-card">
-                            <span class="efb-preview-rating">95</span>
-                            <span class="efb-preview-pos">AMF</span>
-                            <span class="efb-preview-player">⚽</span>
-                            <span class="efb-preview-stars">⭐⭐⭐⭐⭐</span>
-                        </div>
-                        <div class="efb-preview-card">
-                            <span class="efb-preview-rating">95</span>
-                            <span class="efb-preview-pos">GK</span>
-                            <span class="efb-preview-player">🧤</span>
-                            <span class="efb-preview-stars">⭐⭐⭐⭐⭐</span>
-                        </div>
+                <div class="efb-banner-info">
+                    <div class="efb-banner-title">Featured Pack</div>
+                    <div class="efb-banner-subtitle">Special Selection</div>
+                    <div class="efb-banner-timer">🔵 Limited Time Offer!</div>
+                    <div class="efb-banner-desc">
+                        Featuring players with brilliant accolades!<br>
+                        *The displayed Overall Ratings reflect the highest possible Ratings of the players.
                     </div>
                 </div>
-            </div>
-
-            <!-- Quick Stats -->
-            <div class="efb-quick-stats">
-                <div class="efb-stat-card">
-                    <span class="efb-stat-icon">👥</span>
-                    <div class="efb-stat-info">
-                        <span class="efb-stat-label">Players</span>
-                        <span class="efb-stat-value" id="playerCount">0</span>
+                <div class="efb-banner-cards">
+                    <div class="efb-preview-card">
+                        <span class="efb-preview-rating">96</span>
+                        <span class="efb-preview-pos">LWF</span>
+                        <span class="efb-preview-player">⚽</span>
+                        <span class="efb-preview-stars">⭐⭐⭐⭐⭐</span>
                     </div>
-                </div>
-                <div class="efb-stat-card">
-                    <span class="efb-stat-icon">⭐</span>
-                    <div class="efb-stat-info">
-                        <span class="efb-stat-label">Team Rating</span>
-                        <span class="efb-stat-value" id="teamRating">0</span>
+                    <div class="efb-preview-card">
+                        <span class="efb-preview-rating">95</span>
+                        <span class="efb-preview-pos">AMF</span>
+                        <span class="efb-preview-player">⚽</span>
+                        <span class="efb-preview-stars">⭐⭐⭐⭐⭐</span>
                     </div>
-                </div>
-                <div class="efb-stat-card">
-                    <span class="efb-stat-icon">🏆</span>
-                    <div class="efb-stat-info">
-                        <span class="efb-stat-label">Wins</span>
-                        <span class="efb-stat-value" id="winsCount">0</span>
+                    <div class="efb-preview-card">
+                        <span class="efb-preview-rating">95</span>
+                        <span class="efb-preview-pos">GK</span>
+                        <span class="efb-preview-player">🧤</span>
+                        <span class="efb-preview-stars">⭐⭐⭐⭐⭐</span>
                     </div>
                 </div>
             </div>
         </div>
 
+        <!-- SHOP Tab -->
         <div id="shopTab" class="efb-tab-content">
-            <div style="text-align: center; padding: 50px; color: rgba(255,255,255,0.7);">
-                <h2>🛒 Shop</h2>
-                <p>Visit Contracts to purchase packs!</p>
-                <button class="efb-nav-btn cyan" style="margin: 20px auto;" onclick="window.location.href='/contracts'">
-                    <span class="icon">🎁</span>
-                    <span>Contracts</span>
-                </button>
-            </div>
-        </div>
-
-        <div id="academyTab" class="efb-tab-content">
-            <div style="text-align: center; padding: 50px; color: rgba(255,255,255,0.7);">
-                <h2>🎓 Academy</h2>
-                <p>Train and develop your players!</p>
-                <button class="efb-nav-btn purple" style="margin: 20px auto;"
-                    onclick="window.location.href='/training'">
-                    <span class="icon">⚡</span>
-                    <span>Training</span>
-                </button>
-            </div>
-        </div>
-
-        <div id="extrasTab" class="efb-tab-content">
-            <div style="text-align: center; padding: 50px; color: rgba(255,255,255,0.7);">
-                <h2>🎮 Extras</h2>
-                <p>Additional features and settings</p>
-                <div style="display: flex; gap: 20px; justify-content: center; margin-top: 20px;">
-                    <button class="efb-nav-btn blue" onclick="window.location.href='/profile'">
-                        <span class="icon">👤</span>
-                        <span>Profile</span>
-                    </button>
-                    <button class="efb-nav-btn orange" onclick="window.location.href='/collection'">
-                        <span class="icon">📚</span>
-                        <span>Collection</span>
+            <div class="efb-banner" style="justify-content: center;">
+                <div class="tab-placeholder">
+                    <h2>🛒 Shop</h2>
+                    <p>Visit Contracts to purchase player packs!</p>
+                    <button class="tab-placeholder-btn" style="background: linear-gradient(135deg, #06b6d4, #0891b2);"
+                        onclick="window.location.href='/contracts'">
+                        🎁 Open Contracts
                     </button>
                 </div>
             </div>
         </div>
 
-        <!-- Bottom Navigation -->
+        <!-- ACADEMY Tab -->
+        <div id="academyTab" class="efb-tab-content">
+            <div class="efb-banner" style="justify-content: center;">
+                <div class="tab-placeholder">
+                    <h2>🎓 Academy</h2>
+                    <p>Train and develop your players!</p>
+                    <button class="tab-placeholder-btn" style="background: linear-gradient(135deg, #a855f7, #9333ea);"
+                        onclick="window.location.href='/training'">
+                        ⚡ Training Center
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- EXTRAS Tab -->
+        <div id="extrasTab" class="efb-tab-content">
+            <div class="efb-banner" style="justify-content: center;">
+                <div class="tab-placeholder">
+                    <h2>🎮 Extras</h2>
+                    <p>Additional features and settings</p>
+                    <div>
+                        <button class="tab-placeholder-btn"
+                            style="background: linear-gradient(135deg, #3b82f6, #1d4ed8);"
+                            onclick="window.location.href='/profile'">
+                            👤 Profile
+                        </button>
+                        <button class="tab-placeholder-btn"
+                            style="background: linear-gradient(135deg, #f59e0b, #d97706);"
+                            onclick="window.location.href='/collection'">
+                            📚 Collection
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Bottom Navigation - Exact size match -->
         <div class="efb-bottom-nav">
             <button class="efb-nav-btn pink" onclick="window.location.href='/match'">
                 <span class="icon">⚽</span>
@@ -619,9 +543,8 @@
                 <span>My Team</span>
             </button>
             <button class="efb-nav-btn cyan" onclick="window.location.href='/contracts'">
-                <span class="icon">👤➕</span>
+                <span class="icon">👤</span>
                 <span>Contracts</span>
-                <span class="efb-nav-badge" id="contractsBadge" style="display:none;">!</span>
             </button>
             <button class="efb-nav-btn green" onclick="window.location.href='/leaderboard'">
                 <span class="icon">🏆</span>
@@ -635,48 +558,20 @@
     </div>
 
     <script>
-        let userData = null;
-
         async function init() {
             try {
                 const response = await fetch('/api/user');
                 const data = await response.json();
-                userData = data;
-
-                // Update UI
-                if (data.discord) {
-                    if (data.discord.avatar) {
-                        document.getElementById('userAvatar').src = data.discord.avatar;
-                    }
-                }
 
                 if (data.gameData) {
                     document.getElementById('topGP').textContent = (data.gameData.gp || 0).toLocaleString();
                     document.getElementById('topEcoins').textContent = (data.gameData.eCoins || 0).toLocaleString();
-                    document.getElementById('playerCount').textContent = (data.gameData.players || []).length;
-                    document.getElementById('winsCount').textContent = data.gameData.stats?.wins || 0;
-
-                    // Calculate team rating
-                    if (data.gameData.squad?.main && data.gameData.players) {
-                        let total = 0;
-                        let count = 0;
-                        data.gameData.squad.main.forEach(id => {
-                            if (id) {
-                                const player = data.gameData.players.find(p => p.id === id);
-                                if (player) {
-                                    total += player.overall || 0;
-                                    count++;
-                                }
-                            }
-                        });
-                        document.getElementById('teamRating').textContent = count > 0 ? Math.round(total / count) : 0;
-                    }
 
                     // Check for mail
                     const unclaimedMail = (data.gameData.mail || []).filter(m => !m.claimed).length;
                     if (unclaimedMail > 0) {
                         const badge = document.getElementById('mailBadge');
-                        badge.textContent = unclaimedMail;
+                        badge.textContent = unclaimedMail > 99 ? '99+' : unclaimedMail;
                         badge.style.display = 'flex';
                     }
                 }
@@ -688,10 +583,10 @@
             }
         }
 
-        function showMainTab(tabName) {
+        function showMainTab(tabName, btn) {
             // Update buttons
-            document.querySelectorAll('.efb-main-tab').forEach(btn => btn.classList.remove('active'));
-            event.target.classList.add('active');
+            document.querySelectorAll('.efb-main-tab').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
 
             // Update content
             document.querySelectorAll('.efb-tab-content').forEach(tab => tab.classList.remove('active'));
