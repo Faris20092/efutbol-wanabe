@@ -830,94 +830,11 @@
             font-weight: bold;
         }
 
-        /* Mini Card Design (Face + Stacked Info + Rarity Logo) */
-        .efball-mini-card {
-            position: relative;
-            width: 100%;
-            height: 100%;
-            border-radius: 6px;
-            overflow: hidden;
-            background: linear-gradient(135deg, #1f2937, #111827);
-            /* Default */
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
-            border: 1px solid rgba(255, 255, 255, 0.1);
+        .player-detail-stats {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
         }
-
-        /* Rarity Backgrounds */
-        .efball-mini-card[data-rarity="Iconic"] {
-            background: linear-gradient(135deg, #7f1d1d, #be185d);
-            border-color: #fca5a5;
-        }
-
-        .efball-mini-card[data-rarity="Legend"] {
-            background: linear-gradient(135deg, #92400e, #d97706);
-            border-color: #fcd34d;
-        }
-
-        .efball-mini-card[data-rarity="Show Time"] {
-            background: linear-gradient(135deg, #831843, #be185d);
-            border-color: #fbcfe8;
-        }
-
-        .efball-mini-card[data-rarity="Epic"] {
-            background: linear-gradient(135deg, #14532d, #15803d);
-            border-color: #86efac;
-        }
-
-        .efball-mini-card[data-rarity="Standard"] {
-            background: linear-gradient(135deg, #1e3a8a, #2563eb);
-            border-color: #93c5fd;
-        }
-
-
-        .mini-card-info {
-            position: absolute;
-            top: 4px;
-            left: 5px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            z-index: 2;
-        }
-
-        .mini-card-pos {
-            font-size: 0.6em;
-            color: #fff;
-            background: rgba(0, 0, 0, 0.4);
-            padding: 1px 3px;
-            border-radius: 3px;
-            margin-bottom: 0;
-            line-height: 1;
-        }
-
-        .mini-card-rating {
-            font-size: 1.2em;
-            font-weight: 900;
-            color: #fff;
-            line-height: 1;
-            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8);
-        }
-
-        .mini-card-face {
-            position: absolute;
-            bottom: 0px;
-            right: -5px;
-            width: 75%;
-            height: 85%;
-            object-fit: contain;
-            z-index: 1;
-            /* Filter to make it look like a cutout if needed, but pngs are already cutouts */
-        }
-
-        .mini-card-logo {
-            position: absolute;
-            bottom: 3px;
-            left: 4px;
-            font-size: 0.9em;
-            z-index: 2;
-            filter: drop-shadow(0 0 2px rgba(0, 0, 0, 0.8));
-        }
-
 
         .player-detail-stat {
             display: flex;
@@ -968,6 +885,158 @@
             .player-detail-right {
                 padding: 20px;
             }
+        }
+
+        /* PLATE CARD MODEL (Reference Photo 4 - Elber Style) */
+        .plate-card {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            border-radius: 8px;
+            overflow: hidden;
+            position: relative;
+            background: #000;
+            border: 3px solid #999;
+            /* Default Silver */
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
+            font-family: 'Segoe UI', sans-serif;
+            transition: transform 0.2s;
+        }
+
+        .plate-card:hover {
+            transform: scale(1.02);
+            z-index: 10;
+        }
+
+        /* Border Colors per Rarity (Slightly lighter/different than BG) */
+        .plate-card[data-rarity="Iconic"] {
+            border-color: #fbcfe8;
+            /* Light Pink */
+        }
+
+        .plate-card[data-rarity="Legend"] {
+            border-color: #fef08a;
+            /* Light Gold */
+        }
+
+        .plate-card[data-rarity="Black"] {
+            border-color: #6b7280;
+            /* Grey */
+        }
+
+        .plate-card[data-rarity="Gold"] {
+            border-color: #fcd34d;
+            /* Yellow */
+        }
+
+        .plate-card[data-rarity="Silver"] {
+            border-color: #e5e7eb;
+            /* Silver */
+        }
+
+        .plate-left {
+            width: 38%;
+            background: linear-gradient(180deg, #1f2937 0%, #000 100%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 2;
+            padding-bottom: 25px;
+            /* Space for name bar */
+            border-right: 1px solid rgba(255, 255, 255, 0.15);
+            position: relative;
+        }
+
+        /* Left Side Content */
+        .plate-rating {
+            font-size: 2.2em;
+            font-weight: 900;
+            color: #fff;
+            line-height: 1;
+            text-shadow: 2px 2px 0px rgba(0, 0, 0, 0.5);
+            margin-bottom: 5px;
+        }
+
+        .plate-pos {
+            font-size: 1em;
+            color: #fff;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+
+        .plate-rarity-logo {
+            font-size: 1.8em;
+            margin-top: 10px;
+            filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.5));
+        }
+
+        .plate-right {
+            width: 62%;
+            position: relative;
+            background: #333;
+            overflow: hidden;
+        }
+
+        /* Rarity Backgrounds for Right Side (Distinct from Border) */
+        .plate-card[data-rarity="Iconic"] .plate-right {
+            background: linear-gradient(135deg, #be185d 0%, #be185d 100%);
+            /* Deep Pink */
+        }
+
+        .plate-card[data-rarity="Legend"] .plate-right {
+            background: linear-gradient(135deg, #b45309 0%, #d97706 100%);
+            /* Gold/Orange */
+        }
+
+        .plate-card[data-rarity="Black"] .plate-right {
+            background: linear-gradient(135deg, #1f2937 0%, #374151 100%);
+            /* Dark Grey */
+        }
+
+        .plate-card[data-rarity="Gold"] .plate-right {
+            background: linear-gradient(135deg, #ca8a04 0%, #eab308 100%);
+            /* Gold */
+        }
+
+        .plate-card[data-rarity="Silver"] .plate-right {
+            background: linear-gradient(135deg, #9ca3af 0%, #d1d5db 100%);
+            /* Silver */
+        }
+
+        .plate-card[data-rarity="Bronze"] .plate-right {
+            background: linear-gradient(135deg, #92400e 0%, #b45309 100%);
+            /* Bronze */
+        }
+
+        .plate-card[data-rarity="White"] .plate-right {
+            background: #f3f4f6;
+        }
+
+        .plate-face {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            position: absolute;
+            bottom: 0;
+            right: 0;
+        }
+
+        .plate-name {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            background: #000;
+            color: #fff;
+            text-align: center;
+            font-size: 0.85em;
+            padding: 5px 0;
+            z-index: 20;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            border-top: 1px solid rgba(255, 255, 255, 0.3);
         }
     </style>
 </head>

@@ -179,27 +179,25 @@ function openPackModal(packKey) {
         const playerImagePng = `/assets/playerimages/${playerImageName}.png`;
 
         const card = document.createElement('div');
-        // Wrapper styling for Mini Card
-        card.style.flex = "0 0 110px";
-        card.style.height = "120px";
+        // Wrapper styling - Flexible but fixed height
+        card.style.flex = "0 0 160px";
+        card.style.height = "250px";
         card.style.cursor = "pointer";
         card.onclick = () => showPlayerDetails(player);
 
-        // Mini Card HTML Structure
+        // PLATE CARD STRUCTURE
         card.innerHTML = `
-            <div class="efball-mini-card" data-rarity="${player.rarity || 'Base'}">
-                <div class="mini-card-info">
-                    <div class="mini-card-pos">${player.position || 'CMF'}</div>
-                    <div class="mini-card-rating">${player.overall || 0}</div>
+            <div class="plate-card" data-rarity="${player.rarity || 'Base'}">
+                <div class="plate-left">
+                    <div class="plate-rating">${player.overall || 0}</div>
+                    <div class="plate-pos">${player.position || 'CMF'}</div>
+                    <div class="plate-rarity-logo">${RARITY_EMOJIS[player.rarity] || '💎'}</div>
                 </div>
-                <!-- Rarity Logo -->
-                <div class="mini-card-logo">${RARITY_EMOJIS[player.rarity] || '💎'}</div>
-                <img src="${playerImagePng}" class="mini-card-face" 
-                     onerror="this.src='/assets/playerimages/default_player.png'">
-            </div>
-            <!-- Name below card -->
-            <div class="modal-player-name" style="margin-top: 4px; font-size: 0.75em; color: rgba(255,255,255,0.7); text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
-                ${truncateName(player.name)}
+                <div class="plate-right">
+                    <img src="${playerImagePng}" class="plate-face" 
+                         onerror="this.src='/assets/playerimages/default_player.png'">
+                </div>
+                <div class="plate-name">${truncateName(player.name)}</div>
             </div>
         `;
 
@@ -240,19 +238,19 @@ function showAllPlayers() {
         card.style.cursor = 'pointer';
         card.onclick = () => showPlayerDetails(player);
 
-        // Use Mini Card for See All Grid as well
+        // Use plate-card scaled down for grid
         card.innerHTML = `
-            <div class="efball-mini-card" data-rarity="${player.rarity || 'Base'}" style="width: 100%; aspect-ratio: 1/1;">
-                <div class="mini-card-info">
-                    <div class="mini-card-pos">${player.position || 'CMF'}</div>
-                    <div class="mini-card-rating">${player.overall || 0}</div>
+            <div class="plate-card" data-rarity="${player.rarity || 'Base'}" style="width: 100%; aspect-ratio: 160/250;">
+                <div class="plate-left">
+                    <div class="plate-rating" style="font-size: 1.8em;">${player.overall || 0}</div>
+                    <div class="plate-pos" style="font-size: 0.85em;">${player.position || 'CMF'}</div>
+                    <div class="plate-rarity-logo" style="font-size: 1.4em;">${RARITY_EMOJIS[player.rarity] || '💎'}</div>
                 </div>
-                <div class="mini-card-logo">${RARITY_EMOJIS[player.rarity] || '💎'}</div>
-                <img src="${playerImagePng}" class="mini-card-face" 
-                     onerror="this.src='/assets/playerimages/default_player.png'">
-            </div>
-            <div class="modal-player-name" style="margin-top: 4px; font-size: 0.75em; color: rgba(255,255,255,0.7); text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
-                ${truncateName(player.name)}
+                <div class="plate-right">
+                    <img src="${playerImagePng}" class="plate-face" 
+                         onerror="this.src='/assets/playerimages/default_player.png'">
+                </div>
+                <div class="plate-name" style="font-size: 0.7em;">${truncateName(player.name)}</div>
             </div>
         `;
         grid.appendChild(card);
@@ -282,14 +280,18 @@ function showPlayerDetails(player) {
     content.innerHTML = `
         <div class="player-detail-container">
             <div class="player-detail-left">
-                <!-- Unified Design Card (Standard Size 240x340 controlled by CSS class) -->
-                <div class="player-detail-card" data-rarity="${player.rarity || 'Base'}">
-                    <div class="player-card-position">${player.position || 'CMF'}</div>
-                    <div class="player-card-rating">${player.overall || 0}</div>
-                    <div class="player-card-rarity">${RARITY_EMOJIS[player.rarity] || '💎'}</div>
-                    <img src="${playerImagePng}" class="player-detail-image" 
-                         onerror="this.src='/assets/playerimages/default_player.png'">
-                    <div class="player-card-rarity-bottom">${player.rarity || 'Standard'}</div>
+                <!-- Unified Design Card (Plate Style) -->
+                <div class="plate-card" data-rarity="${player.rarity || 'Base'}" style="width: 100%; max-width: 320px; height: 480px;">
+                    <div class="plate-left" style="width: 38%;">
+                        <div class="plate-rating" style="font-size: 3em;">${player.overall || 0}</div>
+                        <div class="plate-pos" style="font-size: 1.4em; padding: 4px 10px;">${player.position || 'CMF'}</div>
+                        <div class="plate-rarity-logo" style="font-size: 2.5em; margin-top: 15px;">${RARITY_EMOJIS[player.rarity] || '💎'}</div>
+                    </div>
+                    <div class="plate-right" style="width: 62%;">
+                        <img src="${playerImagePng}" class="plate-face" 
+                             onerror="this.src='/assets/playerimages/default_player.png'">
+                    </div>
+                    <div class="plate-name" style="font-size: 1.2em; padding: 8px 0;">${player.name}</div>
                 </div>
                 
                 <div style="margin-top: 20px; color: #4ade80; font-size: 1.1em; font-weight: bold; text-align: center;">
