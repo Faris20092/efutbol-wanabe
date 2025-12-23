@@ -179,25 +179,26 @@ function openPackModal(packKey) {
         const playerImagePng = `/assets/playerimages/${playerImageName}.png`;
 
         const card = document.createElement('div');
-        // Wrapper styling - Using flexible layout to fit modal, but respecting aspect ratio
-        card.style.flex = "0 0 180px";
-        card.style.height = "255px";
+        // Wrapper styling for Mini Card
+        card.style.flex = "0 0 110px";
+        card.style.height = "120px";
         card.style.cursor = "pointer";
         card.onclick = () => showPlayerDetails(player);
 
-        // Structure matches card model.md CSS
-        // Scale down the card content to fit the wrapper if needed, or rely on CSS flexibility
-        // Using inline styles on wrapper to force internal card to fit
+        // Mini Card HTML Structure
         card.innerHTML = `
-            <div class="player-detail-card" data-rarity="${player.rarity || 'Base'}" style="width: 100%; height: 100%;">
-                <div class="player-card-position" style="font-size: 0.8em; padding: 2px 6px;">${player.position || 'CMF'}</div>
-                <div class="player-card-rating" style="font-size: 2em; top: 30px;">${player.overall || 0}</div>
-                <div class="player-card-rarity" style="font-size: 1.5em; top: 75px;">${RARITY_EMOJIS[player.rarity] || '💎'}</div>
-                <img src="${playerImagePng}" class="player-detail-image" 
+            <div class="efball-mini-card" data-rarity="${player.rarity || 'Base'}">
+                <div class="mini-card-info">
+                    <div class="mini-card-pos">${player.position || 'CMF'}</div>
+                    <div class="mini-card-rating">${player.overall || 0}</div>
+                </div>
+                <!-- Rarity Logo -->
+                <div class="mini-card-logo">${RARITY_EMOJIS[player.rarity] || '💎'}</div>
+                <img src="${playerImagePng}" class="mini-card-face" 
                      onerror="this.src='/assets/playerimages/default_player.png'">
-                <div class="player-card-rarity-bottom" style="bottom: 5px; font-size: 0.7em;">${player.rarity || 'Standard'}</div>
             </div>
-            <div class="modal-player-name" style="margin-top: 5px; font-size: 0.8em; color: rgba(255,255,255,0.7); text-align: center;">
+            <!-- Name below card -->
+            <div class="modal-player-name" style="margin-top: 4px; font-size: 0.75em; color: rgba(255,255,255,0.7); text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
                 ${truncateName(player.name)}
             </div>
         `;
@@ -239,17 +240,18 @@ function showAllPlayers() {
         card.style.cursor = 'pointer';
         card.onclick = () => showPlayerDetails(player);
 
-        // Use player-detail-card scaled down for grid
+        // Use Mini Card for See All Grid as well
         card.innerHTML = `
-            <div class="player-detail-card" data-rarity="${player.rarity || 'Base'}" style="width: 100%; aspect-ratio: 240/340;">
-                <div class="player-card-position" style="font-size: 0.8em; padding: 2px 6px;">${player.position || 'CMF'}</div>
-                <div class="player-card-rating" style="font-size: 2em; top: 30px;">${player.overall || 0}</div>
-                <div class="player-card-rarity" style="font-size: 1.5em; top: 75px;">${RARITY_EMOJIS[player.rarity] || '💎'}</div>
-                <img src="${playerImagePng}" class="player-detail-image" 
+            <div class="efball-mini-card" data-rarity="${player.rarity || 'Base'}" style="width: 100%; aspect-ratio: 1/1;">
+                <div class="mini-card-info">
+                    <div class="mini-card-pos">${player.position || 'CMF'}</div>
+                    <div class="mini-card-rating">${player.overall || 0}</div>
+                </div>
+                <div class="mini-card-logo">${RARITY_EMOJIS[player.rarity] || '💎'}</div>
+                <img src="${playerImagePng}" class="mini-card-face" 
                      onerror="this.src='/assets/playerimages/default_player.png'">
-                <div class="player-card-rarity-bottom" style="bottom: 5px; font-size: 0.7em;">${player.rarity || 'Standard'}</div>
             </div>
-            <div class="modal-player-name" style="margin-top: 5px; font-size: 0.8em; color: rgba(255,255,255,0.7); text-align: center;">
+            <div class="modal-player-name" style="margin-top: 4px; font-size: 0.75em; color: rgba(255,255,255,0.7); text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
                 ${truncateName(player.name)}
             </div>
         `;

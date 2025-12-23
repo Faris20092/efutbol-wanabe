@@ -192,64 +192,87 @@
 
         .player-slot {
             position: absolute;
-            width: 65px;
+            width: 68px;
+            /* Slightly wider to fit face */
             height: 80px;
-            background: linear-gradient(135deg, rgba(30, 50, 70, 0.95), rgba(20, 40, 60, 0.98));
-            border-radius: 8px;
-            border: 2px solid rgba(0, 200, 255, 0.5);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
+            background: linear-gradient(135deg, #1f2937, #111827);
+            border-radius: 6px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            display: block;
+            /* changed from flex column for absolute positioning internals */
             cursor: pointer;
             transition: all 0.3s;
             transform: translateX(-50%);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.4);
+            overflow: hidden;
         }
 
         .player-slot:hover {
             border-color: #00d4ff;
-            transform: translateX(-50%) scale(1.08);
-            z-index: 10;
-            box-shadow: 0 0 15px rgba(0, 200, 255, 0.5);
+            transform: translateX(-50%) scale(1.1);
+            z-index: 100;
         }
 
         .player-slot.empty {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
             background: rgba(0, 0, 0, 0.4);
             border: 2px dashed rgba(255, 255, 255, 0.3);
         }
 
+        /* Internal Mini Card Elements for Slot */
+        .slot-info {
+            position: absolute;
+            top: 2px;
+            left: 3px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            z-index: 2;
+        }
+
         .slot-pos {
-            font-size: 0.65em;
-            color: #00d4ff;
-            margin-bottom: 2px;
+            font-size: 0.55em;
+            color: #fff;
+            background: rgba(0, 0, 0, 0.5);
+            padding: 1px 3px;
+            border-radius: 2px;
+            line-height: 1;
+            margin-bottom: 1px;
         }
 
         .slot-rating {
-            font-size: 1.3em;
-            font-weight: bold;
+            font-size: 1.1em;
+            font-weight: 900;
             color: #fff;
+            line-height: 1;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8);
+        }
+
+        .slot-face {
+            position: absolute;
+            bottom: 0;
+            right: -3px;
+            width: 80%;
+            height: 80%;
+            object-fit: contain;
+            z-index: 1;
+        }
+
+        .slot-rarity-logo {
+            position: absolute;
+            bottom: 2px;
+            left: 3px;
+            font-size: 0.8em;
+            z-index: 2;
+            filter: drop-shadow(0 0 2px rgba(0, 0, 0, 0.8));
         }
 
         .slot-name {
-            font-size: 0.55em;
-            color: rgba(255, 255, 255, 0.7);
-            text-align: center;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
-            max-width: 95%;
-        }
-
-        .slot-icon {
-            font-size: 1.4em;
-            margin-bottom: 5px;
-        }
-
-        .slot-flag {
-            position: absolute;
-            bottom: 3px;
-            right: 3px;
-            font-size: 0.6em;
+            display: none;
+            /* Hidden for Mini Card style to match reference cleaner look, or optional */
         }
 
         /* Right Sidebar - Stats */
@@ -776,6 +799,31 @@
             ]
         };
 
+        const RARITY_EMOJIS = {
+            'Iconic': '💎',
+            'Legend': '🌟',
+            'Show Time': '💎',
+            'Epic': '🟢',
+            'Black': '⚫',
+            'Gold': '🟡',
+            'Silver': '⚪',
+            'Bronze': '🟤',
+            'White': '⬜',
+            'Standard': '🟦'
+        };
+
+        function getRarityBackground(rarity) {
+            switch (rarity) {
+                case 'Iconic': return 'linear-gradient(135deg, #7f1d1d, #be185d)';
+                case 'Legend': return 'linear-gradient(135deg, #92400e, #d97706)';
+                case 'Show Time': return 'linear-gradient(135deg, #831843, #be185d)';
+                case 'Epic': return 'linear-gradient(135deg, #14532d, #15803d)';
+                case 'Black': return 'linear-gradient(135deg, #000000, #333333)';
+                case 'Gold': return 'linear-gradient(135deg, #ca8a04, #eab308)';
+                default: return 'linear-gradient(135deg, #1e3a8a, #2563eb)';
+            }
+        }
+
         async function init() {
             try {
                 const response = await fetch('/api/user');
@@ -819,12 +867,19 @@
                 const player = playerId ? allPlayers.find(pl => pl.id === playerId) : null;
 
                 if (player) {
+                    const playerImageName = player.name.replace(/[^a-zA-Z0-9\-_]/g, '_').toLowerCase().replace(/_+/g, '_').replace(/_+$/g, '');
+                    const playerImagePng = `/assets/playerimages/${playerImageName}.png`;
+                    const bgStyle = getRarityBackground(player.rarity);
+
                     return `
-                        <div class="player-slot" style="left: ${p.x}%; top: ${p.y}%;" onclick="openPlayerModal(${i})">
-                            <div class="slot-pos">${p.pos}</div>
-                            <div class="slot-rating">${player.overall || 0}</div>
-                            <div class="slot-name">${player.name?.split(' ').pop() || 'Player'}</div>
-                            <span class="slot-flag">🏴</span>
+                        <div class="player-slot" style="left: ${p.x}%; top: ${p.y}%; background: ${bgStyle}; border-color: rgba(255,255,255,0.3);" onclick="openPlayerModal(${i})">
+                            <div class="slot-info">
+                                <div class="slot-pos">${p.pos}</div>
+                                <div class="slot-rating">${player.overall || 0}</div>
+                            </div>
+                            <div class="slot-rarity-logo">${RARITY_EMOJIS[player.rarity] || '💎'}</div>
+                            <img src="${playerImagePng}" class="slot-face" 
+                                 onerror="this.src='/assets/playerimages/default_player.png'">
                         </div>
                     `;
                 } else {
