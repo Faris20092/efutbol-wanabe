@@ -444,12 +444,15 @@ function createBallElement(forcedRarity = null) {
     let type = forcedRarity;
 
     if (!type) {
-        // Weighted random filler balls
+        // Weighted random filler balls - More colors!
         const r = Math.random();
-        if (r > 0.95) type = 'Black';
-        else if (r > 0.85) type = 'Gold';
-        else if (r > 0.5) type = 'Silver';
-        else type = 'Bronze';
+        if (r > 0.98) type = 'Iconic';
+        else if (r > 0.96) type = 'Legend';
+        else if (r > 0.90) type = 'Black';
+        else if (r > 0.80) type = 'Gold';
+        else if (r > 0.50) type = 'Silver';
+        else if (r > 0.20) type = 'Bronze';
+        else type = 'White';
     }
 
     el.className = 'efw-ball';
@@ -545,10 +548,13 @@ async function showPackResult(players) {
                 if (efwState.speed < 15) {
                     first.dataset.rarity = efwState.targetRarity;
                 } else {
+                    // Regenerate filler
                     const r = Math.random();
                     let filler = 'Silver';
-                    if (r > 0.8) filler = 'Gold';
-                    if (r > 0.95) filler = 'Black';
+                    if (r > 0.98) filler = 'Iconic';
+                    else if (r > 0.95) filler = 'Legend';
+                    else if (r > 0.9) filler = 'Black';
+                    else if (r > 0.8) filler = 'Gold';
                     first.dataset.rarity = filler;
                 }
             }
@@ -561,7 +567,7 @@ async function showPackResult(players) {
             efwState.speed *= 0.985; // Friction
 
             // STOP CONDITION
-            if (efwState.speed < 0.2) {
+            if (efwState.speed < 0.5) { // Slightly increased threshold for reliability
                 efwState.speed = 0;
                 efwState.isSpinning = false; // Stop loop
                 snapToGrid();
@@ -585,45 +591,50 @@ async function showPackResult(players) {
     loop();
 }
 
-// SNAP AND ALIGN LOGIC
+// SNAP AND ALIGN LOGIC - ROBUST
 function snapToGrid() {
     const track = efwState.trackElement;
-
-    // 1. Find center ball visually
     const centerX = window.innerWidth / 2;
-    const trackRect = track.getBoundingClientRect();
-    const centerY = trackRect.top + (trackRect.height / 2);
 
-    const selector = document.querySelector('.efw-selector');
-    if (selector) selector.style.display = 'none';
+    // Find closest ball geometrically
+    const balls = Array.from(track.children);
+    let closestBall = null;
+    let minDiff = Infinity;
 
-    let el = document.elementFromPoint(centerX, centerY);
+    balls.forEach(ball => {
+        const rect = ball.getBoundingClientRect();
+        const ballCenter = rect.left + (rect.width / 2);
+        const diff = Math.abs(centerX - ballCenter);
 
-    if (selector) selector.style.display = 'block';
+        if (diff < minDiff) {
+            minDiff = diff;
+            closestBall = ball;
+        }
+    });
 
-    // 2. Align visually
-    if (el && el.classList.contains('efw-ball')) {
-        if (el.dataset.rarity !== efwState.targetRarity) {
-            el.dataset.rarity = efwState.targetRarity;
+    if (closestBall) {
+        // Magician's Choice
+        if (closestBall.dataset.rarity !== efwState.targetRarity) {
+            closestBall.dataset.rarity = efwState.targetRarity;
         }
 
-        const rect = el.getBoundingClientRect();
+        const rect = closestBall.getBoundingClientRect();
         const diff = (window.innerWidth / 2) - (rect.left + rect.width / 2);
 
         track.style.transition = 'transform 0.5s ease-out';
         track.style.transform = `translateX(${efwState.offset + diff}px)`;
 
-        // 3. Highlight Effect
-        el.style.transform = 'scale(1.1)';
-        el.style.transition = 'transform 0.3s ease';
-        el.style.boxShadow = `0 0 50px ${RARITY_STYLES[efwState.targetRarity]?.color || '#fff'}`;
+        // Highlight Effect
+        closestBall.style.transform = 'scale(1.1)';
+        closestBall.style.transition = 'transform 0.3s ease';
+        closestBall.style.boxShadow = `0 0 50px ${RARITY_STYLES[efwState.targetRarity]?.color || '#fff'}`;
 
-        // 4. Start Cinematic
         setTimeout(() => {
             startCinematic(efwState.targetRarity);
         }, 1000);
     } else {
-        console.warn("Snap failed, force");
+        // Failsafe
+        console.warn("Snap failed");
         startCinematic(efwState.targetRarity);
     }
 }
@@ -681,7 +692,7 @@ function showReveal() {
                 <div class="player-card-rating" style="font-size: 1.8em; top: 30px;">${player.overall || 0}</div>
                 <div class="player-card-position" style="font-size: 0.85em;">${player.position}</div>
                 <div class="player-card-rarity" style="font-size: 1.2em; top: 70px;">${RARITY_EMOJIS[player.rarity] || '⚽'}</div>
-                <img src="${playerImagePng}" class="player-detail-image" onerror="this.src='/assets/playerimages/default_player.png'">
+                <img src="${playerImagePath}" class="player-detail-image" onerror="this.src='/assets/playerimages/default_player.png'">
                 <div class="player-card-rarity-bottom" style="font-size: 0.7em; padding: 4px;">${truncateName(player.name)}</div>
                 ${player.isDuplicate ? '<div style="position: absolute; bottom: 30px; left: 50%; transform: translateX(-50%); background: rgba(245, 158, 11, 0.9); color: #000; padding: 2px 6px; border-radius: 4px; font-size: 0.6em; font-weight: bold; z-index: 20;">DUPLICATE</div>' : ''}
             </div>
