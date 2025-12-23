@@ -789,6 +789,40 @@
             font-size: 1.1em;
         }
 
+        .detail-info-box {
+            background: linear-gradient(135deg, #1f2937 0%, #111827 100%);
+            border: 1px solid rgba(75, 85, 99, 0.4);
+            padding: 15px;
+            border-radius: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+            transition: transform 0.2s;
+        }
+
+        .detail-info-box:hover {
+            transform: translateY(-2px);
+            border-color: rgba(96, 165, 250, 0.5);
+        }
+
+        .detail-label {
+            color: #9ca3af;
+            /* Light gray */
+            font-size: 0.85em;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-weight: 600;
+        }
+
+        .detail-value {
+            color: #f3f4f6;
+            /* White-ish */
+            font-weight: 800;
+            font-size: 1.2em;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+        }
+
         .player-detail-section-title {
             color: #3b82f6;
             font-size: 1.3em;
