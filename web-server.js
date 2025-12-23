@@ -276,7 +276,7 @@ app.post('/api/contracts/open', isAuthenticated, (req, res) => {
     try {
         const { packType, count } = req.body;
         const userId = req.user.id;
-        const user = client.getUserData(userId);
+        const user = getUserData(userId);
 
         const packConfig = PACK_CONFIGS[packType];
         if (!packConfig) {
@@ -337,7 +337,7 @@ app.post('/api/contracts/open', isAuthenticated, (req, res) => {
         }
 
         // Save user data
-        client.setUserData(userId, user);
+        setUserData(userId, user);
 
         res.json({
             success: true,
