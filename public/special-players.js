@@ -476,7 +476,7 @@ async function showPackResult(players) {
 
     // Initialize State
     efwState = {
-        speed: 50, // Started slightly faster for more momentum
+        speed: 60, // Start fast
         offset: 0,
         isSpinning: true,
         isDecelerating: false,
@@ -545,8 +545,8 @@ async function showPackResult(players) {
 
             // RECYCLE LOGIC: Rigging the spin
             if (efwState.isDecelerating && efwState.targetRarity) {
-                // Immediate rigging upon deceleration to ensure target reaches center
-                if (efwState.speed < 60) {
+                // Delay rigging until speed is lower (22) so current visible balls remain random
+                if (efwState.speed < 22) {
                     first.dataset.rarity = efwState.targetRarity;
                 } else {
                     // Regenerate filler
@@ -565,10 +565,10 @@ async function showPackResult(players) {
 
         // DECELERATION PHYSICS
         if (efwState.isDecelerating) {
-            efwState.speed *= 0.99; // Lower friction (longer glide) to allow rigged balls to arrive
+            efwState.speed *= 0.99; // Low friction for long glide
 
             // STOP CONDITION
-            if (efwState.speed < 0.5) {
+            if (efwState.speed < 0.2) {
                 efwState.speed = 0;
                 efwState.isSpinning = false; // Stop loop
                 snapToGrid();
