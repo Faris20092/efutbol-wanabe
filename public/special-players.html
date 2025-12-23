@@ -871,88 +871,97 @@
 
 
         /* Featured Player Card Styles from carddes.md */
-        .featured-player {
+        /* PES Mobile Style Card for Lists (.pes-player-card) */
+        .pes-player-card {
             flex: 0 0 130px;
-            /* Slightly larger width for featured */
-            height: 170px;
-            /* Responsive proportion */
-            background: linear-gradient(135deg, rgba(100, 50, 150, 0.8), rgba(50, 20, 100, 0.9));
-            border-radius: 10px;
-            padding: 10px;
-            text-align: center;
-            border: 2px solid rgba(200, 100, 255, 0.3);
+            height: 165px;
+            /* Squarish aspect */
+            border-radius: 18px;
+            /* Heavy roundness like PES 2021 */
             position: relative;
-            cursor: pointer;
-            transition: transform 0.2s;
+            background: linear-gradient(135deg, #4c1d95, #312e81);
+            border: 2px solid rgba(255, 255, 255, 0.1);
             overflow: hidden;
+            cursor: pointer;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+            transition: transform 0.2s;
             display: flex;
             flex-direction: column;
             justify-content: space-between;
         }
 
-        .featured-player:hover {
-            transform: translateY(-5px);
+        .pes-player-card:hover {
+            transform: scale(1.05);
+            z-index: 10;
         }
 
-        /* Rarity Specifics */
-        .featured-player.iconic {
-            background: linear-gradient(135deg, rgba(219, 10, 91, 0.8), rgba(139, 0, 139, 0.9));
-            border-color: rgba(255, 20, 147, 0.5);
+        /* PES Rarities - Using User's Exact Gradients */
+        .pes-player-card.iconic {
+            background: linear-gradient(135deg, rgba(219, 10, 91, 1), rgba(139, 0, 139, 1));
+            border-color: rgba(255, 105, 180, 0.6);
         }
 
-        .featured-player.legend {
-            background: linear-gradient(135deg, rgba(218, 165, 32, 0.8), rgba(139, 101, 8, 0.9));
-            border-color: rgba(255, 215, 0, 0.5);
+        .pes-player-card.legend {
+            background: linear-gradient(135deg, rgba(218, 165, 32, 1), rgba(139, 101, 8, 1));
+            border-color: rgba(255, 215, 0, 0.6);
         }
 
-        /* Inner Elements */
-        .featured-player .player-rating {
-            font-size: 1.5em;
-            font-weight: bold;
-            color: #fff;
-            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8);
+        .pes-player-card.base {
+            background: linear-gradient(135deg, rgba(100, 50, 150, 0.9), rgba(50, 20, 100, 1));
+            border-color: rgba(200, 100, 255, 0.4);
+        }
+
+        /* PES Inner Elements */
+        .pes-rating {
             position: absolute;
-            top: 5px;
-            left: 8px;
+            top: 35px;
+            left: 10px;
+            font-size: 1.8em;
+            font-weight: 900;
+            color: #fff;
+            line-height: 1;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
             z-index: 2;
         }
 
-        .featured-player .player-position {
-            font-size: 0.75em;
+        .pes-position {
+            position: absolute;
+            top: 15px;
+            left: 10px;
+            font-size: 0.8em;
+            font-weight: bold;
             color: rgba(255, 255, 255, 0.9);
-            font-weight: bold;
-            position: absolute;
-            top: 32px;
-            left: 8px;
             z-index: 2;
         }
 
-        .featured-player .player-image {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
+        .pes-image {
             position: absolute;
-            bottom: 0px;
-            right: -10px;
+            right: -15px;
+            bottom: 0;
+            height: 90%;
+            width: auto;
+            max-width: 100%;
+            object-fit: contain;
             z-index: 1;
-            /* Clip the image if needed */
         }
 
-        .featured-player .player-name-small {
-            font-size: 0.75em;
-            color: #fff;
-            background: rgba(0, 0, 0, 0.6);
-            padding: 2px 4px;
-            border-radius: 4px;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            z-index: 2;
+        .pes-name-bar {
             position: absolute;
-            bottom: 5px;
-            left: 5px;
-            right: 5px;
-            text-align: center;
+            bottom: 8px;
+            /* Floating slightly */
+            left: 8px;
+            right: 8px;
+            height: 22px;
+            background: #000;
+            color: #fff;
+            font-size: 0.7em;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            text-transform: uppercase;
+            z-index: 3;
+            border-radius: 2px;
         }
 
         @media (max-width: 900px) {

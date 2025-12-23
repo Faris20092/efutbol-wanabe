@@ -185,19 +185,16 @@ function openPackModal(packKey) {
         else if (rLower.includes('legend') || rLower.includes('epic')) rarityClass = 'legend';
 
         const card = document.createElement('div');
-        // Structure: div.featured-player.[RARITY]
-        // Note: onclick handling via wrapping or direct assignment.
-        // We can just append the div directly if layout permits, but keeping a wrapper is safer for flex gap.
-        // Actually, the previous wrapper had styles. Let's see if we can simplify.
-        // The container #modalFeatured likely has flex styles.
 
+        // Structure: div.pes-player-card.[RARITY]
         card.innerHTML = `
-            <div class="featured-player ${rarityClass}">
-                <div class="player-rating">${player.overall || 0}</div>
-                <div class="player-position">${player.position || 'CMF'}</div>
-                <img src="${playerImagePng}" class="player-image" 
+            <div class="pes-player-card ${rarityClass}">
+                <div class="pes-rating">${player.overall || 0}</div>
+                <div class="pes-position">${player.position || 'CMF'}</div>
+                <div class="pes-logo">${RARITY_EMOJIS[player.rarity] || '🛡️'}</div>
+                <img src="${playerImagePng}" class="pes-image" 
                      onerror="this.src='/assets/playerimages/default_player.png'">
-                <div class="player-name-small">${truncateName(player.name)}</div>
+                <div class="pes-name-bar">${truncateName(player.name)}</div>
             </div>
         `;
 
