@@ -541,22 +541,184 @@
             color: #00d4ff;
         }
 
-        /* Responsive */
-        @media (max-width: 768px) {
-            .pack-item {
-                flex: 0 0 300px;
+        /* Player Detail Modal Styles */
+        .player-detail-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.9);
+            z-index: 2000;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(5px);
+        }
+
+        .player-detail-modal.active {
+            display: flex;
+        }
+
+        .player-detail-container {
+            display: flex;
+            background: #0a0e1c;
+            border-radius: 20px;
+            overflow: hidden;
+            max-width: 900px;
+            width: 95%;
+            box-shadow: 0 0 50px rgba(0, 0, 0, 0.8);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .player-detail-left {
+            flex: 0 0 350px;
+            padding: 40px;
+            background: #0f1426;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            border-right: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .player-detail-right {
+            flex: 1;
+            padding: 30px 40px;
+            background: linear-gradient(135deg, #0a1024 0%, #050814 100%);
+        }
+
+        .player-detail-card {
+            position: relative;
+            width: 260px;
+            height: 380px;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.6);
+            transition: transform 0.3s;
+        }
+
+        .player-detail-card:hover {
+            transform: scale(1.02);
+        }
+
+        .player-detail-info {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .player-detail-header-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .detail-info-box {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            padding: 12px 15px;
+            border-radius: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .detail-label {
+            color: rgba(255, 255, 255, 0.5);
+            font-size: 0.9em;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .detail-value {
+            color: #fff;
+            font-weight: bold;
+            font-size: 1.1em;
+        }
+
+        .player-detail-stats {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+        }
+
+        .player-detail-stat {
+            background: rgba(13, 20, 40, 0.8);
+            padding: 15px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            border: 1px solid rgba(255, 255, 255, 0.03);
+            transition: all 0.2s;
+        }
+
+        .player-detail-stat:hover {
+            background: rgba(20, 30, 60, 0.8);
+            border-color: rgba(255, 255, 255, 0.1);
+        }
+
+        .stat-icon {
+            font-size: 1.5em;
+            filter: drop-shadow(0 0 5px rgba(255, 255, 255, 0.2));
+        }
+
+        .stat-label {
+            flex: 1;
+            font-size: 0.85em;
+            color: rgba(255, 255, 255, 0.6);
+            font-weight: 600;
+            letter-spacing: 0.5px;
+        }
+
+        .stat-value {
+            font-size: 1.6em;
+            font-weight: bold;
+            font-family: 'Segoe UI', sans-serif;
+            text-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+        }
+
+        .close-detail-btn {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.1);
+            border: none;
+            color: #fff;
+            font-size: 1.5em;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 2001;
+            transition: all 0.3s;
+        }
+
+        .close-detail-btn:hover {
+            background: rgba(239, 68, 68, 0.8);
+            transform: rotate(90deg);
+        }
+
+        @media (max-width: 900px) {
+            .player-detail-container {
+                flex-direction: column;
+                max-height: 90vh;
+                overflow-y: auto;
             }
 
-            .modal-pack-name {
-                font-size: 1.5em;
+            .player-detail-left {
+                padding: 30px 20px;
+                flex: 0 0 auto;
             }
 
-            .modal-player-card {
-                flex: 0 0 110px;
-            }
-
-            .all-players-grid {
-                grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+            .player-detail-right {
+                padding: 20px;
             }
         }
     </style>
@@ -645,6 +807,12 @@
                 </div>
             </div>
         </div>
+    </div>
+
+    <!-- Player Detail Modal -->
+    <div class="player-detail-modal" id="playerModal">
+        <button class="close-detail-btn" onclick="closePlayerModal()">×</button>
+        <div id="playerModalContent"></div>
     </div>
 
     <script src="/special-players.js"></script>

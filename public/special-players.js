@@ -1,7 +1,7 @@
 // Special Players List Page
 let userData = null;
 let allPlayers = [];
-let packInfo = {};
+let ownedPlayerIds = [];
 let selectedPack = null;
 
 // Pack definitions matching existing system
@@ -32,6 +32,16 @@ const PACKS = {
     }
 };
 
+const RARITY_EMOJIS = {
+    'Iconic': '💎',
+    'Legend': '🌟',
+    'Black': '⚫',
+    'Gold': '🟡',
+    'Silver': '⚪',
+    'Bronze': '🟤',
+    'White': '⬜'
+};
+
 async function init() {
     try {
         await loadUserData();
@@ -48,10 +58,16 @@ async function loadUserData() {
     const data = await response.json();
     userData = data.gameData;
 
+    // Load owned player IDs
+    if (userData.players) {
+        ownedPlayerIds = userData.players.map(p => p.id);
+    }
+
     document.getElementById('topGP').textContent = (userData.gp || 0).toLocaleString();
     document.getElementById('topEcoins').textContent = userData.eCoins || 0;
 }
 
+// Added fix for API response structure
 async function loadAllPlayers() {
     const response = await fetch('/api/all-players');
     const data = await response.json();
@@ -67,6 +83,9 @@ function getTopPlayersForPack(packKey, count = 3) {
 
     // Sort by overall rating descending
     eligiblePlayers.sort((a, b) => (b.overall || 0) - (a.overall || 0));
+
+    // Prioritize players with images if possible?
+    // For now just top rated.
 
     return eligiblePlayers.slice(0, count);
 }
@@ -95,11 +114,21 @@ function renderPackCarousel() {
         topPlayers.forEach(player => {
             const rarityClass = player.rarity === 'Iconic' ? 'iconic' :
                 player.rarity === 'Legend' ? 'legend' : '';
+
+            // Use playerimages (full cutout) instead of faces for better quality
+            const playerImageName = player.name.replace(/[^a-zA-Z0-9\-_]/g, '_').toLowerCase().replace(/_+/g, '_').replace(/_+$/g, '');
+            const playerImagePng = `/assets/playerimages/${playerImageName}.png`;
+            const playerImageJpg = `/assets/playerimages/${playerImageName}.jpg`;
+
+            // Adjust styles for full image display within the small card
             playersHtml += `
-                <div class="featured-player ${rarityClass}">
-                    <div class="player-rating">${player.overall || 0}</div>
-                    <div class="player-position">${player.position || '-'}</div>
-                    <div class="player-name-small">${truncateName(player.name)}</div>
+                <div class="featured-player ${rarityClass}" style="position: relative; overflow: hidden;">
+                    <div class="player-rating" style="position: relative; z-index: 2;">${player.overall || 0}</div>
+                    <div class="player-position" style="position: relative; z-index: 2;">${player.position || '-'}</div>
+                    <img src="${playerImagePng}" 
+                         style="position: absolute; bottom: -10px; right: -10px; height: 120%; width: auto; opacity: 0.8; z-index: 1;"
+                         onerror="this.style.display='none'">
+                    <div class="player-name-small" style="position: relative; z-index: 2;">${truncateName(player.name)}</div>
                 </div>
             `;
         });
@@ -149,11 +178,23 @@ function openPackModal(packKey) {
             player.rarity === 'Legend' ? 'legend' : '';
         const playerCard = document.createElement('div');
         playerCard.className = `modal-player-card ${rarityClass}`;
+        // Use full image for modal cards too
+        const playerImageName = player.name.replace(/[^a-zA-Z0-9\-_]/g, '_').toLowerCase().replace(/_+/g, '_').replace(/_+$/g, '');
+        const playerImagePng = `/assets/playerimages/${playerImageName}.png`;
+
         playerCard.innerHTML = `
-            <div class="modal-player-rating">${player.overall || 0}</div>
-            <div class="modal-player-pos">${player.position || '-'}</div>
-            <div class="modal-player-name">${truncateName(player.name)}</div>
+            <div class="modal-player-rating" style="position:relative; z-index:2;">${player.overall || 0}</div>
+            <div class="modal-player-pos" style="position:relative; z-index:2;">${player.position || '-'}</div>
+            <img src="${playerImagePng}" 
+                 style="position: absolute; bottom: 0; right: -5px; height: 90px; width: auto; z-index: 1;"
+                 onerror="this.style.display='none'">
+            <div class="modal-player-name" style="position:relative; z-index:2;">${truncateName(player.name)}</div>
         `;
+
+        // Make clickable
+        playerCard.style.cursor = 'pointer';
+        playerCard.onclick = () => showPlayerDetails(player);
+
         featuredContainer.appendChild(playerCard);
     });
 
@@ -186,6 +227,11 @@ function showAllPlayers() {
         const card = document.createElement('div');
         card.className = 'all-player-card';
         card.setAttribute('data-rarity', player.rarity);
+
+        // Add click handler
+        card.style.cursor = 'pointer';
+        card.onclick = () => showPlayerDetails(player);
+
         card.innerHTML = `
             <div class="all-player-rating-large">${player.overall || 0}</div>
             <div class="all-player-pos">${player.position || '-'}</div>
@@ -202,6 +248,136 @@ function showAllPlayers() {
 function hideSeeAll() {
     document.getElementById('featuredView').style.display = 'block';
     document.getElementById('allPlayersView').classList.remove('show');
+}
+
+// Show player details modal matching photo reference
+function showPlayerDetails(player) {
+    const modal = document.getElementById('playerModal');
+    const content = document.getElementById('playerModalContent');
+
+    const stats = player.stats || {};
+    const isOwned = ownedPlayerIds.includes(player.id);
+
+    // Get player full image path (240x340 images)
+    const sanitizedName = player.name.replace(/[^a-zA-Z0-9\-_]/g, '_').toLowerCase().replace(/_+/g, '_').replace(/_+$/g, '');
+    const playerImagePath = `/assets/playerimages/${sanitizedName}.png`;
+
+    // Background colors for rarities
+    const rarityColors = {
+        'Iconic': 'linear-gradient(135deg, #db0a5b, #8b008b)',
+        'Legend': 'linear-gradient(135deg, #daa520, #8b6508)',
+        'Black': 'linear-gradient(135deg, #333, #000)',
+        'Gold': 'linear-gradient(135deg, #b49632, #78641e)',
+        'Silver': 'linear-gradient(135deg, #969696, #646464)',
+        'Bronze': 'linear-gradient(135deg, #b4783c, #785028)',
+        'White': 'linear-gradient(135deg, #c8c8c8, #969696)'
+    };
+
+    // Default to Black-like gradient if not found
+    const cardBg = rarityColors[player.rarity] || 'linear-gradient(135deg, #333, #000)';
+
+    content.innerHTML = `
+        <div class="player-detail-container">
+            <div class="player-detail-left">
+                <div class="player-detail-card" style="background: ${cardBg}; border: 2px solid rgba(255,255,255,0.3);">
+                    <!-- Top Left Info -->
+                    <div style="position: absolute; top: 15px; left: 15px; z-index: 2;">
+                        <div style="background: rgba(0,0,0,0.5); padding: 2px 8px; border-radius: 4px; color: #fff; font-weight: bold; font-size: 0.9em; margin-bottom: 2px;">${player.position}</div>
+                        <div style="color: #ffd700; font-size: 2.5em; font-weight: bold; text-shadow: 2px 2px 0 #000;">${player.overall}</div>
+                        <div style="font-size: 1.5em; text-shadow: 0 2px 5px rgba(0,0,0,0.5); margin-top: 10px;">${RARITY_EMOJIS[player.rarity] || '⚽'}</div>
+                    </div>
+                    
+                    <!-- Player Image -->
+                    <img src="${playerImagePath}" alt="${player.name}" 
+                         style="position: absolute; bottom: 0; right: -10px; width: 240px; height: auto; z-index: 1;"
+                         onerror="this.src='/assets/playerimages/default_player.png'">
+                    
+                    <!-- Bottom Rarity Label -->
+                    <div style="position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%); background: rgba(0,0,0,0.7); padding: 8px 30px; border-radius: 20px; color: #fff; font-size: 0.9em; font-weight: bold; z-index: 2; width: 80%; text-align: center; border: 1px solid rgba(255,255,255,0.2);">
+                        ${player.rarity}
+                    </div>
+                </div>
+                ${isOwned ? '<p style="color: #27ae60; font-weight: bold; text-align: center; margin-top: 15px;">✓ You own this player</p>' : '<p style="color: #999; text-align: center; margin-top: 15px; font-size: 0.9em;">You don\'t own this player yet</p>'}
+            </div>
+            
+            <div class="player-detail-right">
+                <div class="player-detail-header-grid">
+                    <div class="detail-info-box">
+                        <span class="detail-label">Overall:</span>
+                        <span class="detail-value">${player.overall}</span>
+                    </div>
+                    <div class="detail-info-box">
+                        <span class="detail-label">Rarity:</span>
+                        <span class="detail-value">${player.rarity}</span>
+                    </div>
+                    <div class="detail-info-box">
+                        <span class="detail-label">Position:</span>
+                        <span class="detail-value">${player.position}</span>
+                    </div>
+                    <div class="detail-info-box">
+                        <span class="detail-label">Style:</span>
+                        <span class="detail-value" style="font-size: 0.9em;">${player.playingStyle || 'N/A'}</span>
+                    </div>
+                </div>
+                
+                <h3 style="color: #00d4ff; margin-bottom: 15px; font-size: 1.2em;">Stats</h3>
+                <div class="player-detail-stats">
+                    <div class="player-detail-stat">
+                        <span class="stat-icon">⚔️</span>
+                        <span class="stat-label">ATTACKING:</span>
+                        <span class="stat-value" style="color: ${getStatColor(stats.attacking)}">${stats.attacking || 0}</span>
+                    </div>
+                    <div class="player-detail-stat">
+                        <span class="stat-icon">🎯</span>
+                        <span class="stat-label">DRIBBLING:</span>
+                        <span class="stat-value" style="color: ${getStatColor(stats.dribbling)}">${stats.dribbling || 0}</span>
+                    </div>
+                    <div class="player-detail-stat">
+                        <span class="stat-icon">⚽</span>
+                        <span class="stat-label">PASSING:</span>
+                        <span class="stat-value" style="color: ${getStatColor(stats.passing)}">${stats.passing || 0}</span>
+                    </div>
+                    <div class="player-detail-stat">
+                        <span class="stat-icon">🛡️</span>
+                        <span class="stat-label">DEFENDING:</span>
+                        <span class="stat-value" style="color: ${getStatColor(stats.defending)}">${stats.defending || 0}</span>
+                    </div>
+                    <div class="player-detail-stat">
+                        <span class="stat-icon">💪</span>
+                        <span class="stat-label">PHYSICALITY:</span>
+                        <span class="stat-value" style="color: ${getStatColor(stats.physicality)}">${stats.physicality || 0}</span>
+                    </div>
+                    <div class="player-detail-stat">
+                        <span class="stat-icon">🧤</span>
+                        <span class="stat-label">GOALKEEPING:</span>
+                        <span class="stat-value" style="color: ${getStatColor(stats.goalkeeping)}">${stats.goalkeeping || 0}</span>
+                    </div>
+                </div>
+                
+                ${player.skills && player.skills.length > 0 ? `
+                    <h3 style="color: #00d4ff; margin: 20px 0 10px; font-size: 1.2em;">Skills</h3>
+                    <div style="background: rgba(10, 20, 40, 0.6); padding: 15px; border-radius: 10px; color: #ccc; font-size: 0.9em; line-height: 1.6; border: 1px solid rgba(255,255,255,0.05);">
+                        ${player.skills.join(', ')}
+                    </div>
+                ` : ''}
+            </div>
+        </div>
+    `;
+
+    modal.classList.add('active');
+}
+
+function closePlayerModal() {
+    document.getElementById('playerModal').classList.remove('active');
+}
+
+function getStatColor(value) {
+    if (!value) return '#fff';
+    if (value >= 90) return '#00d4ff'; // Cyan for elite
+    if (value >= 80) return '#27ae60'; // Green for good
+    if (value >= 70) return '#f1c40f'; // Yellow for average
+    if (value >= 60) return '#e67e22'; // Orange for below average
+    return '#e74c3c'; // Red for poor
 }
 
 async function selectPackAndBuy(packKey, count) {
@@ -271,10 +447,15 @@ function showPackResult(players) {
             'White': 'linear-gradient(135deg, rgba(200,200,200,0.8), rgba(150,150,150,0.9))'
         };
 
+        // Use faces for result cards as it matches the style
+        const playerImageName = player.name.replace(/[^a-zA-Z0-9\-_]/g, '_').toLowerCase().replace(/_+/g, '_').replace(/_+$/g, '');
+        const playerImagePng = `/assets/faces/${playerImageName}.png`;
+
         resultHtml += `
             <div style="background:${rarityColors[player.rarity] || rarityColors['White']};padding:15px;border-radius:12px;text-align:center;min-width:120px;">
                 <div style="font-size:2em;font-weight:bold;color:#fff;">${player.overall || 0}</div>
                 <div style="font-size:0.85em;color:rgba(255,255,255,0.8);">${player.position}</div>
+                <img src="${playerImagePng}" style="height:50px;width:auto;margin:5px 0;" onerror="this.style.display='none'">
                 <div style="font-size:0.8em;color:rgba(255,255,255,0.9);margin-top:5px;">${player.name}</div>
                 ${player.isDuplicate ? '<div style="color:#f59e0b;font-size:0.75em;margin-top:5px;">DUPLICATE</div>' : ''}
             </div>
