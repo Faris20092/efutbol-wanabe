@@ -239,9 +239,11 @@
         }
 
         .modal-content {
-            max-width: 1000px;
+            max-width: 1100px;
             margin: 20px auto;
-            padding: 20px;
+            padding: 20px 10px;
+            width: 100%;
+            box-sizing: border-box;
         }
 
         .modal-header {
@@ -442,7 +444,8 @@
         .all-players-grid {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
-            gap: 15px;
+            gap: 12px;
+            padding: 0 5px;
         }
 
         @media (max-width: 1024px) {
