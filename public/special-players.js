@@ -112,8 +112,8 @@ function renderPackCarousel() {
 
         let playersHtml = '';
         topPlayers.forEach(player => {
-            const rarityClass = player.rarity === 'Iconic' ? 'iconic' :
-                player.rarity === 'Legend' ? 'legend' : '';
+            const rarity = player.rarity || 'White';
+            const rarityClass = rarity.toLowerCase();
 
             // Use faces for carousel as requested
             const playerImageName = player.name.replace(/[^a-zA-Z0-9\-_]/g, '_').toLowerCase().replace(/_+/g, '_').replace(/_+$/g, '');
