@@ -7,294 +7,375 @@
     <title>Daily Game - eFotball wannabe</title>
     <link rel="stylesheet" href="/styles.css">
     <style>
-        .daily-game-container {
-            padding: 20px;
-            max-width: 900px;
-            margin: 0 auto;
-        }
-
-        .daily-game-header {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            margin-bottom: 30px;
-        }
-
-        .daily-game-header h1 {
-            color: var(--accent);
+        * {
             margin: 0;
+            padding: 0;
+            box-sizing: border-box;
         }
 
-        .remaining-info {
+        body {
+            background: linear-gradient(135deg, #0a0a1a 0%, #1a1a3a 50%, #0a1a2a 100%);
+            min-height: 100vh;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            color: #fff;
+            overflow-x: hidden;
+        }
+
+        .dailygame-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 15px 20px;
+            min-height: 100vh;
+        }
+
+        /* Top Bar */
+        .top-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 0;
+            margin-bottom: 20px;
+        }
+
+        .remaining-display {
             display: flex;
             flex-direction: column;
-            align-items: center;
-            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
-            padding: 15px 25px;
-            border-radius: 12px;
         }
 
         .remaining-label {
-            font-size: 0.8rem;
-            color: rgba(255, 255, 255, 0.7);
-        }
-
-        .remaining-count {
-            font-size: 2rem;
-            font-weight: bold;
-            color: var(--accent);
-        }
-
-        /* Penalty Shoot View */
-        .penalty-view {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            margin-bottom: 30px;
-        }
-
-        .penalty-scene {
-            position: relative;
-            width: 100%;
-            max-width: 600px;
-            height: 400px;
-            background: linear-gradient(180deg, #87CEEB 0%, #87CEEB 40%, #228B22 40%, #228B22 100%);
-            border-radius: 15px;
-            overflow: hidden;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
-        }
-
-        /* Goal */
-        .goal {
-            position: absolute;
-            top: 50px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 300px;
-            height: 150px;
-        }
-
-        .goal-frame {
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            border: 8px solid white;
-            border-bottom: none;
-            border-radius: 5px 5px 0 0;
-            box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.3);
-        }
-
-        .goal-net {
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            background: repeating-linear-gradient(90deg,
-                    transparent,
-                    transparent 10px,
-                    rgba(255, 255, 255, 0.3) 10px,
-                    rgba(255, 255, 255, 0.3) 12px),
-                repeating-linear-gradient(0deg,
-                    transparent,
-                    transparent 10px,
-                    rgba(255, 255, 255, 0.3) 10px,
-                    rgba(255, 255, 255, 0.3) 12px);
-            background-color: rgba(0, 0, 0, 0.1);
-        }
-
-        /* Direction Buttons on Goal */
-        .direction-buttons {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            display: flex;
-        }
-
-        .direction-btn {
-            flex: 1;
-            background: rgba(255, 215, 0, 0.15);
-            border: 2px solid rgba(255, 215, 0, 0.3);
-            cursor: pointer;
-            transition: all 0.3s ease;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 2rem;
+            font-size: 0.8em;
             color: rgba(255, 255, 255, 0.6);
         }
 
-        .direction-btn:hover {
-            background: rgba(255, 215, 0, 0.4);
-            border-color: rgba(255, 215, 0, 0.8);
-            color: white;
-        }
-
-        .direction-btn:first-child {
-            border-radius: 5px 0 0 0;
-        }
-
-        .direction-btn:last-child {
-            border-radius: 0 5px 0 0;
-        }
-
-        .direction-btn:disabled {
-            cursor: not-allowed;
-            opacity: 0.3;
-        }
-
-        /* Goalkeeper */
-        .goalkeeper {
-            position: absolute;
-            top: 120px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 60px;
-            height: 80px;
-            z-index: 5;
-        }
-
-        .gk-body {
-            width: 100%;
-            height: 100%;
-            background: #22c55e;
-            border-radius: 30px 30px 15px 15px;
-            position: relative;
-        }
-
-        .gk-head {
-            position: absolute;
-            top: -20px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 30px;
-            height: 30px;
-            background: #f5deb3;
-            border-radius: 50%;
-        }
-
-        .gk-arms {
-            position: absolute;
-            top: 10px;
-            width: 100px;
-            height: 15px;
-            left: -20px;
-            display: flex;
-            justify-content: space-between;
-        }
-
-        .gk-arm {
-            width: 25px;
-            height: 15px;
-            background: #22c55e;
-            border-radius: 10px;
-        }
-
-        /* Player Casolo */
-        .player-casolo {
-            position: absolute;
-            bottom: 30px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 50px;
-            height: 80px;
-            z-index: 10;
-        }
-
-        .player-body {
-            width: 100%;
-            height: 100%;
-            position: relative;
-        }
-
-        .player-jersey {
-            width: 40px;
-            height: 40px;
-            background: linear-gradient(90deg, #000 50%, #fff 50%);
-            border-radius: 10px 10px 5px 5px;
-            margin: 0 auto;
-        }
-
-        .player-head {
-            position: absolute;
-            top: -18px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 28px;
-            height: 28px;
-            background: #f5deb3;
-            border-radius: 50%;
-        }
-
-        .player-shorts {
-            width: 35px;
-            height: 20px;
-            background: #000;
-            margin: 2px auto;
-            border-radius: 3px;
-        }
-
-        .player-legs {
-            display: flex;
-            justify-content: center;
-            gap: 8px;
-        }
-
-        .player-leg {
-            width: 10px;
-            height: 25px;
-            background: #f5deb3;
-            border-radius: 5px;
-        }
-
-        .player-name {
-            position: absolute;
-            bottom: -25px;
-            left: 50%;
-            transform: translateX(-50%);
+        .remaining-count {
+            font-size: 2.5em;
             font-weight: bold;
-            color: white;
-            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
-            white-space: nowrap;
+            color: #fff;
         }
 
-        /* Ball */
-        .ball {
-            position: absolute;
-            bottom: 60px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 25px;
-            height: 25px;
-            background: white;
-            border-radius: 50%;
-            border: 2px solid #333;
-            z-index: 9;
+        .home-btn {
+            width: 42px;
+            height: 42px;
+            border-radius: 8px;
+            background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+            border: none;
+            color: #fff;
+            font-size: 1.4em;
+            cursor: pointer;
+            transition: all 0.3s;
         }
 
-        /* Result Overlay */
-        .result-overlay {
+        .home-btn:hover {
+            transform: scale(1.1);
+        }
+
+        /* 3D Pitch Container */
+        .pitch-3d-container {
+            perspective: 1200px;
+            margin-bottom: 30px;
+        }
+
+        .pitch-3d {
+            position: relative;
+            width: 100%;
+            height: 450px;
+            background: linear-gradient(180deg, #0a2a4a 0%, #0a3a5a 100%);
+            border-radius: 15px;
+            transform: rotateX(55deg) rotateZ(-5deg);
+            transform-style: preserve-3d;
+            box-shadow:
+                0 50px 80px rgba(0, 0, 0, 0.5),
+                inset 0 0 100px rgba(0, 100, 200, 0.1);
+            border: 3px solid rgba(0, 200, 255, 0.3);
+            overflow: visible;
+        }
+
+        /* Pitch lines */
+        .pitch-lines {
             position: absolute;
             top: 0;
             left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.8);
-            display: none;
+            right: 0;
+            bottom: 0;
+            pointer-events: none;
+        }
+
+        .pitch-center-circle {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 100px;
+            height: 100px;
+            border: 2px solid rgba(255, 255, 255, 0.15);
+            border-radius: 50%;
+        }
+
+        .pitch-center-line {
+            position: absolute;
+            top: 50%;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: rgba(255, 255, 255, 0.15);
+        }
+
+        .pitch-penalty-box {
+            position: absolute;
+            width: 40%;
+            height: 20%;
+            border: 2px solid rgba(255, 255, 255, 0.15);
+        }
+
+        .pitch-penalty-box.left {
+            left: 0;
+            top: 40%;
+            border-left: none;
+        }
+
+        .pitch-penalty-box.right {
+            right: 0;
+            top: 40%;
+            border-right: none;
+        }
+
+        /* Path nodes on the pitch */
+        .path-nodes-container {
+            position: absolute;
+            top: 10%;
+            left: 10%;
+            right: 10%;
+            bottom: 10%;
+        }
+
+        .path-node {
+            position: absolute;
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.7em;
+            font-weight: bold;
+            transition: all 0.3s;
+            transform: translateZ(20px);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+            cursor: default;
+        }
+
+        .path-node.regular {
+            background: linear-gradient(135deg, #00d4ff, #0097a7);
+            color: #000;
+        }
+
+        .path-node.trainer {
+            background: linear-gradient(135deg, #22c55e, #15803d);
+            color: #fff;
+            width: 36px;
+            height: 36px;
+            font-size: 1em;
+        }
+
+        .path-node.gp {
+            background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+            color: #fff;
+            width: 36px;
+            height: 36px;
+            font-size: 0.8em;
+        }
+
+        .path-node.pack {
+            background: linear-gradient(135deg, #ec4899, #be185d);
+            color: #fff;
+            width: 44px;
+            height: 44px;
+            font-size: 1.2em;
+            animation: pulse-glow 2s infinite;
+        }
+
+        .path-node.passed {
+            opacity: 0.3;
+            transform: translateZ(5px) scale(0.8);
+        }
+
+        .path-node.current {
+            animation: current-pulse 1.5s infinite;
+            box-shadow: 0 0 25px rgba(255, 165, 0, 0.8);
+            z-index: 10;
+        }
+
+        @keyframes pulse-glow {
+
+            0%,
+            100% {
+                box-shadow: 0 0 15px rgba(236, 72, 153, 0.5);
+            }
+
+            50% {
+                box-shadow: 0 0 30px rgba(236, 72, 153, 0.9);
+            }
+        }
+
+        @keyframes current-pulse {
+
+            0%,
+            100% {
+                transform: translateZ(20px) scale(1);
+            }
+
+            50% {
+                transform: translateZ(25px) scale(1.15);
+            }
+        }
+
+        /* Player marker (orange shoe) */
+        .player-marker {
+            position: absolute;
+            width: 50px;
+            height: 50px;
+            z-index: 20;
+            font-size: 2em;
+            filter: drop-shadow(0 5px 10px rgba(0, 0, 0, 0.5));
+            transition: all 0.5s ease-out;
+            transform: translateZ(30px);
+        }
+
+        /* Path connections */
+        .path-connection {
+            position: absolute;
+            height: 3px;
+            background: linear-gradient(90deg, rgba(0, 200, 255, 0.6), rgba(0, 200, 255, 0.3));
+            transform-origin: left center;
+            z-index: 1;
+        }
+
+        /* Penalty Shoot UI */
+        .penalty-section {
+            background: linear-gradient(135deg, rgba(30, 40, 60, 0.9), rgba(20, 30, 50, 0.95));
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 20px;
+            text-align: center;
+            border: 2px solid rgba(0, 200, 255, 0.3);
+        }
+
+        .penalty-title {
+            font-size: 1.5em;
+            font-weight: bold;
+            margin-bottom: 15px;
+            color: #00d4ff;
+        }
+
+        .direction-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .direction-btn {
+            width: 100px;
+            height: 80px;
+            border-radius: 15px;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            background: linear-gradient(135deg, rgba(50, 50, 80, 0.9), rgba(30, 30, 60, 0.9));
+            color: #fff;
+            font-size: 1.5em;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            z-index: 20;
-            border-radius: 15px;
+            gap: 5px;
         }
 
-        .result-overlay.show {
+        .direction-btn:hover:not(:disabled) {
+            border-color: #00d4ff;
+            background: linear-gradient(135deg, rgba(0, 150, 200, 0.5), rgba(0, 100, 150, 0.5));
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0, 200, 255, 0.3);
+        }
+
+        .direction-btn:disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
+        }
+
+        .direction-btn span {
+            font-size: 0.5em;
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        /* Already played state */
+        .already-played {
+            background: linear-gradient(135deg, rgba(100, 100, 100, 0.3), rgba(50, 50, 50, 0.3));
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+        }
+
+        .already-played h3 {
+            color: #f59e0b;
+            margin-bottom: 10px;
+        }
+
+        .countdown-timer {
+            font-size: 1.5em;
+            color: #00d4ff;
+            font-weight: bold;
+        }
+
+        /* Result Overlay */
+        .result-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.9);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .result-modal.show {
             display: flex;
         }
 
+        .result-content {
+            background: linear-gradient(135deg, rgba(30, 40, 60, 0.95), rgba(20, 30, 50, 0.98));
+            border-radius: 20px;
+            padding: 40px;
+            text-align: center;
+            border: 3px solid rgba(0, 200, 255, 0.5);
+            max-width: 400px;
+            animation: slideIn 0.5s ease-out;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-50px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .result-icon {
+            font-size: 4em;
+            margin-bottom: 15px;
+        }
+
         .result-title {
-            font-size: 3rem;
-            margin-bottom: 20px;
+            font-size: 2em;
+            font-weight: bold;
+            margin-bottom: 10px;
         }
 
         .result-title.goal {
@@ -306,256 +387,295 @@
         }
 
         .result-info {
-            color: white;
-            text-align: center;
-        }
-
-        .result-progress {
-            margin-top: 15px;
-            font-size: 1.2rem;
-            color: var(--accent);
-        }
-
-        .result-rewards {
-            margin-top: 15px;
-            padding: 15px;
-            background: rgba(255, 215, 0, 0.2);
-            border-radius: 10px;
-            color: var(--accent);
-        }
-
-        /* Daily Path View */
-        .path-view {
-            display: none;
-        }
-
-        .path-view.active {
-            display: block;
-        }
-
-        .penalty-view.hidden {
-            display: none;
-        }
-
-        /* Path Grid */
-        .path-grid {
-            display: grid;
-            grid-template-columns: repeat(7, 1fr);
-            gap: 10px;
-            margin: 20px 0;
-        }
-
-        .path-node {
-            aspect-ratio: 1;
-            border-radius: 12px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            font-size: 0.9rem;
-            font-weight: bold;
-            transition: all 0.3s ease;
-            position: relative;
-        }
-
-        .path-node.current {
-            box-shadow: 0 0 20px var(--accent);
-            transform: scale(1.1);
-            z-index: 5;
-        }
-
-        .path-node.passed {
-            opacity: 0.4;
-        }
-
-        .path-node.gp {
-            background: linear-gradient(135deg, #f59e0b, #d97706);
-        }
-
-        .path-node.ecoin {
-            background: linear-gradient(135deg, #8b5cf6, #6d28d9);
-        }
-
-        .path-node.pack {
-            background: linear-gradient(135deg, #ec4899, #be185d);
-        }
-
-        .path-node.finish {
-            background: linear-gradient(135deg, #22c55e, #15803d);
-        }
-
-        .path-node .node-step {
-            font-size: 1.5rem;
-        }
-
-        .path-node .node-reward {
-            font-size: 0.7rem;
-            opacity: 0.8;
-        }
-
-        .already-played-msg {
-            text-align: center;
-            padding: 20px;
-            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
-            border-radius: 12px;
-            margin-bottom: 20px;
-        }
-
-        .already-played-msg h3 {
-            color: var(--accent);
-            margin-bottom: 10px;
-        }
-
-        .already-played-msg p {
             color: rgba(255, 255, 255, 0.7);
-        }
-
-        .next-reward-card {
-            background: linear-gradient(135deg, rgba(255, 215, 0, 0.2), rgba(255, 215, 0, 0.1));
-            border: 1px solid rgba(255, 215, 0, 0.3);
-            border-radius: 12px;
-            padding: 20px;
-            text-align: center;
-            margin-bottom: 20px;
-        }
-
-        .next-reward-card h3 {
-            color: var(--accent);
             margin-bottom: 15px;
         }
 
-        .reward-icon-large {
-            font-size: 3rem;
+        .result-progress {
+            font-size: 1.3em;
+            color: #00d4ff;
+            margin-bottom: 15px;
+        }
+
+        .result-rewards {
+            background: rgba(255, 215, 0, 0.1);
+            border: 1px solid rgba(255, 215, 0, 0.3);
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+
+        .result-rewards h4 {
+            color: #ffd700;
             margin-bottom: 10px;
+        }
+
+        .reward-item {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            margin: 5px 0;
+        }
+
+        .result-btn {
+            padding: 15px 30px;
+            background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+            border: none;
+            border-radius: 10px;
+            color: #fff;
+            font-weight: bold;
+            font-size: 1em;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .result-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px rgba(59, 130, 246, 0.4);
+        }
+
+        /* Confetti animation */
+        .confetti-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            pointer-events: none;
+            z-index: 999;
+        }
+
+        .confetti {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            animation: confetti-fall 3s ease-out forwards;
+        }
+
+        @keyframes confetti-fall {
+            0% {
+                transform: translateY(-100vh) rotate(0deg);
+                opacity: 1;
+            }
+
+            100% {
+                transform: translateY(100vh) rotate(720deg);
+                opacity: 0;
+            }
+        }
+
+        /* Legend */
+        .legend {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            flex-wrap: wrap;
+            margin-top: 15px;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.85em;
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        .legend-icon {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.7em;
+        }
+
+        .legend-icon.trainer {
+            background: linear-gradient(135deg, #22c55e, #15803d);
+        }
+
+        .legend-icon.gp {
+            background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+        }
+
+        .legend-icon.pack {
+            background: linear-gradient(135deg, #ec4899, #be185d);
+        }
+
+        /* Loading */
+        #loading {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: #0a0a1a;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+            color: #fff;
+            font-size: 1.5em;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .pitch-3d {
+                height: 350px;
+                transform: rotateX(50deg) rotateZ(-3deg);
+            }
+
+            .path-node {
+                width: 22px;
+                height: 22px;
+                font-size: 0.6em;
+            }
+
+            .path-node.trainer,
+            .path-node.gp {
+                width: 28px;
+                height: 28px;
+            }
+
+            .path-node.pack {
+                width: 36px;
+                height: 36px;
+            }
+
+            .player-marker {
+                width: 35px;
+                height: 35px;
+                font-size: 1.5em;
+            }
+
+            .direction-btn {
+                width: 80px;
+                height: 65px;
+                font-size: 1.2em;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .pitch-3d {
+                height: 280px;
+            }
+
+            .path-node {
+                width: 18px;
+                height: 18px;
+                font-size: 0.5em;
+            }
+
+            .direction-buttons {
+                gap: 10px;
+            }
+
+            .direction-btn {
+                width: 70px;
+                height: 55px;
+            }
+
+            .remaining-count {
+                font-size: 2em;
+            }
         }
     </style>
 </head>
 
 <body>
-    <nav class="navbar">
-        <div class="nav-brand">⚽ eFOOTBALL WANNABE</div>
-        <div class="top-bar-right">
-            <div class="currency-display">
-                <span class="currency-item">🪙 <span id="topEcoins">0</span></span>
-                <span class="currency-item">💰 <span id="topGP">0</span></span>
-            </div>
-            <div class="top-icons">
-                <button class="icon-btn" onclick="window.location.href='/mail'" title="Mailbox">
-                    📬
-                    <span class="notification-badge" id="mailBadge" style="display:none;">0</span>
-                </button>
-                <button class="icon-btn" onclick="window.location.href='/news'" title="News">📰</button>
-                <button class="icon-btn" onclick="window.location.href='/logout'" title="Logout">🚪</button>
-            </div>
-            <div class="user-info" id="userInfo">
-                <img id="userAvatar" src="" alt="Avatar" class="user-avatar">
-                <span id="username">Loading...</span>
-            </div>
-        </div>
-    </nav>
+    <div id="loading">⏳ Loading...</div>
 
-    <div class="daily-game-container">
-        <div class="daily-game-header">
-            <button class="back-btn" onclick="window.location.href='/dashboard'">← Back</button>
-            <h1>🎯 Daily Game</h1>
-            <div class="remaining-info">
-                <span class="remaining-label">Steps Left</span>
-                <span class="remaining-count" id="remainingSteps">35</span>
+    <div class="dailygame-container">
+        <!-- Top Bar -->
+        <div class="top-bar">
+            <div class="remaining-display">
+                <span class="remaining-label">Remaining</span>
+                <span class="remaining-count" id="remainingSteps">0</span>
+            </div>
+            <button class="home-btn" onclick="window.location.href='/dashboard'" title="Home">🏠</button>
+        </div>
+
+        <!-- 3D Pitch with Path -->
+        <div class="pitch-3d-container">
+            <div class="pitch-3d">
+                <div class="pitch-lines">
+                    <div class="pitch-center-circle"></div>
+                    <div class="pitch-center-line"></div>
+                    <div class="pitch-penalty-box left"></div>
+                    <div class="pitch-penalty-box right"></div>
+                </div>
+                <div class="path-nodes-container" id="pathNodes">
+                    <!-- Nodes will be generated here -->
+                </div>
+                <div class="player-marker" id="playerMarker">👟</div>
             </div>
         </div>
 
-        <!-- Penalty Shoot View (shown if not played today) -->
-        <div class="penalty-view" id="penaltyView">
-            <h2 style="color: var(--accent); margin-bottom: 20px;">⚽ Take Your Daily Penalty!</h2>
-            <p style="color: rgba(255,255,255,0.7); margin-bottom: 20px;">You have 1 shot per day. Choose where to aim!
-            </p>
-
-            <div class="penalty-scene" id="penaltyScene">
-                <!-- Goal with direction buttons -->
-                <div class="goal">
-                    <div class="goal-net"></div>
-                    <div class="goal-frame"></div>
-                    <div class="direction-buttons">
-                        <button class="direction-btn" onclick="shootPenalty('left')" id="btnLeft">⬅️</button>
-                        <button class="direction-btn" onclick="shootPenalty('center')" id="btnCenter">⬆️</button>
-                        <button class="direction-btn" onclick="shootPenalty('right')" id="btnRight">➡️</button>
-                    </div>
-                </div>
-
-                <!-- Goalkeeper -->
-                <div class="goalkeeper">
-                    <div class="gk-head"></div>
-                    <div class="gk-body">
-                        <div class="gk-arms">
-                            <div class="gk-arm"></div>
-                            <div class="gk-arm"></div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Ball -->
-                <div class="ball"></div>
-
-                <!-- Player Casolo -->
-                <div class="player-casolo">
-                    <div class="player-body">
-                        <div class="player-head"></div>
-                        <div class="player-jersey"></div>
-                        <div class="player-shorts"></div>
-                        <div class="player-legs">
-                            <div class="player-leg"></div>
-                            <div class="player-leg"></div>
-                        </div>
-                    </div>
-                    <div class="player-name">CASOLO</div>
-                </div>
-
-                <!-- Result Overlay -->
-                <div class="result-overlay" id="resultOverlay">
-                    <div class="result-title" id="resultTitle">GOAL!</div>
-                    <div class="result-info">
-                        <p id="resultText">You aimed left, keeper went right!</p>
-                        <div class="result-progress" id="resultProgress">Progress: -8 steps</div>
-                        <div class="result-rewards" id="resultRewards" style="display:none;"></div>
-                    </div>
-                    <button class="btn btn-primary" style="margin-top: 20px;" onclick="showPathView()">View Daily Path
-                        →</button>
-                </div>
+        <!-- Legend -->
+        <div class="legend">
+            <div class="legend-item">
+                <div class="legend-icon trainer">🎯</div>
+                <span>Training Item</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-icon gp">Ⓖ</div>
+                <span>GP Reward</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-icon pack">⚽</div>
+                <span>Free Pack</span>
             </div>
         </div>
 
-        <!-- Daily Path View (shown after penalty or if already played) -->
-        <div class="path-view" id="pathView">
-            <div class="already-played-msg" id="alreadyPlayedMsg" style="display:none;">
-                <h3>✅ Shot Taken Today!</h3>
-                <p>Come back tomorrow for your next penalty shot.</p>
-            </div>
-
-            <div class="next-reward-card" id="nextRewardCard">
-                <h3>🎁 Next Milestone</h3>
-                <div class="reward-icon-large" id="nextRewardIcon">🪙</div>
-                <div id="nextRewardText">50 eCoins at step 19</div>
-            </div>
-
-            <h3 style="color: var(--accent); margin-bottom: 15px;">📍 Your Progress Path</h3>
+        <!-- Penalty Shoot Section -->
+        <div class="penalty-section" id="penaltySection">
+            <div class="penalty-title">⚽ Take Your Daily Penalty!</div>
             <p style="color: rgba(255,255,255,0.6); margin-bottom: 20px;">
-                ⚽ Goal = -8 steps | ❌ Miss = -4 steps | Reach 0 for final reward!
+                Goal = +6 steps | Miss = +4 steps
             </p>
-
-            <div class="path-grid" id="pathGrid">
-                <!-- Path nodes will be generated here -->
+            <div class="direction-buttons">
+                <button class="direction-btn" onclick="shootPenalty('left')" id="btnLeft">
+                    ⬅️
+                    <span>LEFT</span>
+                </button>
+                <button class="direction-btn" onclick="shootPenalty('center')" id="btnCenter">
+                    ⬆️
+                    <span>CENTER</span>
+                </button>
+                <button class="direction-btn" onclick="shootPenalty('right')" id="btnRight">
+                    ➡️
+                    <span>RIGHT</span>
+                </button>
             </div>
+        </div>
 
-            <div class="rewards-legend" style="margin-top: 20px;">
-                <h3>Reward Types</h3>
-                <div class="legend-items" style="display: flex; gap: 20px; flex-wrap: wrap; margin-top: 10px;">
-                    <div class="legend-item"><span>💰</span> <span>500 GP</span></div>
-                    <div class="legend-item"><span>🪙</span> <span>50 eCoins</span></div>
-                    <div class="legend-item"><span>🎁</span> <span>Final Reward</span></div>
-                </div>
-            </div>
+        <!-- Already Played Message -->
+        <div class="already-played" id="alreadyPlayed" style="display:none;">
+            <h3>✅ Shot Taken Today!</h3>
+            <p style="color: rgba(255,255,255,0.6);">Come back after reset for your next kick.</p>
+            <div class="countdown-timer" id="countdownTimer">--:--:--</div>
         </div>
     </div>
+
+    <!-- Result Modal -->
+    <div class="result-modal" id="resultModal">
+        <div class="result-content">
+            <div class="result-icon" id="resultIcon">⚽</div>
+            <div class="result-title" id="resultTitle">GOAL!</div>
+            <div class="result-info" id="resultInfo">You aimed left, keeper went right!</div>
+            <div class="result-progress" id="resultProgress">+6 steps</div>
+            <div class="result-rewards" id="resultRewards" style="display:none;">
+                <h4>🎁 Rewards Collected!</h4>
+                <div id="rewardsList"></div>
+            </div>
+            <button class="result-btn" onclick="closeResultModal()">Continue</button>
+        </div>
+    </div>
+
+    <!-- Confetti Container -->
+    <div class="confetti-container" id="confettiContainer"></div>
 
     <script src="/daily-game.js"></script>
 </body>

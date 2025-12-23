@@ -1678,6 +1678,215 @@ function simulateMatch(playerStrength, opponentStrength) {
     return { outcome: 'loss', score: `0-${Math.floor(Math.random() * 3) + 1}` };
 }
 
+// ========================================
+// DAILY PENALTY SHOOTOUT API
+// ========================================
+
+const DAILY_PENALTY_CONFIG = {
+    TOTAL_STEPS: 40,
+    STEPS_ON_GOAL: 6,
+    STEPS_ON_MISS: 4,
+    RESET_HOUR_UTC: 2, // Reset at 02:00 UTC
+    // Checkpoint rewards: step -> reward
+    CHECKPOINTS: {
+        5: { type: 'trainer', name: 'Training Item', icon: '🟢' },
+        10: { type: 'gp', amount: 1000, name: '+1000 GP', icon: '🔵' },
+        15: { type: 'trainer', name: 'Training Item', icon: '🟢' },
+        20: { type: 'gp', amount: 2000, name: '+2000 GP', icon: '🔵' },
+        25: { type: 'trainer', name: 'Training Item', icon: '🟢' },
+        30: { type: 'gp', amount: 3000, name: '+3000 GP', icon: '🔵' },
+        35: { type: 'trainer', name: 'Training Item', icon: '🟢' },
+        40: { type: 'pack', name: 'Free Black Pack', icon: '⚽' }
+    }
+};
+
+function getDailyPenaltyResetTime() {
+    const now = new Date();
+    const resetTime = new Date(now);
+    resetTime.setUTCHours(DAILY_PENALTY_CONFIG.RESET_HOUR_UTC, 0, 0, 0);
+    if (now >= resetTime) {
+        resetTime.setUTCDate(resetTime.getUTCDate() + 1);
+    }
+    return resetTime;
+}
+
+function canKickToday(lastKickTime) {
+    if (!lastKickTime) return true;
+    const lastKick = new Date(lastKickTime);
+    const now = new Date();
+
+    // Get today's reset time (02:00 UTC)
+    const todayReset = new Date(now);
+    todayReset.setUTCHours(DAILY_PENALTY_CONFIG.RESET_HOUR_UTC, 0, 0, 0);
+
+    // If we haven't passed today's reset yet, use yesterday's reset
+    if (now < todayReset) {
+        todayReset.setUTCDate(todayReset.getUTCDate() - 1);
+    }
+
+    return lastKick < todayReset;
+}
+
+function calculateGKDive(history = []) {
+    const directions = ['left', 'center', 'right'];
+    if (history.length === 0) {
+        return directions[Math.floor(Math.random() * 3)];
+    }
+
+    const lastDive = history[history.length - 1];
+    // 70% chance to dive different direction
+    if (Math.random() < 0.7) {
+        const others = directions.filter(d => d !== lastDive);
+        return others[Math.floor(Math.random() * others.length)];
+    }
+    return lastDive;
+}
+
+function ensureDailyPenaltyState(userData) {
+    if (!userData.dailyPenalty) {
+        userData.dailyPenalty = {
+            lastKickTime: null,
+            lapPosition: 0,
+            gkDiveHistory: [],
+            claimedRewards: {}
+        };
+    }
+    return userData.dailyPenalty;
+}
+
+// GET Daily Penalty Status
+app.get('/api/dailypenalty/status', isAuthenticated, (req, res) => {
+    try {
+        const userId = req.user.id;
+        const userData = getUserData(userId);
+
+        if (!userData) {
+            return res.status(404).json({ success: false, message: 'User not found' });
+        }
+
+        const state = ensureDailyPenaltyState(userData);
+        const canKick = canKickToday(state.lastKickTime);
+        const nextReset = getDailyPenaltyResetTime();
+        const timeUntilReset = nextReset - new Date();
+
+        res.json({
+            success: true,
+            state: {
+                lapPosition: state.lapPosition,
+                claimedRewards: state.claimedRewards,
+                lastKickTime: state.lastKickTime
+            },
+            canKick,
+            nextResetTime: nextReset.toISOString(),
+            timeUntilReset: Math.max(0, Math.floor(timeUntilReset / 1000)),
+            checkpoints: DAILY_PENALTY_CONFIG.CHECKPOINTS,
+            totalSteps: DAILY_PENALTY_CONFIG.TOTAL_STEPS
+        });
+    } catch (error) {
+        console.error('Daily penalty status error:', error);
+        res.status(500).json({ success: false, message: 'Server error' });
+    }
+});
+
+// POST Kick Daily Penalty
+app.post('/api/dailypenalty/kick', isAuthenticated, (req, res) => {
+    try {
+        const userId = req.user.id;
+        const { direction } = req.body;
+
+        if (!['left', 'center', 'right'].includes(direction)) {
+            return res.status(400).json({ success: false, message: 'Invalid direction' });
+        }
+
+        const userData = getUserData(userId);
+        if (!userData) {
+            return res.status(404).json({ success: false, message: 'User not found' });
+        }
+
+        const state = ensureDailyPenaltyState(userData);
+
+        // Check if can kick today
+        if (!canKickToday(state.lastKickTime)) {
+            return res.json({
+                success: false,
+                message: 'Already kicked today. Come back after reset!',
+                nextResetTime: getDailyPenaltyResetTime().toISOString()
+            });
+        }
+
+        // Calculate GK dive direction
+        const gkDirection = calculateGKDive(state.gkDiveHistory);
+
+        // Determine if goal or save
+        const scored = direction !== gkDirection;
+        const stepsGained = scored ?
+            DAILY_PENALTY_CONFIG.STEPS_ON_GOAL :
+            DAILY_PENALTY_CONFIG.STEPS_ON_MISS;
+
+        // Update lap position
+        const oldPosition = state.lapPosition;
+        state.lapPosition += stepsGained;
+
+        // Check for rewards at each step passed
+        const rewards = [];
+        for (let step = oldPosition + 1; step <= state.lapPosition && step <= DAILY_PENALTY_CONFIG.TOTAL_STEPS; step++) {
+            const checkpoint = DAILY_PENALTY_CONFIG.CHECKPOINTS[step];
+            if (checkpoint && !state.claimedRewards[step]) {
+                state.claimedRewards[step] = true;
+                rewards.push({ step, ...checkpoint });
+
+                // Apply reward
+                if (checkpoint.type === 'gp') {
+                    userData.gp = (userData.gp || 0) + checkpoint.amount;
+                } else if (checkpoint.type === 'trainer') {
+                    if (!userData.inventory) userData.inventory = {};
+                    if (!userData.inventory.trainers) userData.inventory.trainers = {};
+                    userData.inventory.trainers['S+'] = (userData.inventory.trainers['S+'] || 0) + 1;
+                } else if (checkpoint.type === 'pack') {
+                    if (!userData.inventory) userData.inventory = { freePacks: { Iconic: 0, Legend: 0, Black: 0 } };
+                    if (!userData.inventory.freePacks) userData.inventory.freePacks = { Iconic: 0, Legend: 0, Black: 0 };
+                    userData.inventory.freePacks.Black = (userData.inventory.freePacks.Black || 0) + 1;
+                }
+            }
+        }
+
+        // Check for lap completion
+        let lapCompleted = false;
+        if (state.lapPosition >= DAILY_PENALTY_CONFIG.TOTAL_STEPS) {
+            lapCompleted = true;
+            state.lapPosition = 0;
+            state.claimedRewards = {}; // Reset for new lap
+        }
+
+        // Update GK history (keep last 3)
+        state.gkDiveHistory.push(gkDirection);
+        if (state.gkDiveHistory.length > 3) {
+            state.gkDiveHistory.shift();
+        }
+
+        // Update last kick time
+        state.lastKickTime = new Date().toISOString();
+
+        // Save user data
+        setUserData(userId, userData);
+
+        res.json({
+            success: true,
+            scored,
+            playerDirection: direction,
+            gkDirection,
+            stepsGained,
+            newPosition: state.lapPosition,
+            rewards,
+            lapCompleted,
+            nextResetTime: getDailyPenaltyResetTime().toISOString()
+        });
+    } catch (error) {
+        console.error('Daily penalty kick error:', error);
+        res.status(500).json({ success: false, message: 'Server error' });
+    }
+});
+
 // Start server
 app.listen(PORT, () => {
     console.log(`🌐 Web server running on port ${PORT}`);
