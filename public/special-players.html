@@ -887,21 +887,20 @@
             }
         }
 
-        /* PES 2021 Style Card */
+        /* PES 2021 Style Card CSS */
         .pes-card {
             width: 100%;
-            aspect-ratio: 1 / 1;
+            aspect-ratio: 1/1;
             border-radius: 1.5rem;
-            /* Heavy rounded corners */
+            /* Heavy rounded corners (squircle) */
             position: relative;
             overflow: hidden;
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
             transition: transform 0.2s;
-            /* Default background if rarity fails */
-            background: linear-gradient(135deg, #374151, #111827);
+            cursor: pointer;
             color: white;
-            padding: 8px;
-            /* Internal padding for safe area */
+            font-family: 'Segoe UI', sans-serif;
+            border: 2px solid rgba(255, 255, 255, 0.1);
         }
 
         .pes-card:hover {
@@ -911,87 +910,97 @@
 
         /* Rarity Gradients */
         .pes-card[data-rarity="Iconic"] {
-            background: linear-gradient(135deg, #ec4899, #e11d48, #881337);
+            background: linear-gradient(135deg, #ec4899 0%, #e11d48 50%, #881337 100%);
+            /* Pink/Rose */
         }
 
         .pes-card[data-rarity="Legend"] {
-            background: linear-gradient(135deg, #fef08a, #eab308, #a16207);
+            background: linear-gradient(135deg, #fef08a 0%, #eab308 50%, #a16207 100%);
+            /* Gold/Yellow */
             color: #422006;
+            /* Dark brown text for contrast */
+            text-shadow: 0 0 2px rgba(255, 255, 255, 0.5);
         }
 
         .pes-card[data-rarity="Black"] {
-            background: linear-gradient(135deg, #1f2937, #000000);
+            background: linear-gradient(135deg, #1f2937 0%, #000000 100%);
+            /* Gray to Black */
         }
 
         .pes-card[data-rarity="Gold"] {
-            background: linear-gradient(135deg, #fef9c3, #eab308);
-            color: #422006;
+            background: linear-gradient(135deg, #fef9c3 0%, #eab308 100%);
+            /* Light Gold */
+            color: #1a1a1a;
         }
 
         .pes-card[data-rarity="Silver"] {
-            background: linear-gradient(135deg, #f3f4f6, #d1d5db, #6b7280);
-            color: #111827;
+            background: linear-gradient(135deg, #f3f4f6 0%, #d1d5db 50%, #6b7280 100%);
+            /* Silver/Gray */
+            color: #1f2937;
         }
 
         .pes-card[data-rarity="Bronze"] {
-            background: linear-gradient(135deg, #fed7aa, #fb923c, #9a3412);
+            background: linear-gradient(135deg, #fed7aa 0%, #fb923c 50%, #9a3412 100%);
+            /* Orange/Bronze */
         }
 
         .pes-card[data-rarity="White"] {
-            background: linear-gradient(135deg, #ffffff, #e5e7eb);
-            color: #111827;
+            background: linear-gradient(135deg, #ffffff 0%, #e5e7eb 100%);
+            /* White */
+            color: #000000;
         }
 
-        /* Inner Layout */
-        .pes-pos {
-            position: absolute;
-            top: 12px;
-            left: 12px;
-            font-size: 0.8em;
-            font-weight: 600;
-            text-transform: uppercase;
-            z-index: 2;
+        .pes-card[data-rarity="Base"] {
+            background: linear-gradient(135deg, #f3f4f6 0%, #9ca3af 100%);
+            /* Default Base */
+            color: #1f2937;
         }
 
+        /* Layout Elements */
         .pes-rating {
             position: absolute;
-            top: 50%;
-            left: 10px;
-            transform: translateY(-50%);
+            top: 35%;
+            left: 15px;
             font-size: 2.2em;
-            font-weight: 900;
+            font-weight: 800;
             line-height: 1;
             z-index: 2;
         }
 
-        .pes-icon {
+        .pes-position {
             position: absolute;
-            bottom: 12px;
-            left: 12px;
-            font-size: 1.2em;
+            top: 15px;
+            left: 15px;
+            font-size: 0.9em;
+            font-weight: bold;
+            text-transform: uppercase;
+            opacity: 0.9;
             z-index: 2;
         }
 
-        .pes-img {
+        .pes-logo {
             position: absolute;
-            bottom: 0px;
-            right: 0px;
-            width: 70%;
-            /* Adjust based on look */
-            height: Auto;
-            max-height: 90%;
-            object-fit: contain;
-            object-position: bottom right;
-            z-index: 1;
-            mask-image: linear-gradient(to top, black 80%, transparent 100%);
-            -webkit-mask-image: linear-gradient(to top, black 80%, transparent 100%);
+            bottom: 15px;
+            left: 15px;
+            font-size: 1.5em;
+            z-index: 2;
         }
 
-        /* Adjustments for grid view to keep names visible below card */
-        .pes-card-container {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
+        .pes-image {
+            position: absolute;
+            bottom: 0px;
+            right: -10px;
+            width: 75%;
+            height: 85%;
+            object-fit: cover;
+            object-position: top center;
+            z-index: 1;
+        }
+
+        /* Specific adjustments for Legend text visibility */
+        .pes-card[data-rarity="Legend"] .pes-rating,
+        .pes-card[data-rarity="Legend"] .pes-position {
+            text-shadow: 0 1px 2px rgba(255, 255, 255, 0.8);
         }
     </style>
 </head>

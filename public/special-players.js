@@ -179,22 +179,22 @@ function openPackModal(packKey) {
         const playerImagePng = `/assets/playerimages/${playerImageName}.png`;
 
         const card = document.createElement('div');
-        // Wrapper styling
-        card.style.flex = "0 0 140px";
-        card.style.aspectRatio = "1/1";
+        // Wrapper styling for Square Card + Name
+        card.style.flex = "0 0 140px"; // Width for square card (1:1)
+        card.style.height = "180px"; // Height allows space for name below
         card.style.cursor = "pointer";
         card.onclick = () => showPlayerDetails(player);
 
-        // Structure matches .pes-card CSS
+        // Structure matches PES 2021 Card Style (.pes-card)
         card.innerHTML = `
             <div class="pes-card" data-rarity="${player.rarity || 'Base'}">
-                <div class="pes-pos">${player.position || 'CMF'}</div>
+                <div class="pes-position">${player.position || 'CMF'}</div>
                 <div class="pes-rating">${player.overall || 0}</div>
-                <div class="pes-icon">${RARITY_EMOJIS[player.rarity] || '💎'}</div>
-                <img src="${playerImagePng}" class="pes-img" 
+                <div class="pes-logo">${RARITY_EMOJIS[player.rarity] || '💎'}</div>
+                <img src="${playerImagePng}" class="pes-image" 
                      onerror="this.src='/assets/playerimages/default_player.png'">
             </div>
-            <div class="modal-player-name" style="margin-top: 5px; font-size: 0.8em; color: rgba(255,255,255,0.7); text-align: center;">
+            <div class="modal-player-name" style="margin-top: 8px; font-size: 0.85em; color: rgba(255,255,255,0.8); text-align: center; font-weight: 500;">
                 ${truncateName(player.name)}
             </div>
         `;
@@ -239,13 +239,13 @@ function showAllPlayers() {
         // Use pes-card for grid
         card.innerHTML = `
             <div class="pes-card" data-rarity="${player.rarity || 'Base'}">
-                <div class="pes-pos">${player.position || 'CMF'}</div>
+                <div class="pes-position">${player.position || 'CMF'}</div>
                 <div class="pes-rating">${player.overall || 0}</div>
-                <div class="pes-icon">${RARITY_EMOJIS[player.rarity] || '💎'}</div>
-                <img src="${playerImagePng}" class="pes-img" 
+                <div class="pes-logo">${RARITY_EMOJIS[player.rarity] || '💎'}</div>
+                <img src="${playerImagePng}" class="pes-image" 
                      onerror="this.src='/assets/playerimages/default_player.png'">
             </div>
-            <div class="modal-player-name" style="margin-top: 5px; font-size: 0.8em; color: rgba(255,255,255,0.7); text-align: center;">
+            <div class="modal-player-name" style="margin-top: 8px; font-size: 0.85em; color: rgba(255,255,255,0.8); text-align: center; font-weight: 500;">
                 ${truncateName(player.name)}
             </div>
         `;
