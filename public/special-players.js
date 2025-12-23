@@ -413,38 +413,49 @@ async function buyPack(count) {
 }
 
 function showPackResult(players) {
-    let resultHtml = '<div style="position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.95);z-index:2000;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px;">';
-    resultHtml += '<h2 style="color:#ffd700;margin-bottom:20px;">🎉 Pack Opened!</h2>';
-    resultHtml += '<div style="display:flex;flex-wrap:wrap;gap:15px;justify-content:center;max-width:800px;">';
-
-    players.forEach(player => {
-        const rarityColors = {
-            'Iconic': 'linear-gradient(135deg, rgba(219,10,91,0.9), rgba(139,0,139,0.95))',
-            'Legend': 'linear-gradient(135deg, rgba(218,165,32,0.9), rgba(139,101,8,0.95))',
-            'Black': 'linear-gradient(135deg, rgba(50,50,50,0.9), rgba(20,20,20,0.95))',
-            'Gold': 'linear-gradient(135deg, rgba(180,150,50,0.8), rgba(120,100,30,0.9))',
-            'Silver': 'linear-gradient(135deg, rgba(150,150,150,0.8), rgba(100,100,100,0.9))',
-            'Bronze': 'linear-gradient(135deg, rgba(180,120,60,0.8), rgba(120,80,40,0.9))',
-            'White': 'linear-gradient(135deg, rgba(200,200,200,0.8), rgba(150,150,150,0.9))'
-        };
-
-        // Use faces for result cards using player ID
-        const playerImagePng = `/assets/faces/${player.id}.png`;
-
-        resultHtml += `
-            <div style="background:${rarityColors[player.rarity] || rarityColors['White']};padding:15px;border-radius:12px;text-align:center;min-width:120px;">
-                <div style="font-size:2em;font-weight:bold;color:#fff;">${player.overall || 0}</div>
-                <div style="font-size:0.85em;color:rgba(255,255,255,0.8);">${player.position}</div>
-                <img src="${playerImagePng}" style="height:50px;width:auto;margin:5px 0;" onerror="this.style.display='none'">
-                <div style="font-size:0.8em;color:rgba(255,255,255,0.9);margin-top:5px;">${player.name}</div>
-                ${player.isDuplicate ? '<div style="color:#f59e0b;font-size:0.75em;margin-top:5px;">DUPLICATE</div>' : ''}
-            </div>
-        `;
+    // Sort players by rarity (highest first)
+    const rarityOrder = ['Iconic', 'Legend', 'Black', 'Gold', 'Silver', 'Bronze', 'White'];
+    const sortedPlayers = [...players].sort((a, b) => {
+        const aIndex = rarityOrder.indexOf(a.rarity);
+        const bIndex = rarityOrder.indexOf(b.rarity);
+        if (aIndex !== bIndex) return aIndex - bIndex;
+        return (b.overall || 0) - (a.overall || 0);
     });
 
-    resultHtml += '</div>';
-    resultHtml += '<button onclick="this.parentElement.remove()" style="margin-top:25px;padding:12px 30px;background:#3b82f6;border:none;border-radius:25px;color:#fff;font-size:1em;cursor:pointer;">Continue</button>';
-    resultHtml += '</div>';
+    // Generate cards HTML
+    const cardsHtml = sortedPlayers.map((player, index) => {
+        const playerImagePath = `/assets/playerimages/${player.id}.png`;
+        const animationDelay = index * 0.1;
+
+        return `
+            <div class="player-detail-card" data-rarity="${player.rarity}" 
+                 style="width: 140px; height: 200px; animation: cardReveal 0.5s ease-out ${animationDelay}s both; cursor: pointer; flex-shrink: 0;">
+                <div class="player-card-rating" style="font-size: 1.8em; top: 30px;">${player.overall || 0}</div>
+                <div class="player-card-position" style="font-size: 0.85em;">${player.position}</div>
+                <div class="player-card-rarity" style="font-size: 1.2em; top: 70px;">${RARITY_EMOJIS[player.rarity] || '⚽'}</div>
+                <img src="${playerImagePath}" class="player-detail-image" 
+                     onerror="this.src='/assets/playerimages/default_player.png'">
+                <div class="player-card-rarity-bottom" style="font-size: 0.7em; padding: 4px;">${truncateName(player.name)}</div>
+                ${player.isDuplicate ?
+                '<div style="position: absolute; bottom: 30px; left: 50%; transform: translateX(-50%); background: rgba(245, 158, 11, 0.9); color: #000; padding: 2px 6px; border-radius: 4px; font-size: 0.6em; font-weight: bold; z-index: 20;">DUPLICATE</div>' :
+                ''
+            }
+            </div>
+        `;
+    }).join('');
+
+    // Determine grid columns based on player count
+    const gridCols = sortedPlayers.length <= 3 ? sortedPlayers.length : sortedPlayers.length <= 5 ? sortedPlayers.length : 5;
+
+    let resultHtml = `
+        <div style="position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.95);z-index:2000;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px;">
+            <h2 style="color:#ffd700;margin-bottom:25px;font-size:2em;">🎉 Signings</h2>
+            <div style="display: grid; grid-template-columns: repeat(${gridCols}, 1fr); gap: 12px; justify-items: center; max-width: 780px;">
+                ${cardsHtml}
+            </div>
+            <button onclick="this.parentElement.remove()" style="margin-top:30px;padding:15px 40px;background:var(--secondary);border:none;border-radius:25px;color:#000;font-size:1.1em;font-weight:bold;cursor:pointer;text-transform:uppercase;">Continue</button>
+        </div>
+    `;
 
     document.body.insertAdjacentHTML('beforeend', resultHtml);
 }

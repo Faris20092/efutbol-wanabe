@@ -319,64 +319,86 @@ async function showPackResultWithAnimation(players, packType, count) {
     }
 }
 
-// Show single card (large)
+// Show single card (large) - using player-detail-card design
 function showSingleCard(content, player) {
+    const playerImagePath = `/assets/playerimages/${player.id}.png`;
+
     content.innerHTML = `
         <div style="width: 100%; text-align: center;">
-            <h2 style="color: var(--secondary); font-size: 2em; margin-bottom: 20px;">
-                🎉 You got!
+            <h2 style="color: var(--secondary); font-size: 2em; margin-bottom: 30px;">
+                🎉 Signings
             </h2>
-            <div class="contract-player-card" data-rarity="${player.rarity}" 
-                 style="width: 300px; margin: 0 auto; padding: 20px; animation: cardReveal 0.5s ease-out;">
-                <div class="player-image-container" style="height: 200px;">
-                    <div class="player-overall" style="font-size: 1.5em;">${player.overall}</div>
-                    <div class="player-position" style="font-size: 1.2em;">${player.position}</div>
+            <div style="display: flex; justify-content: center;">
+                <div class="player-detail-card" data-rarity="${player.rarity}" 
+                     style="width: 200px; height: 280px; animation: cardReveal 0.5s ease-out; cursor: pointer;">
+                    <div class="player-card-rating">${player.overall}</div>
+                    <div class="player-card-position">${player.position}</div>
+                    <div class="player-card-rarity">${RARITY_EMOJIS[player.rarity] || '⚽'}</div>
+                    <img src="${playerImagePath}" class="player-detail-image" 
+                         onerror="this.src='/assets/playerimages/default_player.png'">
+                    <div class="player-card-rarity-bottom">${player.name}</div>
                 </div>
-                <div class="player-rarity" style="font-size: 2em; margin: 15px 0;">
-                    ${RARITY_EMOJIS[player.rarity] || '⚽'} ${player.rarity}
-                </div>
-                <div class="player-name" style="font-size: 1.5em; font-weight: bold;" title="${player.name}">
-                    ${player.name}
-                </div>
+            </div>
+            <div style="margin-top: 20px;">
                 ${player.isDuplicate ?
-            '<div style="color: #f59e0b; font-size: 1em; margin-top: 10px;">💰 Duplicate - Converted to GP</div>' :
-            '<div style="color: #10b981; font-size: 1em; margin-top: 10px;">✨ NEW!</div>'
+            '<div style="color: #f59e0b; font-size: 1.2em;">💰 Duplicate - Converted to GP</div>' :
+            '<div style="color: #10b981; font-size: 1.2em;">✨ NEW!</div>'
         }
             </div>
         </div>
     `;
 }
 
-// Show multiple cards in grid
+// Show multiple cards in grid (2 rows x 5 columns for 10x) - sorted by rarity
 function showMultipleCards(content, players) {
-    const gridColumns = players.length <= 3 ? players.length : players.length <= 6 ? 3 : players.length <= 9 ? 3 : 5;
+    // Sort players by rarity (highest first)
+    const rarityOrder = ['Iconic', 'Legend', 'Black', 'Gold', 'Silver', 'Bronze', 'White'];
+    const sortedPlayers = [...players].sort((a, b) => {
+        const aIndex = rarityOrder.indexOf(a.rarity);
+        const bIndex = rarityOrder.indexOf(b.rarity);
+        if (aIndex !== bIndex) return aIndex - bIndex;
+        // If same rarity, sort by overall rating
+        return b.overall - a.overall;
+    });
+
+    // Generate cards HTML
+    const cardsHtml = sortedPlayers.map((player, index) => {
+        const playerImagePath = `/assets/playerimages/${player.id}.png`;
+        const animationDelay = index * 0.1;
+
+        return `
+            <div class="player-detail-card" data-rarity="${player.rarity}" 
+                 style="width: 140px; height: 200px; animation: cardReveal 0.5s ease-out ${animationDelay}s both; cursor: pointer; flex-shrink: 0;">
+                <div class="player-card-rating" style="font-size: 1.8em; top: 30px;">${player.overall}</div>
+                <div class="player-card-position" style="font-size: 0.85em;">${player.position}</div>
+                <div class="player-card-rarity" style="font-size: 1.2em; top: 70px;">${RARITY_EMOJIS[player.rarity] || '⚽'}</div>
+                <img src="${playerImagePath}" class="player-detail-image" 
+                     onerror="this.src='/assets/playerimages/default_player.png'">
+                <div class="player-card-rarity-bottom" style="font-size: 0.7em; padding: 4px;">${truncateName(player.name)}</div>
+                ${player.isDuplicate ?
+                '<div style="position: absolute; bottom: 30px; left: 50%; transform: translateX(-50%); background: rgba(245, 158, 11, 0.9); color: #000; padding: 2px 6px; border-radius: 4px; font-size: 0.6em; font-weight: bold; z-index: 20;">DUPLICATE</div>' :
+                ''
+            }
+            </div>
+        `;
+    }).join('');
 
     content.innerHTML = `
         <div style="width: 100%; text-align: center;">
-            <h2 style="color: var(--secondary); font-size: 2em; margin-bottom: 20px;">
-                🎉 Your ${players.length} Cards!
+            <h2 style="color: var(--secondary); font-size: 2em; margin-bottom: 25px;">
+                🎉 Signings
             </h2>
-            <div style="display: grid; grid-template-columns: repeat(${gridColumns}, 1fr); gap: 15px; justify-content: center;">
-                ${players.map((player, index) => `
-                    <div class="contract-player-card" data-rarity="${player.rarity}" 
-                         style="width: 140px; animation: cardReveal 0.5s ease-out ${index * 0.1}s both;">
-                        <div class="player-image-container" style="height: 100px;">
-                            <div class="player-overall">${player.overall}</div>
-                            <div class="player-position">${player.position}</div>
-                        </div>
-                        <div class="player-rarity">${RARITY_EMOJIS[player.rarity] || '⚽'}</div>
-                        <div class="player-name" style="font-size: 0.9em;" title="${player.name}">
-                            ${player.name}
-                        </div>
-                        ${player.isDuplicate ?
-            '<div style="color: #f59e0b; font-size: 0.75em;">💰 +GP</div>' :
-            '<div style="color: #10b981; font-size: 0.75em;">✨ NEW</div>'
-        }
-                    </div>
-                `).join('')}
+            <div style="display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px; justify-items: center; max-width: 780px; margin: 0 auto;">
+                ${cardsHtml}
             </div>
         </div>
     `;
+}
+
+// Helper function to truncate names
+function truncateName(name) {
+    if (!name) return '';
+    return name.length > 12 ? name.slice(0, 11) + '…' : name;
 }
 
 // Utility function for delays
