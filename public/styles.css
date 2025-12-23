@@ -2966,3 +2966,40 @@ body {
         opacity: 1;
     }
 }
+
+/* Spinning Wheel Animation */
+@keyframes spinWheel {
+    from {
+        transform: rotate(0deg);
+    }
+
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* Ball Pulse Animation */
+@keyframes ballPulse {
+    from {
+        transform: scale(1);
+        box-shadow: 0 0 20px rgba(255, 237, 0, 0.5);
+    }
+
+    to {
+        transform: scale(1.1);
+        box-shadow: 0 0 40px rgba(255, 237, 0, 0.8);
+    }
+}
+
+/* Spinner Container Styles */
+.spinner-container {
+    perspective: 1000px;
+}
+
+.spinner-wheel {
+    transform-style: preserve-3d;
+}
+
+.spin-ball {
+    transition: all 0.3s ease;
+}
