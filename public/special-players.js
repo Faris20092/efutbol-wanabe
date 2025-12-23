@@ -458,20 +458,13 @@ function getBallStyle(rarity) {
     return styles[rarity] || styles['White'];
 }
 
-// Create spinning ball HTML
-function createSpinningBall(rarity, index, total) {
+// Create a ball element for the horizontal track
+function createTrackBall(rarity) {
     const style = getBallStyle(rarity);
-    const angle = (360 / total) * index;
-    const radius = 100;
-    const radians = (angle - 90) * (Math.PI / 180);
-    const x = Math.cos(radians) * radius;
-    const y = Math.sin(radians) * radius;
-
     return `
-        <div class="spin-ball" data-rarity="${rarity}" style="
-            position: absolute;
-            width: 50px;
-            height: 50px;
+        <div class="track-ball" data-rarity="${rarity}" style="
+            width: 70px;
+            height: 70px;
             border-radius: 50%;
             background: ${style.background};
             border: ${style.border};
@@ -480,14 +473,11 @@ function createSpinningBall(rarity, index, total) {
             align-items: center;
             justify-content: center;
             font-weight: 900;
-            font-size: 0.7em;
+            font-size: 0.9em;
             color: ${rarity === 'White' || rarity === 'Silver' ? '#333' : '#fff'};
             text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
-            top: 50%;
-            left: 50%;
-            margin-left: -25px;
-            margin-top: -25px;
-            transform: translate(${x}px, ${y}px);
+            flex-shrink: 0;
+            margin: 0 8px;
         ">EFW</div>
     `;
 }
@@ -499,6 +489,7 @@ function delay(ms) {
 
 // Global skip flag
 let skipAnimation = false;
+let spinnerAnimationId = null;
 
 // Wait for skip or delay
 async function waitForSkipOrDelay(ms) {
@@ -511,7 +502,7 @@ async function waitForSkipOrDelay(ms) {
     skipAnimation = false;
 }
 
-// Main pack result with full animation
+// Main pack result with PES-style horizontal scrolling animation
 async function showPackResult(players) {
     skipAnimation = false;
     const count = players.length;
@@ -519,56 +510,185 @@ async function showPackResult(players) {
     // Get highest rarity
     const rarityOrder = ['Iconic', 'Legend', 'Black', 'Gold', 'Silver', 'Bronze', 'White'];
     const highestRarity = rarityOrder.find(r => players.some(p => p.rarity === r)) || 'White';
-    const highestIndex = rarityOrder.indexOf(highestRarity);
 
     // Create overlay container
     const overlay = document.createElement('div');
     overlay.id = 'spinOverlay';
-    overlay.style.cssText = 'position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.95);z-index:2000;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px;';
+    overlay.style.cssText = 'position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.95);z-index:2000;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px;overflow:hidden;';
     document.body.appendChild(overlay);
 
-    // Step 1: Show spinning wheel
+    // Create many balls in sequence for smooth scrolling (repeated pattern)
     const allRarities = ['Iconic', 'Legend', 'Black', 'Gold', 'Silver', 'Bronze', 'White'];
-    const ballsHtml = allRarities.map((r, i) => createSpinningBall(r, i, allRarities.length)).join('');
-
-    overlay.innerHTML = `
-        <h2 style="color: #ffd700; font-size: 2em; margin-bottom: 30px;">
-            🎰 ${count > 1 ? count + 'x ' : ''}Signing...
-        </h2>
-        <div style="position: relative; width: 280px; height: 280px;">
-            <div id="spinnerWheel" style="position: absolute; width: 100%; height: 100%; animation: spinWheel 0.5s linear infinite;">
-                ${ballsHtml}
-            </div>
-            <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 70px; height: 70px; border-radius: 50%; background: radial-gradient(circle at 30% 30%, #0014DC, #000033); border: 4px solid #ffd700; display: flex; align-items: center; justify-content: center; font-weight: 900; font-size: 1.1em; color: #ffd700; z-index: 10;">EFW</div>
-            <div style="position: absolute; top: -15px; left: 50%; transform: translateX(-50%); width: 0; height: 0; border-left: 12px solid transparent; border-right: 12px solid transparent; border-top: 20px solid #ffd700; z-index: 20;"></div>
-        </div>
-        <div style="margin-top: 25px; font-size: 1.2em; color: #fff;">⏳ Determining your players...</div>
-    `;
-
-    // Spin for 2 seconds
-    await delay(2000);
-
-    // Step 2: Decelerate and stop
-    const wheel = document.getElementById('spinnerWheel');
-    if (wheel) {
-        const targetAngle = (360 / allRarities.length) * highestIndex + 1080;
-        wheel.style.animation = 'none';
-        wheel.style.transition = 'transform 3s cubic-bezier(0.17, 0.67, 0.12, 0.99)';
-        wheel.style.transform = `rotate(${targetAngle}deg)`;
+    let ballSequence = [];
+    // Create enough balls to fill screen + buffer (about 15-20 balls)
+    for (let i = 0; i < 3; i++) {
+        ballSequence = ballSequence.concat(allRarities);
     }
 
-    overlay.querySelector('h2').innerHTML = `🎰 ${count > 1 ? count + 'x ' : ''}Signing...`;
-    overlay.querySelector('div[style*="Determining"]').innerHTML = `✨ Stopping on ${highestRarity}...`;
+    const ballsHtml = ballSequence.map(r => createTrackBall(r)).join('');
 
-    await delay(3500);
+    overlay.innerHTML = `
+        <h2 style="color: #ffd700; font-size: 2em; margin-bottom: 20px;">
+            🎰 ${count > 1 ? count + 'x ' : ''}Signing...
+        </h2>
+        
+        <!-- Pointer/Arrow indicator -->
+        <div style="width: 0; height: 0; border-left: 20px solid transparent; border-right: 20px solid transparent; border-top: 30px solid #ffd700; margin-bottom: 10px; filter: drop-shadow(0 3px 6px rgba(255,215,0,0.5));"></div>
+        
+        <!-- Track container with mask -->
+        <div id="trackContainer" style="
+            width: 100%;
+            max-width: 600px;
+            height: 100px;
+            overflow: hidden;
+            position: relative;
+            display: flex;
+            align-items: center;
+            background: linear-gradient(90deg, rgba(0,0,0,0.8) 0%, transparent 10%, transparent 90%, rgba(0,0,0,0.8) 100%);
+        ">
+            <!-- The scrolling track -->
+            <div id="ballTrack" style="
+                display: flex;
+                align-items: center;
+                position: absolute;
+                left: 0;
+                transition: none;
+            ">
+                ${ballsHtml}
+            </div>
+        </div>
+        
+        <!-- Highlight frame in center -->
+        <div style="
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -15px);
+            width: 85px;
+            height: 85px;
+            border: 4px solid #ffd700;
+            border-radius: 50%;
+            pointer-events: none;
+            box-shadow: 0 0 20px rgba(255,215,0,0.5), inset 0 0 20px rgba(255,215,0,0.2);
+        "></div>
+        
+        <div id="spinStatus" style="margin-top: 25px; font-size: 1.2em; color: #fff;">⏳ Determining your players...</div>
+    `;
 
-    // Step 3: Highlight winning ball
+    // Get track element and animate with leapfrog technique
+    const track = document.getElementById('ballTrack');
+    const container = document.getElementById('trackContainer');
+    const balls = track.querySelectorAll('.track-ball');
+    const ballWidth = 86; // 70px + 16px margin
+    const containerWidth = container.offsetWidth;
+    const centerOffset = (containerWidth / 2) - (ballWidth / 2);
+
+    // Position track so first ball is at center
+    let currentOffset = centerOffset;
+    track.style.left = `${currentOffset}px`;
+
+    // Animate scrolling (leapfrog technique)
+    let speed = 15; // pixels per frame
+    let isSpinning = true;
+    let frameCount = 0;
+    const spinDuration = 120; // ~2 seconds at 60fps
+    const decelerateDuration = 180; // ~3 seconds deceleration
+
+    // Find target ball index (first occurrence of highest rarity after some spins)
+    const targetRarityIndex = allRarities.indexOf(highestRarity);
+    // Target position: after 2 full cycles + target rarity position
+    const targetBallIndex = (allRarities.length * 2) + targetRarityIndex;
+    const targetOffset = centerOffset - (targetBallIndex * ballWidth);
+
+    function animate() {
+        if (!isSpinning) return;
+
+        frameCount++;
+
+        // Phase 1: Fast spinning
+        if (frameCount < spinDuration) {
+            currentOffset -= speed;
+        }
+        // Phase 2: Deceleration
+        else if (frameCount < spinDuration + decelerateDuration) {
+            const progress = (frameCount - spinDuration) / decelerateDuration;
+            // Ease out - slow down gradually
+            const easeOut = 1 - Math.pow(1 - progress, 3);
+
+            // Calculate where we should be at this progress
+            const distanceToTarget = currentOffset - targetOffset;
+            const targetPosition = currentOffset - (distanceToTarget * 0.05);
+            currentOffset = targetPosition;
+
+            // Update status
+            if (progress > 0.5) {
+                document.getElementById('spinStatus').innerHTML = `✨ Stopping on ${highestRarity}...`;
+            }
+        }
+        // Phase 3: Stopped
+        else {
+            isSpinning = false;
+            currentOffset = targetOffset;
+            track.style.left = `${currentOffset}px`;
+
+            // Highlight the winning ball
+            const winningBall = balls[targetBallIndex];
+            if (winningBall) {
+                winningBall.style.transform = 'scale(1.2)';
+                winningBall.style.boxShadow = getBallStyle(highestRarity).glow + ', 0 0 40px rgba(255,215,0,0.8)';
+            }
+
+            // Continue to next phase
+            setTimeout(() => showGifAndCards(overlay, players, highestRarity, rarityOrder), 1500);
+            return;
+        }
+
+        // Leapfrog: move balls that went off-screen left to the right end
+        // This creates the illusion of infinite scrolling
+        const trackBalls = Array.from(track.children);
+        trackBalls.forEach((ball, index) => {
+            const ballLeft = currentOffset + (index * ballWidth);
+            // If ball is completely off-screen left, we don't need to reposition
+            // because we have enough balls in the sequence
+        });
+
+        track.style.left = `${currentOffset}px`;
+        spinnerAnimationId = requestAnimationFrame(animate);
+    }
+
+    // Start animation
+    spinnerAnimationId = requestAnimationFrame(animate);
+}
+
+// Show GIF and then cards
+async function showGifAndCards(overlay, players, highestRarity, rarityOrder) {
+    // Stop any ongoing animation
+    if (spinnerAnimationId) {
+        cancelAnimationFrame(spinnerAnimationId);
+        spinnerAnimationId = null;
+    }
+
+    // Show rarity reveal with ball highlight
     const style = getBallStyle(highestRarity);
     overlay.innerHTML = `
-        <h2 style="color: #ffd700; font-size: 2em; margin-bottom: 30px;">
+        <h2 style="color: #ffd700; font-size: 2.5em; margin-bottom: 30px;">
             ${RARITY_EMOJIS[highestRarity]} ${highestRarity}!
         </h2>
-        <div style="width: 120px; height: 120px; border-radius: 50%; background: ${style.background}; border: ${style.border}; box-shadow: ${style.glow}, 0 0 60px ${style.glow.split(')')[0]}0.5); display: flex; align-items: center; justify-content: center; font-weight: 900; font-size: 1.5em; color: ${highestRarity === 'White' || highestRarity === 'Silver' ? '#333' : '#fff'}; animation: ballPulse 0.5s ease-in-out infinite alternate;">EFW</div>
+        <div style="
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            background: ${style.background};
+            border: ${style.border};
+            box-shadow: ${style.glow}, 0 0 60px ${style.glow.split(')')[0]}0.6);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 900;
+            font-size: 1.5em;
+            color: ${highestRarity === 'White' || highestRarity === 'Silver' ? '#333' : '#fff'};
+            animation: ballPulse 0.5s ease-in-out infinite alternate;
+        ">EFW</div>
         <div style="margin-top: 30px; font-size: 1em; color: #aaa;">Tap to continue...</div>
     `;
 
@@ -576,9 +696,9 @@ async function showPackResult(players) {
     await waitForSkipOrDelay(1500);
     overlay.onclick = null;
 
-    // Step 4: Show GIF (skippable)
+    // Show GIF (skippable)
     overlay.innerHTML = `
-        <div style="text-align: center; cursor: pointer;" onclick="skipAnimation = true;">
+        <div style="text-align: center; cursor: pointer; width: 100%;" onclick="skipAnimation = true;">
             <h2 style="color: #ffd700; font-size: 2em; margin-bottom: 20px;">
                 ${RARITY_EMOJIS[highestRarity]} ${highestRarity} Reveal!
             </h2>
