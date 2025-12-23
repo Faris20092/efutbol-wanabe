@@ -208,6 +208,54 @@ app.get('/gameplan', isAuthenticated, (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'gameplan.html'));
 });
 
+
+// Load players data
+let allPlayers = [];
+try {
+    const playersPath = path.join(__dirname, 'players.json');
+    if (fs.existsSync(playersPath)) {
+        allPlayers = JSON.parse(fs.readFileSync(playersPath, 'utf8'));
+        console.log(`Loaded ${allPlayers.length} players`);
+    } else {
+        console.error('players.json not found!');
+    }
+} catch (error) {
+    console.error('Error loading players:', error);
+}
+
+// Pack Configurations
+const PACK_CONFIGS = {
+    iconic: {
+        cost: 500,
+        currency: 'eCoins',
+        chances: {
+            'Iconic': 0.05,
+            'Legend': 0.10,
+            'Black': 0.85
+        }
+    },
+    legend: {
+        cost: 300,
+        currency: 'eCoins',
+        chances: {
+            'Legend': 0.10,
+            'Black': 0.20,
+            'Gold': 0.70
+        }
+    },
+    standard: {
+        cost: 100,
+        currency: 'eCoins',
+        chances: {
+            'Black': 0.05,
+            'Gold': 0.15,
+            'Silver': 0.30,
+            'Bronze': 0.30,
+            'White': 0.20
+        }
+    }
+};
+
 // Contracts route
 app.get('/contracts', isAuthenticated, (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'contracts.html'));
@@ -216,6 +264,91 @@ app.get('/contracts', isAuthenticated, (req, res) => {
 // Special Players route
 app.get('/special-players', isAuthenticated, (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'special-players.html'));
+});
+
+// API: Get all players
+app.get('/api/all-players', (req, res) => {
+    res.json({ players: allPlayers });
+});
+
+// API: Open Pack
+app.post('/api/contracts/open', isAuthenticated, (req, res) => {
+    try {
+        const { packType, count } = req.body;
+        const userId = req.user.id;
+        const user = client.getUserData(userId);
+
+        const packConfig = PACK_CONFIGS[packType];
+        if (!packConfig) {
+            return res.json({ success: false, message: 'Invalid pack type' });
+        }
+
+        const totalCost = packConfig.cost * count;
+        const currencyKey = packConfig.currency === 'GP' ? 'gp' : 'eCoins';
+
+        if ((user[currencyKey] || 0) < totalCost) {
+            return res.json({ success: false, message: `Insufficient ${packConfig.currency}` });
+        }
+
+        // Deduct cost
+        user[currencyKey] -= totalCost;
+
+        // Pull players
+        const pulledPlayers = [];
+        const chances = packConfig.chances;
+
+        for (let i = 0; i < count; i++) {
+            // Determine rarity
+            const rand = Math.random();
+            let accumulatedChance = 0;
+            let selectedRarity = null;
+
+            for (const [rarity, chance] of Object.entries(chances)) {
+                accumulatedChance += chance;
+                if (rand <= accumulatedChance) {
+                    selectedRarity = rarity;
+                    break;
+                }
+            }
+            if (!selectedRarity) selectedRarity = Object.keys(chances)[Object.keys(chances).length - 1]; // Fallback to last
+
+            // Filter players by rarity
+            const pool = allPlayers.filter(p => p.rarity === selectedRarity);
+            if (pool.length === 0) {
+                // Fallback if no player of rarity found (shouldn't happen with full db)
+                pulledPlayers.push(allPlayers[Math.floor(Math.random() * allPlayers.length)]);
+            } else {
+                const randomPlayer = pool[Math.floor(Math.random() * pool.length)];
+
+                // Check duplicate
+                const isDuplicate = user.players.some(p => p.id === randomPlayer.id);
+                const playerResult = { ...randomPlayer, isDuplicate };
+
+                if (isDuplicate) {
+                    // Give GP for duplicate
+                    const duplicateGP = 500; // Flat rate for now
+                    user.gp = (user.gp || 0) + duplicateGP;
+                } else {
+                    user.players.push(randomPlayer);
+                }
+
+                pulledPlayers.push(playerResult);
+            }
+        }
+
+        // Save user data
+        client.setUserData(userId, user);
+
+        res.json({
+            success: true,
+            newBalance: user[currencyKey],
+            players: pulledPlayers
+        });
+
+    } catch (error) {
+        console.error('Pack opening error:', error);
+        res.json({ success: false, message: 'Server error opening pack' });
+    }
 });
 
 // Mail route
