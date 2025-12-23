@@ -189,12 +189,12 @@ function openPackModal(packKey) {
         // Structure: div.pes-player-card.[RARITY]
         card.innerHTML = `
             <div class="pes-player-card ${rarityClass}">
-                <div class="pes-rating">${player.overall || 0}</div>
-                <div class="pes-position">${player.position || 'CMF'}</div>
-                <div class="pes-logo">${RARITY_EMOJIS[player.rarity] || '🛡️'}</div>
-                <img src="${playerImagePng}" class="pes-image" 
+                <div class="card-rating">${player.overall || 0}</div>
+                <div class="card-position">${player.position || 'CMF'}</div>
+                <div class="card-sc-icon">${RARITY_EMOJIS[player.rarity] || '💎'}</div>
+                <img src="${playerImagePng}" class="card-image" 
                      onerror="this.src='/assets/playerimages/default_player.png'">
-                <div class="pes-name-bar">${truncateName(player.name)}</div>
+                <div class="card-name-bar">${truncateName(player.name)}</div>
             </div>
         `;
 
@@ -281,12 +281,19 @@ function showPlayerDetails(player) {
             <div class="player-detail-left">
                 <!-- Unified Design Card (Standard Size 240x340 controlled by CSS class) -->
                 <div class="player-detail-card" data-rarity="${player.rarity || 'Base'}">
-                    <div class="player-card-position">${player.position || 'CMF'}</div>
-                    <div class="player-card-rating">${player.overall || 0}</div>
-                    <div class="player-card-rarity">${RARITY_EMOJIS[player.rarity] || '💎'}</div>
-                    <img src="${playerImagePng}" class="player-detail-image" 
+                    <div class="card-position">${player.position || 'CMF'}</div>
+                    <!-- Rating is typically overall, but let's stick to player.overall -->
+                    <div class="card-rating">${player.overall || 0}</div>
+                    <!-- Diamond/Logo Slot -->
+                    <div class="card-sc-icon">${RARITY_EMOJIS[player.rarity] || '💎'}</div>
+                    <!-- Image -->
+                    <img src="${playerImagePng}" class="card-image" 
                          onerror="this.src='/assets/playerimages/default_player.png'">
-                    <div class="player-card-rarity-bottom">${player.rarity || 'Standard'}</div>
+                    <!-- Name Bar -->
+                    <div class="card-name-bar">${truncateName(player.name)}</div>
+                    
+                    <!-- Old Bottom Rarity (Optional, removing if new design implies clean look) -->
+                    <!-- <div class="player-card-rarity-bottom">${player.rarity || 'Standard'}</div> --> 
                 </div>
                 
                 <div style="margin-top: 20px; color: #4ade80; font-size: 1.1em; font-weight: bold; text-align: center;">
