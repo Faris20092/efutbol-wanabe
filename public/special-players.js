@@ -412,52 +412,244 @@ async function buyPack(count) {
     }
 }
 
-function showPackResult(players) {
-    // Sort players by rarity (highest first)
+// ==========================================
+// SPINNING BALL ANIMATION SYSTEM
+// ==========================================
+
+// Get ball style for each rarity
+function getBallStyle(rarity) {
+    const styles = {
+        'Iconic': {
+            background: 'radial-gradient(circle at 30% 30%, #ff69b4 0%, #db0a5b 50%, #8b008b 100%)',
+            border: '3px solid #ff1493',
+            glow: '0 0 20px rgba(255, 20, 147, 0.8)'
+        },
+        'Legend': {
+            background: 'radial-gradient(circle at 30% 30%, #ffd700 0%, #daa520 50%, #8b6508 100%)',
+            border: '3px solid #ffd700',
+            glow: '0 0 20px rgba(255, 215, 0, 0.8)'
+        },
+        'Black': {
+            background: 'radial-gradient(circle at 30% 30%, #4a4a4a 0%, #2a2a2a 50%, #0a0a0a 100%)',
+            border: '3px solid #555',
+            glow: '0 0 20px rgba(80, 80, 80, 0.8)'
+        },
+        'Gold': {
+            background: 'radial-gradient(circle at 30% 30%, #ffc300 0%, #b8860b 50%, #8b6508 100%)',
+            border: '3px solid #ffc300',
+            glow: '0 0 20px rgba(255, 195, 0, 0.8)'
+        },
+        'Silver': {
+            background: 'radial-gradient(circle at 30% 30%, #e0e0e0 0%, #a0a0a0 50%, #707070 100%)',
+            border: '3px solid #c0c0c0',
+            glow: '0 0 20px rgba(192, 192, 192, 0.8)'
+        },
+        'Bronze': {
+            background: 'radial-gradient(circle at 30% 30%, #e67e22 0%, #cd7f32 50%, #8b4513 100%)',
+            border: '3px solid #cd7f32',
+            glow: '0 0 20px rgba(205, 127, 50, 0.8)'
+        },
+        'White': {
+            background: 'radial-gradient(circle at 30% 30%, #ffffff 0%, #e0e0e0 50%, #c0c0c0 100%)',
+            border: '3px solid #fff',
+            glow: '0 0 20px rgba(255, 255, 255, 0.6)'
+        }
+    };
+    return styles[rarity] || styles['White'];
+}
+
+// Create spinning ball HTML
+function createSpinningBall(rarity, index, total) {
+    const style = getBallStyle(rarity);
+    const angle = (360 / total) * index;
+    const radius = 100;
+    const radians = (angle - 90) * (Math.PI / 180);
+    const x = Math.cos(radians) * radius;
+    const y = Math.sin(radians) * radius;
+
+    return `
+        <div class="spin-ball" data-rarity="${rarity}" style="
+            position: absolute;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: ${style.background};
+            border: ${style.border};
+            box-shadow: ${style.glow};
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 900;
+            font-size: 0.7em;
+            color: ${rarity === 'White' || rarity === 'Silver' ? '#333' : '#fff'};
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
+            top: 50%;
+            left: 50%;
+            margin-left: -25px;
+            margin-top: -25px;
+            transform: translate(${x}px, ${y}px);
+        ">EFW</div>
+    `;
+}
+
+// Utility delay function
+function delay(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+// Global skip flag
+let skipAnimation = false;
+
+// Wait for skip or delay
+async function waitForSkipOrDelay(ms) {
+    const checkInterval = 100;
+    let elapsed = 0;
+    while (elapsed < ms && !skipAnimation) {
+        await delay(checkInterval);
+        elapsed += checkInterval;
+    }
+    skipAnimation = false;
+}
+
+// Main pack result with full animation
+async function showPackResult(players) {
+    skipAnimation = false;
+    const count = players.length;
+
+    // Get highest rarity
     const rarityOrder = ['Iconic', 'Legend', 'Black', 'Gold', 'Silver', 'Bronze', 'White'];
+    const highestRarity = rarityOrder.find(r => players.some(p => p.rarity === r)) || 'White';
+    const highestIndex = rarityOrder.indexOf(highestRarity);
+
+    // Create overlay container
+    const overlay = document.createElement('div');
+    overlay.id = 'spinOverlay';
+    overlay.style.cssText = 'position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.95);z-index:2000;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px;';
+    document.body.appendChild(overlay);
+
+    // Step 1: Show spinning wheel
+    const allRarities = ['Iconic', 'Legend', 'Black', 'Gold', 'Silver', 'Bronze', 'White'];
+    const ballsHtml = allRarities.map((r, i) => createSpinningBall(r, i, allRarities.length)).join('');
+
+    overlay.innerHTML = `
+        <h2 style="color: #ffd700; font-size: 2em; margin-bottom: 30px;">
+            🎰 ${count > 1 ? count + 'x ' : ''}Signing...
+        </h2>
+        <div style="position: relative; width: 280px; height: 280px;">
+            <div id="spinnerWheel" style="position: absolute; width: 100%; height: 100%; animation: spinWheel 0.5s linear infinite;">
+                ${ballsHtml}
+            </div>
+            <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 70px; height: 70px; border-radius: 50%; background: radial-gradient(circle at 30% 30%, #0014DC, #000033); border: 4px solid #ffd700; display: flex; align-items: center; justify-content: center; font-weight: 900; font-size: 1.1em; color: #ffd700; z-index: 10;">EFW</div>
+            <div style="position: absolute; top: -15px; left: 50%; transform: translateX(-50%); width: 0; height: 0; border-left: 12px solid transparent; border-right: 12px solid transparent; border-top: 20px solid #ffd700; z-index: 20;"></div>
+        </div>
+        <div style="margin-top: 25px; font-size: 1.2em; color: #fff;">⏳ Determining your players...</div>
+    `;
+
+    // Spin for 2 seconds
+    await delay(2000);
+
+    // Step 2: Decelerate and stop
+    const wheel = document.getElementById('spinnerWheel');
+    if (wheel) {
+        const targetAngle = (360 / allRarities.length) * highestIndex + 1080;
+        wheel.style.animation = 'none';
+        wheel.style.transition = 'transform 3s cubic-bezier(0.17, 0.67, 0.12, 0.99)';
+        wheel.style.transform = `rotate(${targetAngle}deg)`;
+    }
+
+    overlay.querySelector('h2').innerHTML = `🎰 ${count > 1 ? count + 'x ' : ''}Signing...`;
+    overlay.querySelector('div[style*="Determining"]').innerHTML = `✨ Stopping on ${highestRarity}...`;
+
+    await delay(3500);
+
+    // Step 3: Highlight winning ball
+    const style = getBallStyle(highestRarity);
+    overlay.innerHTML = `
+        <h2 style="color: #ffd700; font-size: 2em; margin-bottom: 30px;">
+            ${RARITY_EMOJIS[highestRarity]} ${highestRarity}!
+        </h2>
+        <div style="width: 120px; height: 120px; border-radius: 50%; background: ${style.background}; border: ${style.border}; box-shadow: ${style.glow}, 0 0 60px ${style.glow.split(')')[0]}0.5); display: flex; align-items: center; justify-content: center; font-weight: 900; font-size: 1.5em; color: ${highestRarity === 'White' || highestRarity === 'Silver' ? '#333' : '#fff'}; animation: ballPulse 0.5s ease-in-out infinite alternate;">EFW</div>
+        <div style="margin-top: 30px; font-size: 1em; color: #aaa;">Tap to continue...</div>
+    `;
+
+    overlay.onclick = () => { skipAnimation = true; };
+    await waitForSkipOrDelay(1500);
+    overlay.onclick = null;
+
+    // Step 4: Show GIF (skippable)
+    overlay.innerHTML = `
+        <div style="text-align: center; cursor: pointer;" onclick="skipAnimation = true;">
+            <h2 style="color: #ffd700; font-size: 2em; margin-bottom: 20px;">
+                ${RARITY_EMOJIS[highestRarity]} ${highestRarity} Reveal!
+            </h2>
+            <img src="/assets/gifs/${highestRarity.toLowerCase()}.gif" 
+                 alt="${highestRarity}" 
+                 style="max-width: 450px; width: 100%; border-radius: 15px; box-shadow: 0 0 30px rgba(255,215,0,0.5);"
+                 onerror="this.style.display='none'" />
+            <div style="margin-top: 20px; font-size: 1.2em; color: #fff;">✨ Revealing your players...</div>
+            <div style="margin-top: 10px; font-size: 0.9em; color: #aaa;">👆 Tap to skip</div>
+        </div>
+    `;
+
+    await waitForSkipOrDelay(5000);
+
+    // Step 5: Show cards
     const sortedPlayers = [...players].sort((a, b) => {
-        const aIndex = rarityOrder.indexOf(a.rarity);
-        const bIndex = rarityOrder.indexOf(b.rarity);
-        if (aIndex !== bIndex) return aIndex - bIndex;
+        const aIdx = rarityOrder.indexOf(a.rarity);
+        const bIdx = rarityOrder.indexOf(b.rarity);
+        if (aIdx !== bIdx) return aIdx - bIdx;
         return (b.overall || 0) - (a.overall || 0);
     });
 
-    // Generate cards HTML
     const cardsHtml = sortedPlayers.map((player, index) => {
         const playerImagePath = `/assets/playerimages/${player.id}.png`;
-        const animationDelay = index * 0.1;
-
         return `
             <div class="player-detail-card" data-rarity="${player.rarity}" 
-                 style="width: 140px; height: 200px; animation: cardReveal 0.5s ease-out ${animationDelay}s both; cursor: pointer; flex-shrink: 0;">
+                 style="width: 140px; height: 200px; animation: cardReveal 0.5s ease-out ${index * 0.1}s both; cursor: pointer;">
                 <div class="player-card-rating" style="font-size: 1.8em; top: 30px;">${player.overall || 0}</div>
                 <div class="player-card-position" style="font-size: 0.85em;">${player.position}</div>
                 <div class="player-card-rarity" style="font-size: 1.2em; top: 70px;">${RARITY_EMOJIS[player.rarity] || '⚽'}</div>
-                <img src="${playerImagePath}" class="player-detail-image" 
-                     onerror="this.src='/assets/playerimages/default_player.png'">
+                <img src="${playerImagePath}" class="player-detail-image" onerror="this.src='/assets/playerimages/default_player.png'">
                 <div class="player-card-rarity-bottom" style="font-size: 0.7em; padding: 4px;">${truncateName(player.name)}</div>
-                ${player.isDuplicate ?
-                '<div style="position: absolute; bottom: 30px; left: 50%; transform: translateX(-50%); background: rgba(245, 158, 11, 0.9); color: #000; padding: 2px 6px; border-radius: 4px; font-size: 0.6em; font-weight: bold; z-index: 20;">DUPLICATE</div>' :
-                ''
-            }
+                ${player.isDuplicate ? '<div style="position: absolute; bottom: 30px; left: 50%; transform: translateX(-50%); background: rgba(245, 158, 11, 0.9); color: #000; padding: 2px 6px; border-radius: 4px; font-size: 0.6em; font-weight: bold; z-index: 20;">DUPLICATE</div>' : ''}
             </div>
         `;
     }).join('');
 
-    // Determine grid columns based on player count
     const gridCols = sortedPlayers.length <= 3 ? sortedPlayers.length : sortedPlayers.length <= 5 ? sortedPlayers.length : 5;
 
-    let resultHtml = `
-        <div style="position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.95);z-index:2000;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px;">
-            <h2 style="color:#ffd700;margin-bottom:25px;font-size:2em;">🎉 Signings</h2>
-            <div style="display: grid; grid-template-columns: repeat(${gridCols}, 1fr); gap: 12px; justify-items: center; max-width: 780px;">
-                ${cardsHtml}
-            </div>
-            <button onclick="this.parentElement.remove()" style="margin-top:30px;padding:15px 40px;background:var(--secondary);border:none;border-radius:25px;color:#000;font-size:1.1em;font-weight:bold;cursor:pointer;text-transform:uppercase;">Continue</button>
+    overlay.innerHTML = `
+        <h2 style="color: #ffd700; font-size: 2em; margin-bottom: 25px;">🎉 Signings</h2>
+        <div style="display: grid; grid-template-columns: repeat(${gridCols}, 1fr); gap: 12px; justify-items: center; max-width: 780px;">
+            ${cardsHtml}
         </div>
+        <button onclick="document.getElementById('spinOverlay').remove()" style="margin-top: 30px; padding: 15px 40px; background: #ffd700; border: none; border-radius: 25px; color: #000; font-size: 1.1em; font-weight: bold; cursor: pointer; text-transform: uppercase;">Continue</button>
     `;
-
-    document.body.insertAdjacentHTML('beforeend', resultHtml);
 }
 
+// Mock test function for testing
+async function testSpinAnimation(highestRarity = 'Iconic', count = 10) {
+    const rarities = ['Iconic', 'Legend', 'Black', 'Gold', 'Silver', 'Bronze', 'White'];
+    const rarityIndex = rarities.indexOf(highestRarity);
+    const mockPlayers = [];
+
+    mockPlayers.push({ id: 'test-1', name: 'Star Player', rarity: highestRarity, overall: 99, position: 'CF' });
+
+    for (let i = 1; i < count; i++) {
+        const lowerRarity = rarities[Math.min(rarityIndex + Math.floor(Math.random() * 3) + 1, rarities.length - 1)];
+        mockPlayers.push({
+            id: `test-${i + 1}`,
+            name: `Player ${i + 1}`,
+            rarity: lowerRarity,
+            overall: 60 + Math.floor(Math.random() * 30),
+            position: ['CF', 'LWF', 'AMF', 'CMF', 'CB', 'GK'][Math.floor(Math.random() * 6)]
+        });
+    }
+
+    await showPackResult(mockPlayers);
+}
+
+window.testSpinAnimation = testSpinAnimation;
+
 document.addEventListener('DOMContentLoaded', init);
+
