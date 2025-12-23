@@ -54,7 +54,8 @@ async function loadUserData() {
 
 async function loadAllPlayers() {
     const response = await fetch('/api/all-players');
-    allPlayers = await response.json();
+    const data = await response.json();
+    allPlayers = data.players || [];
 }
 
 function getTopPlayersForPack(packKey, count = 3) {
