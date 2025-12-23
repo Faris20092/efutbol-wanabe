@@ -112,11 +112,11 @@ function renderPackCarousel() {
 
         let playersHtml = '';
 
-        // Display contract banner
+        // Display contract banner for this pack
         playersHtml = `
             <div class="featured-player">
-                <img src="/assets/contractbanner/contractbanner.png" 
-                     onerror="this.src='/assets/contractbanner/contractbanner.jpg'">
+                <img src="/assets/contractbanner/${key}.png" 
+                     onerror="this.src='/assets/contractbanner/standard.png'">
             </div>
         `;
 
@@ -582,79 +582,104 @@ async function showPackResult(players) {
     const ballWidth = 86; // 70px + 16px margin
     const containerWidth = container.offsetWidth;
     const centerOffset = (containerWidth / 2) - (ballWidth / 2);
+    const totalTrackWidth = ballSequence.length * ballWidth;
 
     // Position track so first ball is at center
     let currentOffset = centerOffset;
     track.style.left = `${currentOffset}px`;
 
-    // Animate scrolling (leapfrog technique)
-    let speed = 15; // pixels per frame
+    // Animation state
+    let speed = 12; // pixels per frame
     let isSpinning = true;
-    let frameCount = 0;
-    const spinDuration = 120; // ~2 seconds at 60fps
-    const decelerateDuration = 180; // ~3 seconds deceleration
+    let isStopping = false;
+    let stopFrameCount = 0;
+    const decelerateDuration = 120; // ~2 seconds deceleration
 
-    // Find target ball index (first occurrence of highest rarity after some spins)
+    // Find target ball index (first occurrence of highest rarity)
     const targetRarityIndex = allRarities.indexOf(highestRarity);
-    // Target position: after 2 full cycles + target rarity position
-    const targetBallIndex = (allRarities.length * 2) + targetRarityIndex;
-    const targetOffset = centerOffset - (targetBallIndex * ballWidth);
+    // We'll calculate exact target when user taps
+    let targetOffset = 0;
+    let targetBallIndex = 0;
+
+    // Update status to prompt user
+    document.getElementById('spinStatus').innerHTML = `👆 Tap to reveal!`;
 
     function animate() {
         if (!isSpinning) return;
 
-        frameCount++;
-
-        // Phase 1: Fast spinning
-        if (frameCount < spinDuration) {
+        // Continuous spinning phase (before tap)
+        if (!isStopping) {
             currentOffset -= speed;
-        }
-        // Phase 2: Deceleration
-        else if (frameCount < spinDuration + decelerateDuration) {
-            const progress = (frameCount - spinDuration) / decelerateDuration;
-            // Ease out - slow down gradually
-            const easeOut = 1 - Math.pow(1 - progress, 3);
 
-            // Calculate where we should be at this progress
-            const distanceToTarget = currentOffset - targetOffset;
-            const targetPosition = currentOffset - (distanceToTarget * 0.05);
-            currentOffset = targetPosition;
-
-            // Update status
-            if (progress > 0.5) {
-                document.getElementById('spinStatus').innerHTML = `✨ Stopping on ${highestRarity}...`;
+            // Leapfrog: when track moves too far left, reset position
+            // This creates infinite scrolling illusion
+            if (currentOffset < -totalTrackWidth + containerWidth) {
+                currentOffset += totalTrackWidth;
             }
         }
-        // Phase 3: Stopped
+        // Deceleration phase (after tap)
         else {
-            isSpinning = false;
-            currentOffset = targetOffset;
-            track.style.left = `${currentOffset}px`;
+            stopFrameCount++;
+            const progress = stopFrameCount / decelerateDuration;
 
-            // Highlight the winning ball
-            const winningBall = balls[targetBallIndex];
-            if (winningBall) {
-                winningBall.style.transform = 'scale(1.2)';
-                winningBall.style.boxShadow = getBallStyle(highestRarity).glow + ', 0 0 40px rgba(255,215,0,0.8)';
+            if (progress < 1) {
+                // Ease out cubic - smooth deceleration
+                const easeOut = 1 - Math.pow(1 - progress, 3);
+                const distanceToTarget = currentOffset - targetOffset;
+                currentOffset = currentOffset - (distanceToTarget * 0.08);
+
+                if (progress > 0.5) {
+                    document.getElementById('spinStatus').innerHTML = `✨ Stopping on ${highestRarity}...`;
+                }
+            } else {
+                // Stopped
+                isSpinning = false;
+                currentOffset = targetOffset;
+                track.style.left = `${currentOffset}px`;
+
+                // Highlight the winning ball
+                const winningBall = balls[targetBallIndex];
+                if (winningBall) {
+                    winningBall.style.transform = 'scale(1.2)';
+                    winningBall.style.transition = 'all 0.3s ease';
+                    winningBall.style.boxShadow = getBallStyle(highestRarity).glow + ', 0 0 40px rgba(255,215,0,0.8)';
+                }
+
+                // Continue to next phase
+                setTimeout(() => showGifAndCards(overlay, players, highestRarity, rarityOrder), 1000);
+                return;
             }
-
-            // Continue to next phase
-            setTimeout(() => showGifAndCards(overlay, players, highestRarity, rarityOrder), 1500);
-            return;
         }
-
-        // Leapfrog: move balls that went off-screen left to the right end
-        // This creates the illusion of infinite scrolling
-        const trackBalls = Array.from(track.children);
-        trackBalls.forEach((ball, index) => {
-            const ballLeft = currentOffset + (index * ballWidth);
-            // If ball is completely off-screen left, we don't need to reposition
-            // because we have enough balls in the sequence
-        });
 
         track.style.left = `${currentOffset}px`;
         spinnerAnimationId = requestAnimationFrame(animate);
     }
+
+    // Handle tap to stop
+    function handleTap() {
+        if (isStopping) return; // Already stopping
+
+        isStopping = true;
+        overlay.onclick = null; // Remove click handler
+
+        // Calculate which ball to stop on
+        // Find current center ball, then find next occurrence of target rarity
+        const currentCenterBallIndex = Math.floor((centerOffset - currentOffset) / ballWidth);
+
+        // Find next target rarity ball after current position
+        for (let i = currentCenterBallIndex; i < ballSequence.length; i++) {
+            if (ballSequence[i] === highestRarity) {
+                targetBallIndex = i;
+                break;
+            }
+        }
+
+        // Calculate where track needs to be for this ball to be centered
+        targetOffset = centerOffset - (targetBallIndex * ballWidth);
+    }
+
+    // Add click handler to overlay
+    overlay.onclick = handleTap;
 
     // Start animation
     spinnerAnimationId = requestAnimationFrame(animate);
