@@ -180,27 +180,22 @@ function openPackModal(packKey) {
 
         const card = document.createElement('div');
         // Wrapper styling
-        card.style.flex = "0 0 180px";
-        // Let CSS handle height via aspect-ratio on child
+        card.style.flex = "0 0 140px";
+        card.style.aspectRatio = "1/1";
         card.style.cursor = "pointer";
         card.onclick = () => showPlayerDetails(player);
 
+        // Structure matches .pes-card CSS
         card.innerHTML = `
-            <div class="efball-list-card" data-rarity="${player.rarity || 'Base'}">
-                <div class="list-card-content">
-                    <div class="list-card-left">
-                        <div class="list-card-rating">${player.overall || 0}</div>
-                        <div class="list-card-pos">${player.position || 'CMF'}</div>
-                        <div class="list-card-logo">${RARITY_EMOJIS[player.rarity] || '💎'}</div>
-                    </div>
-                    <div class="list-card-right">
-                        <img src="${playerImagePng}" class="list-card-image" 
-                             onerror="this.src='/assets/playerimages/default_player.png'">
-                    </div>
-                </div>
-                <div class="list-card-name-bar">
-                    ${truncateName(player.name)}
-                </div>
+            <div class="pes-card" data-rarity="${player.rarity || 'Base'}">
+                <div class="pes-pos">${player.position || 'CMF'}</div>
+                <div class="pes-rating">${player.overall || 0}</div>
+                <div class="pes-icon">${RARITY_EMOJIS[player.rarity] || '💎'}</div>
+                <img src="${playerImagePng}" class="pes-img" 
+                     onerror="this.src='/assets/playerimages/default_player.png'">
+            </div>
+            <div class="modal-player-name" style="margin-top: 5px; font-size: 0.8em; color: rgba(255,255,255,0.7); text-align: center;">
+                ${truncateName(player.name)}
             </div>
         `;
 
@@ -236,23 +231,22 @@ function showAllPlayers() {
         const playerImageName = player.name.replace(/[^a-zA-Z0-9\-_]/g, '_').toLowerCase().replace(/_+/g, '_').replace(/_+$/g, '');
         const playerImagePng = `/assets/playerimages/${playerImageName}.png`;
 
-        // Use efball-list-card for grid view
+        const card = document.createElement('div');
+        // Wrapper style
+        card.style.cursor = 'pointer';
+        card.onclick = () => showPlayerDetails(player);
+
+        // Use pes-card for grid
         card.innerHTML = `
-            <div class="efball-list-card" data-rarity="${player.rarity || 'Base'}">
-                <div class="list-card-content">
-                    <div class="list-card-left">
-                        <div class="list-card-rating">${player.overall || 0}</div>
-                        <div class="list-card-pos">${player.position || 'CMF'}</div>
-                        <div class="list-card-logo">${RARITY_EMOJIS[player.rarity] || '💎'}</div>
-                    </div>
-                    <div class="list-card-right">
-                        <img src="${playerImagePng}" class="list-card-image" 
-                             onerror="this.src='/assets/playerimages/default_player.png'">
-                    </div>
-                </div>
-                <div class="list-card-name-bar">
-                    ${truncateName(player.name)}
-                </div>
+            <div class="pes-card" data-rarity="${player.rarity || 'Base'}">
+                <div class="pes-pos">${player.position || 'CMF'}</div>
+                <div class="pes-rating">${player.overall || 0}</div>
+                <div class="pes-icon">${RARITY_EMOJIS[player.rarity] || '💎'}</div>
+                <img src="${playerImagePng}" class="pes-img" 
+                     onerror="this.src='/assets/playerimages/default_player.png'">
+            </div>
+            <div class="modal-player-name" style="margin-top: 5px; font-size: 0.8em; color: rgba(255,255,255,0.7); text-align: center;">
+                ${truncateName(player.name)}
             </div>
         `;
         grid.appendChild(card);

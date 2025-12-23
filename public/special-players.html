@@ -594,136 +594,6 @@
             transform: rotate(90deg);
         }
 
-        /* EFball List Card (Pack Modal Design) */
-        .efball-list-card {
-            position: relative;
-            width: 100%;
-            aspect-ratio: 1 / 1.2;
-            border-radius: 12px;
-            overflow: hidden;
-            display: flex;
-            flex-direction: column;
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.5);
-            cursor: pointer;
-            transition: transform 0.2s;
-            /* Default background if rarity not matched */
-            background: linear-gradient(135deg, #374151, #111827);
-            border: 2px solid rgba(255, 255, 255, 0.1);
-        }
-
-        /* Rarity Backgrounds */
-        .efball-list-card[data-rarity="Iconic"] {
-            background: linear-gradient(135deg, #dc2626, #991b1b);
-            border-color: #fca5a5;
-        }
-
-        .efball-list-card[data-rarity="Legend"] {
-            background: linear-gradient(135deg, #f59e0b, #b45309);
-            border-color: #fcd34d;
-        }
-
-        .efball-list-card[data-rarity="Black"] {
-            background: linear-gradient(135deg, #1f2937, #000000);
-            border-color: #4b5563;
-        }
-
-        .efball-list-card[data-rarity="Gold"] {
-            background: linear-gradient(135deg, #fbbf24, #d97706);
-            border-color: #fde68a;
-        }
-
-        .efball-list-card[data-rarity="Silver"] {
-            background: linear-gradient(135deg, #9ca3af, #4b5563);
-            border-color: #e5e7eb;
-        }
-
-        .efball-list-card[data-rarity="Bronze"] {
-            background: linear-gradient(135deg, #92400e, #78350f);
-            border-color: #d97706;
-        }
-
-        .efball-list-card[data-rarity="White"] {
-            background: linear-gradient(135deg, #f3f4f6, #d1d5db);
-            border-color: #ffffff;
-        }
-
-        .efball-list-card:hover {
-            transform: scale(1.03);
-            z-index: 10;
-        }
-
-        .list-card-content {
-            display: flex;
-            flex: 1;
-            position: relative;
-        }
-
-        .list-card-left {
-            width: 35%;
-            padding: 10px 5px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            z-index: 2;
-        }
-
-        .list-card-rating {
-            font-size: 1.8em;
-            font-weight: 900;
-            color: white;
-            line-height: 1;
-            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
-        }
-
-        .list-card-pos {
-            font-size: 0.9em;
-            color: white;
-            font-weight: 600;
-            margin-top: 2px;
-            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
-        }
-
-        .list-card-logo {
-            margin-top: auto;
-            font-size: 1.5em;
-            /* Emoji fallback */
-            margin-bottom: 20px;
-            filter: drop-shadow(0 2px 2px rgba(0, 0, 0, 0.5));
-        }
-
-        .list-card-right {
-            width: 65%;
-            position: relative;
-        }
-
-        .list-card-image {
-            width: 140%;
-            /* Oversize to fill space */
-            height: auto;
-            position: absolute;
-            bottom: 0;
-            right: -20%;
-            mask-image: linear-gradient(to bottom, black 80%, transparent 100%);
-            /* Fade bottom slightly if needed */
-        }
-
-        .list-card-name-bar {
-            height: 30px;
-            background: black;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-family: sans-serif;
-            font-weight: 600;
-            font-size: 0.85em;
-            z-index: 5;
-            position: relative;
-            /* Stacks on top of image bottom */
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-
         /* CARD MODEL STYLES */
         .player-detail-container {
             display: flex;
@@ -1015,6 +885,113 @@
             .player-detail-right {
                 padding: 20px;
             }
+        }
+
+        /* PES 2021 Style Card */
+        .pes-card {
+            width: 100%;
+            aspect-ratio: 1 / 1;
+            border-radius: 1.5rem;
+            /* Heavy rounded corners */
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3);
+            transition: transform 0.2s;
+            /* Default background if rarity fails */
+            background: linear-gradient(135deg, #374151, #111827);
+            color: white;
+            padding: 8px;
+            /* Internal padding for safe area */
+        }
+
+        .pes-card:hover {
+            transform: scale(1.03);
+            z-index: 10;
+        }
+
+        /* Rarity Gradients */
+        .pes-card[data-rarity="Iconic"] {
+            background: linear-gradient(135deg, #ec4899, #e11d48, #881337);
+        }
+
+        .pes-card[data-rarity="Legend"] {
+            background: linear-gradient(135deg, #fef08a, #eab308, #a16207);
+            color: #422006;
+        }
+
+        .pes-card[data-rarity="Black"] {
+            background: linear-gradient(135deg, #1f2937, #000000);
+        }
+
+        .pes-card[data-rarity="Gold"] {
+            background: linear-gradient(135deg, #fef9c3, #eab308);
+            color: #422006;
+        }
+
+        .pes-card[data-rarity="Silver"] {
+            background: linear-gradient(135deg, #f3f4f6, #d1d5db, #6b7280);
+            color: #111827;
+        }
+
+        .pes-card[data-rarity="Bronze"] {
+            background: linear-gradient(135deg, #fed7aa, #fb923c, #9a3412);
+        }
+
+        .pes-card[data-rarity="White"] {
+            background: linear-gradient(135deg, #ffffff, #e5e7eb);
+            color: #111827;
+        }
+
+        /* Inner Layout */
+        .pes-pos {
+            position: absolute;
+            top: 12px;
+            left: 12px;
+            font-size: 0.8em;
+            font-weight: 600;
+            text-transform: uppercase;
+            z-index: 2;
+        }
+
+        .pes-rating {
+            position: absolute;
+            top: 50%;
+            left: 10px;
+            transform: translateY(-50%);
+            font-size: 2.2em;
+            font-weight: 900;
+            line-height: 1;
+            z-index: 2;
+        }
+
+        .pes-icon {
+            position: absolute;
+            bottom: 12px;
+            left: 12px;
+            font-size: 1.2em;
+            z-index: 2;
+        }
+
+        .pes-img {
+            position: absolute;
+            bottom: 0px;
+            right: 0px;
+            width: 70%;
+            /* Adjust based on look */
+            height: Auto;
+            max-height: 90%;
+            object-fit: contain;
+            object-position: bottom right;
+            z-index: 1;
+            mask-image: linear-gradient(to top, black 80%, transparent 100%);
+            -webkit-mask-image: linear-gradient(to top, black 80%, transparent 100%);
+        }
+
+        /* Adjustments for grid view to keep names visible below card */
+        .pes-card-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
         }
     </style>
 </head>

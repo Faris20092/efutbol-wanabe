@@ -1,35 +1,53 @@
-Subject: Create a Football Player Card Component (eFootball/PES Style)
+Subject: Create a Reusable PES 2021 Style Card Component for a Web Game
 
-"Please build a React/Tailwind CSS component (or pure HTML/Tailwind) that replicates the football player card design from the attached image. Follow these specific requirements:
+"I am building a web-based football game. Please create a robust HTML/React component using Tailwind CSS for a player card inspired by PES 2021 Mobile.
 
-Card Structure: * The card should have a vertical rectangular shape with a 1:1.2 aspect ratio.
+1. Design & Layout (The 'Squircle' Icon):
 
-It needs a double border: an outer slightly different rarity color border and a slightly different rarity color inner frame.
+Shape: The card must be a perfect square with heavy rounded corners (rounded-[2rem] or rounded-3xl).
 
-Left Column (Info Section):
+Dimensions: Use a responsive width (e.g., w-32 h-32 or w-full aspect-square).
 
-Rating: Large, bold white number at the top left (e.g., '88').
+Inner Layout:
 
-Position: Plain white text below the rating (e.g., 'LWF').
+Left Column:
 
-rarity Logo: A small circular or shield-shaped team logo placed at the bottom left of this column.
+Position: Top-left (Small text, uppercase).
 
-Background: This section should have a standard rarity color background.
+Rating: Center-left (Large, Extra Bold text).
 
-Right Column (Visual Section):
+rarity logo: Bottom-left (Small circular/shield icon).
 
-Player Image: A centered, high-quality cutout of a player (transparent PNG) that sits on top of the circular graphics. can find at asset/faces folder.
+Right Column:
 
-Bottom Name Bar:
+Player Image: Transparent PNG, aligned right, slightly overlapping the bottom bar if needed, clipped by the border. based on asset/faces folder.
 
-A solid pitch-black bar at the very bottom of the card.
+Bottom: A solid black bar fixed at the bottom edge inside the card.
 
-The player's name should be centered in white, clean sans-serif font (e.g., 'ÉLBER').
+Exclusions: No player name text. No stamina gauge.
 
-Styling Details:
+2. Rarity Color System: The component must handle these 7 specific rarities. Use Tailwind Gradients:
 
-Use Tailwind CSS for all styling.
+Iconic (Pink): bg-gradient-to-br from-pink-500 via-rose-600 to-rose-900. White text.
 
-Ensure the card has a subtle 'drop-shadow' to make it look premium.
+Legend (Gold): bg-gradient-to-br from-yellow-200 via-yellow-500 to-yellow-700. Text needs a shadow or dark outline for visibility.
 
-Make the component dynamic so I can easily change the name, rating, position, image, and logo via props/variables.
+Black Ball: bg-gradient-to-br from-gray-800 to-black. White text.
+
+Gold Ball: bg-gradient-to-br from-yellow-100 to-yellow-500. Dark Gray/Black text (for contrast).
+
+Silver Ball: bg-gradient-to-br from-gray-100 via-gray-300 to-gray-500. Dark Gray/Black text.
+
+Bronze Ball: bg-gradient-to-br from-orange-200 via-orange-400 to-orange-800. White text.
+
+White Ball: bg-gradient-to-br from-white to-gray-200. Black text (Important).
+
+3. Implementation Requirements:
+
+Provide a Single React Component (e.g., Card.jsx) that accepts props: rarity, rating, position, image, clubBadge.
+
+Alternatively, if simpler, provide a generic HTML/CSS structure that uses a class like .card-iconic, .card-black, etc.
+
+Ensure the rating number is centered vertically relative to the space on the left.
+
+Add a subtle drop-shadow-lg to the whole card to make it pop on the website background."
