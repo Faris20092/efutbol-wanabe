@@ -870,6 +870,91 @@
 
 
 
+        /* Featured Player Card Styles from carddes.md */
+        .featured-player {
+            flex: 0 0 130px;
+            /* Slightly larger width for featured */
+            height: 170px;
+            /* Responsive proportion */
+            background: linear-gradient(135deg, rgba(100, 50, 150, 0.8), rgba(50, 20, 100, 0.9));
+            border-radius: 10px;
+            padding: 10px;
+            text-align: center;
+            border: 2px solid rgba(200, 100, 255, 0.3);
+            position: relative;
+            cursor: pointer;
+            transition: transform 0.2s;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .featured-player:hover {
+            transform: translateY(-5px);
+        }
+
+        /* Rarity Specifics */
+        .featured-player.iconic {
+            background: linear-gradient(135deg, rgba(219, 10, 91, 0.8), rgba(139, 0, 139, 0.9));
+            border-color: rgba(255, 20, 147, 0.5);
+        }
+
+        .featured-player.legend {
+            background: linear-gradient(135deg, rgba(218, 165, 32, 0.8), rgba(139, 101, 8, 0.9));
+            border-color: rgba(255, 215, 0, 0.5);
+        }
+
+        /* Inner Elements */
+        .featured-player .player-rating {
+            font-size: 1.5em;
+            font-weight: bold;
+            color: #fff;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8);
+            position: absolute;
+            top: 5px;
+            left: 8px;
+            z-index: 2;
+        }
+
+        .featured-player .player-position {
+            font-size: 0.75em;
+            color: rgba(255, 255, 255, 0.9);
+            font-weight: bold;
+            position: absolute;
+            top: 32px;
+            left: 8px;
+            z-index: 2;
+        }
+
+        .featured-player .player-image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            position: absolute;
+            bottom: 0px;
+            right: -10px;
+            z-index: 1;
+            /* Clip the image if needed */
+        }
+
+        .featured-player .player-name-small {
+            font-size: 0.75em;
+            color: #fff;
+            background: rgba(0, 0, 0, 0.6);
+            padding: 2px 4px;
+            border-radius: 4px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            z-index: 2;
+            position: absolute;
+            bottom: 5px;
+            left: 5px;
+            right: 5px;
+            text-align: center;
+        }
+
         @media (max-width: 900px) {
             .player-detail-container {
                 flex-direction: column;
@@ -885,122 +970,6 @@
             .player-detail-right {
                 padding: 20px;
             }
-        }
-
-        /* PES 2021 Style Card CSS */
-        .pes-card {
-            width: 100%;
-            aspect-ratio: 1/1;
-            border-radius: 1.5rem;
-            /* Heavy rounded corners (squircle) */
-            position: relative;
-            overflow: hidden;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
-            transition: transform 0.2s;
-            cursor: pointer;
-            color: white;
-            font-family: 'Segoe UI', sans-serif;
-            border: 2px solid rgba(255, 255, 255, 0.1);
-        }
-
-        .pes-card:hover {
-            transform: scale(1.03);
-            z-index: 10;
-        }
-
-        /* Rarity Gradients */
-        .pes-card[data-rarity="Iconic"] {
-            background: linear-gradient(135deg, #ec4899 0%, #e11d48 50%, #881337 100%);
-            /* Pink/Rose */
-        }
-
-        .pes-card[data-rarity="Legend"] {
-            background: linear-gradient(135deg, #fef08a 0%, #eab308 50%, #a16207 100%);
-            /* Gold/Yellow */
-            color: #422006;
-            /* Dark brown text for contrast */
-            text-shadow: 0 0 2px rgba(255, 255, 255, 0.5);
-        }
-
-        .pes-card[data-rarity="Black"] {
-            background: linear-gradient(135deg, #1f2937 0%, #000000 100%);
-            /* Gray to Black */
-        }
-
-        .pes-card[data-rarity="Gold"] {
-            background: linear-gradient(135deg, #fef9c3 0%, #eab308 100%);
-            /* Light Gold */
-            color: #1a1a1a;
-        }
-
-        .pes-card[data-rarity="Silver"] {
-            background: linear-gradient(135deg, #f3f4f6 0%, #d1d5db 50%, #6b7280 100%);
-            /* Silver/Gray */
-            color: #1f2937;
-        }
-
-        .pes-card[data-rarity="Bronze"] {
-            background: linear-gradient(135deg, #fed7aa 0%, #fb923c 50%, #9a3412 100%);
-            /* Orange/Bronze */
-        }
-
-        .pes-card[data-rarity="White"] {
-            background: linear-gradient(135deg, #ffffff 0%, #e5e7eb 100%);
-            /* White */
-            color: #000000;
-        }
-
-        .pes-card[data-rarity="Base"] {
-            background: linear-gradient(135deg, #f3f4f6 0%, #9ca3af 100%);
-            /* Default Base */
-            color: #1f2937;
-        }
-
-        /* Layout Elements */
-        .pes-rating {
-            position: absolute;
-            top: 35%;
-            left: 15px;
-            font-size: 2.2em;
-            font-weight: 800;
-            line-height: 1;
-            z-index: 2;
-        }
-
-        .pes-position {
-            position: absolute;
-            top: 15px;
-            left: 15px;
-            font-size: 0.9em;
-            font-weight: bold;
-            text-transform: uppercase;
-            opacity: 0.9;
-            z-index: 2;
-        }
-
-        .pes-logo {
-            position: absolute;
-            bottom: 15px;
-            left: 15px;
-            font-size: 1.5em;
-            z-index: 2;
-        }
-
-        .pes-image {
-            position: absolute;
-            bottom: 0px;
-            right: -10px;
-            width: 75%;
-            height: 85%;
-            object-fit: cover;
-            object-position: top center;
-            z-index: 1;
-        }
-
-        /* Specific adjustments for Legend text visibility */
-        .pes-card[data-rarity="Legend"] .pes-rating,
-        .pes-card[data-rarity="Legend"] .pes-position {
-            text-shadow: 0 1px 2px rgba(255, 255, 255, 0.8);
         }
     </style>
 </head>

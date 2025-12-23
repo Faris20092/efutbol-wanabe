@@ -2,45 +2,40 @@ Subject: Create a Reusable PES 2021 Style Card Component for a Web Game
 
 "I am building a web-based football game. Please create a robust HTML/React component using Tailwind CSS for a player card inspired by PES 2021 Mobile.
 
-1. Design & Layout (The 'Squircle' Icon):
+1. Design & Layout:
 
-Shape: The card must be a perfect square with heavy rounded corners (rounded-[2rem] or rounded-3xl).
-
-Dimensions: Use a responsive width (e.g., w-32 h-32 or w-full aspect-square).
+Shape: Rectangular card with rounded corners (`border-radius: 10px`). Use a flex layout for lists.
 
 Inner Layout:
-
 Left Column:
-
-Position: Top-left (Small text, uppercase).
-
-Rating: Center-left (Large, Extra Bold text).
-
-rarity logo: Bottom-left (Small circular/shield icon).
+Position: Left, small text (`font-size: 0.75em`, `margin-bottom: 5px`).
+Rating: Centered/Prominent (`font-size: 1.5em`, `font-weight: bold`).
+Rarity Logo: Bottom (if applicable).
 
 Right Column:
+Player Image: Centered/Right.
 
-Player Image: Transparent PNG, aligned right, slightly overlapping the bottom bar if needed, clipped by the border. based on asset/faces folder.
+2. Rarity Color System: Use the following specific CSS values:
 
-Bottom: A solid black bar fixed at the bottom edge inside the card.
+Base/Standard:
+```css
+background: linear-gradient(135deg, rgba(100, 50, 150, 0.8), rgba(50, 20, 100, 0.9));
+border: 2px solid rgba(200, 100, 255, 0.3);
+```
 
-Exclusions: No player name text. No stamina gauge.
+Iconic (Pink):
+```css
+background: linear-gradient(135deg, rgba(219, 10, 91, 0.8), rgba(139, 0, 139, 0.9));
+border-color: rgba(255, 20, 147, 0.5);
+```
 
-2. Rarity Color System: The component must handle these 7 specific rarities. Use Tailwind Gradients:
+Legend (Gold):
+```css
+background: linear-gradient(135deg, rgba(218, 165, 32, 0.8), rgba(139, 101, 8, 0.9));
+border-color: rgba(255, 215, 0, 0.5);
+```
 
-Iconic (Pink): bg-gradient-to-br from-pink-500 via-rose-600 to-rose-900. White text.
-
-Legend (Gold): bg-gradient-to-br from-yellow-200 via-yellow-500 to-yellow-700. Text needs a shadow or dark outline for visibility.
-
-Black Ball: bg-gradient-to-br from-gray-800 to-black. White text.
-
-Gold Ball: bg-gradient-to-br from-yellow-100 to-yellow-500. Dark Gray/Black text (for contrast).
-
-Silver Ball: bg-gradient-to-br from-gray-100 via-gray-300 to-gray-500. Dark Gray/Black text.
-
-Bronze Ball: bg-gradient-to-br from-orange-200 via-orange-400 to-orange-800. White text.
-
-White Ball: bg-gradient-to-br from-white to-gray-200. Black text (Important).
+Other rarities (Black, Gold, Silver, Bronze, White) can use standard Tailwind gradients or similar logic.
 
 3. Implementation Requirements:
 

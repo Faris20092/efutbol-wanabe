@@ -178,28 +178,33 @@ function openPackModal(packKey) {
         const playerImageName = player.name.replace(/[^a-zA-Z0-9\-_]/g, '_').toLowerCase().replace(/_+/g, '_').replace(/_+$/g, '');
         const playerImagePng = `/assets/playerimages/${playerImageName}.png`;
 
-        const card = document.createElement('div');
-        // Wrapper styling for Square Card + Name
-        card.style.flex = "0 0 140px"; // Width for square card (1:1)
-        card.style.height = "180px"; // Height allows space for name below
-        card.style.cursor = "pointer";
-        card.onclick = () => showPlayerDetails(player);
+        // CSS Class logic for rarity
+        let rarityClass = 'base'; // Default
+        const rLower = (player.rarity || '').toLowerCase();
+        if (rLower.includes('iconic') || rLower.includes('show time')) rarityClass = 'iconic';
+        else if (rLower.includes('legend') || rLower.includes('epic')) rarityClass = 'legend';
 
-        // Structure matches PES 2021 Card Style (.pes-card)
+        const card = document.createElement('div');
+        // Structure: div.featured-player.[RARITY]
+        // Note: onclick handling via wrapping or direct assignment.
+        // We can just append the div directly if layout permits, but keeping a wrapper is safer for flex gap.
+        // Actually, the previous wrapper had styles. Let's see if we can simplify.
+        // The container #modalFeatured likely has flex styles.
+
         card.innerHTML = `
-            <div class="pes-card" data-rarity="${player.rarity || 'Base'}">
-                <div class="pes-position">${player.position || 'CMF'}</div>
-                <div class="pes-rating">${player.overall || 0}</div>
-                <div class="pes-logo">${RARITY_EMOJIS[player.rarity] || '💎'}</div>
-                <img src="${playerImagePng}" class="pes-image" 
+            <div class="featured-player ${rarityClass}">
+                <div class="player-rating">${player.overall || 0}</div>
+                <div class="player-position">${player.position || 'CMF'}</div>
+                <img src="${playerImagePng}" class="player-image" 
                      onerror="this.src='/assets/playerimages/default_player.png'">
-            </div>
-            <div class="modal-player-name" style="margin-top: 8px; font-size: 0.85em; color: rgba(255,255,255,0.8); text-align: center; font-weight: 500;">
-                ${truncateName(player.name)}
+                <div class="player-name-small">${truncateName(player.name)}</div>
             </div>
         `;
 
-        featuredContainer.appendChild(card);
+        const featuredCard = card.firstElementChild;
+        featuredCard.onclick = () => showPlayerDetails(player);
+
+        featuredContainer.appendChild(featuredCard);
     });
 
     // Add "See All" card
@@ -236,16 +241,17 @@ function showAllPlayers() {
         card.style.cursor = 'pointer';
         card.onclick = () => showPlayerDetails(player);
 
-        // Use pes-card for grid
+        // Use player-detail-card scaled down for grid
         card.innerHTML = `
-            <div class="pes-card" data-rarity="${player.rarity || 'Base'}">
-                <div class="pes-position">${player.position || 'CMF'}</div>
-                <div class="pes-rating">${player.overall || 0}</div>
-                <div class="pes-logo">${RARITY_EMOJIS[player.rarity] || '💎'}</div>
-                <img src="${playerImagePng}" class="pes-image" 
+            <div class="player-detail-card" data-rarity="${player.rarity || 'Base'}" style="width: 100%; aspect-ratio: 240/340;">
+                <div class="player-card-position" style="font-size: 0.8em; padding: 2px 6px;">${player.position || 'CMF'}</div>
+                <div class="player-card-rating" style="font-size: 2em; top: 30px;">${player.overall || 0}</div>
+                <div class="player-card-rarity" style="font-size: 1.5em; top: 75px;">${RARITY_EMOJIS[player.rarity] || '💎'}</div>
+                <img src="${playerImagePng}" class="player-detail-image" 
                      onerror="this.src='/assets/playerimages/default_player.png'">
+                <div class="player-card-rarity-bottom" style="bottom: 5px; font-size: 0.7em;">${player.rarity || 'Standard'}</div>
             </div>
-            <div class="modal-player-name" style="margin-top: 8px; font-size: 0.85em; color: rgba(255,255,255,0.8); text-align: center; font-weight: 500;">
+            <div class="modal-player-name" style="margin-top: 5px; font-size: 0.8em; color: rgba(255,255,255,0.7); text-align: center;">
                 ${truncateName(player.name)}
             </div>
         `;
