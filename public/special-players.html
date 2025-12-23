@@ -134,472 +134,240 @@
             margin-bottom: 15px;
         }
 
-        /* Featured Players */
-        .featured-players {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 20px;
-        }
-
+        /* Carousel Item Styles */
         .featured-player {
-            flex: 1;
-            background: linear-gradient(135deg, rgba(100, 50, 150, 0.8), rgba(50, 20, 100, 0.9));
-            border-radius: 10px;
-            padding: 10px;
-            text-align: center;
-            border: 2px solid rgba(200, 100, 255, 0.3);
+            width: 130px;
+            /* Widened */
+            height: 120px;
+            border-radius: 12px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.02));
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
         }
 
         .featured-player.iconic {
-            background: linear-gradient(135deg, rgba(219, 10, 91, 0.8), rgba(139, 0, 139, 0.9));
-            border-color: rgba(255, 20, 147, 0.5);
+            background: linear-gradient(135deg, #db0a5b, #8b008b);
+            border: none;
         }
 
         .featured-player.legend {
-            background: linear-gradient(135deg, rgba(218, 165, 32, 0.8), rgba(139, 101, 8, 0.9));
-            border-color: rgba(255, 215, 0, 0.5);
+            background: linear-gradient(135deg, #daa520, #8b6508);
+            border: none;
+        }
+
+        .featured-player img {
+            position: absolute;
+            bottom: -5px;
+            right: -10px;
+            width: 100%;
+            /* Scale to fit width */
+            height: auto;
+            max-height: 110%;
+            /* Allow slightly taller */
+            object-fit: contain;
+            object-position: bottom right;
+            z-index: 1;
+            filter: drop-shadow(2px 2px 4px rgba(0, 0, 0, 0.4));
         }
 
         .player-rating {
-            font-size: 1.5em;
+            font-size: 1.4em;
             font-weight: bold;
-            color: #fff;
+            color: #ffd700;
+            text-shadow: 2px 2px 0 #000;
+            z-index: 2;
+            position: absolute;
+            top: 10px;
+            left: 10px;
         }
 
         .player-position {
-            font-size: 0.75em;
-            color: rgba(255, 255, 255, 0.8);
-            margin-bottom: 5px;
+            font-size: 0.85em;
+            font-weight: bold;
+            color: #fff;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8);
+            z-index: 2;
+            position: absolute;
+            top: 35px;
+            left: 12px;
         }
 
         .player-name-small {
-            font-size: 0.7em;
-            color: rgba(255, 255, 255, 0.7);
+            font-size: 0.75em;
+            color: #fff;
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
-        }
-
-        /* Buy Buttons */
-        .buy-buttons {
-            display: flex;
-            gap: 10px;
-        }
-
-        .buy-btn {
-            flex: 1;
-            padding: 12px;
-            border-radius: 10px;
-            border: 2px solid rgba(255, 255, 255, 0.3);
-            background: rgba(0, 0, 0, 0.3);
-            color: #fff;
-            cursor: pointer;
-            transition: all 0.3s;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-            font-size: 0.9em;
-        }
-
-        .buy-btn:hover {
-            border-color: #ffd700;
-            background: rgba(255, 215, 0, 0.1);
-        }
-
-        .buy-btn .cost {
-            color: #ffd700;
-            font-weight: bold;
-        }
-
-        /* Bottom Bar */
-        .bottom-bar {
-            display: flex;
-            gap: 15px;
-            margin-top: 30px;
-        }
-
-        .back-btn {
-            padding: 12px 25px;
-            background: linear-gradient(135deg, #3b82f6, #1d4ed8);
-            border: none;
-            border-radius: 25px;
-            color: #fff;
-            font-size: 0.95em;
-            cursor: pointer;
-            transition: all 0.3s;
-        }
-
-        .back-btn:hover {
-            transform: translateX(-5px);
-            box-shadow: 0 5px 15px rgba(59, 130, 246, 0.4);
-        }
-
-        /* Pack Detail Modal */
-        .pack-modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(0, 0, 0, 0.95);
-            z-index: 1000;
-            overflow-y: auto;
-        }
-
-        .pack-modal.show {
-            display: block;
-        }
-
-        .modal-content {
-            max-width: 1000px;
-            margin: 20px auto;
-            padding: 20px;
-        }
-
-        .modal-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-            margin-bottom: 20px;
-        }
-
-        .modal-pack-info {
-            flex: 1;
-        }
-
-        .modal-pack-type {
-            font-size: 0.9em;
-            color: #ec4899;
-            margin-bottom: 5px;
-        }
-
-        .modal-pack-name {
-            font-size: 2em;
-            font-weight: bold;
-            color: #00d4ff;
-            margin-bottom: 10px;
-        }
-
-        .modal-close {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            background: rgba(255, 255, 255, 0.1);
-            border: none;
-            color: #fff;
-            font-size: 1.5em;
-            cursor: pointer;
-            transition: all 0.3s;
-        }
-
-        .modal-close:hover {
-            background: #ef4444;
-        }
-
-        /* Featured Players Row */
-        .modal-featured {
-            display: flex;
-            gap: 15px;
-            margin-bottom: 30px;
-            overflow-x: auto;
-            padding-bottom: 10px;
-        }
-
-        .modal-player-card {
-            flex: 0 0 140px;
-            background: linear-gradient(135deg, rgba(100, 50, 150, 0.9), rgba(50, 20, 100, 0.95));
-            border-radius: 12px;
-            padding: 15px 10px;
+            width: 90%;
             text-align: center;
-            border: 2px solid rgba(200, 100, 255, 0.4);
+            z-index: 2;
+            position: absolute;
+            bottom: 8px;
+            left: 50%;
+            transform: translateX(-50%);
+            text-shadow: 1px 1px 2px #000;
+            background: rgba(0, 0, 0, 0.4);
+            padding: 2px 5px;
+            border-radius: 4px;
+        }
+
+        /* Modal Player Card Styles - Photo 3 Match */
+        .modal-player-card {
+            flex: 0 0 160px;
+            /* Larger width */
+            height: 240px;
+            /* Larger height */
+            border-radius: 12px;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            overflow: hidden;
+            background: linear-gradient(135deg, #1e293b, #111827);
+            /* Dark Fallback */
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.4);
         }
 
         .modal-player-card.iconic {
-            background: linear-gradient(135deg, rgba(219, 10, 91, 0.9), rgba(139, 0, 139, 0.95));
-            border-color: rgba(255, 20, 147, 0.6);
+            background: linear-gradient(135deg, #db0a5b, #8b008b);
         }
 
         .modal-player-card.legend {
-            background: linear-gradient(135deg, rgba(218, 165, 32, 0.9), rgba(139, 101, 8, 0.95));
-            border-color: rgba(255, 215, 0, 0.6);
+            background: linear-gradient(135deg, #daa520, #8b6508);
+        }
+
+        .modal-player-card:hover {
+            transform: scale(1.05);
+            z-index: 5;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.6);
         }
 
         .modal-player-rating {
-            font-size: 2em;
+            font-size: 2.2em;
             font-weight: bold;
-            color: #fff;
+            color: #ffd700;
+            position: absolute;
+            top: 15px;
+            left: 15px;
+            text-shadow: 2px 2px 0 #000;
+            z-index: 3;
         }
 
         .modal-player-pos {
-            font-size: 0.85em;
-            color: rgba(255, 255, 255, 0.8);
-            margin-top: 5px;
+            font-size: 1em;
+            font-weight: bold;
+            color: #fff;
+            position: absolute;
+            top: 50px;
+            left: 17px;
+            text-shadow: 1px 1px 2px #000;
+            z-index: 3;
+            background: rgba(0, 0, 0, 0.4);
+            padding: 1px 5px;
+            border-radius: 4px;
+        }
+
+        /* Diamond Icon placeholder if needed */
+        .card-decoration-icon {
+            position: absolute;
+            top: 80px;
+            left: 18px;
+            font-size: 1.5em;
+            z-index: 3;
+            filter: drop-shadow(0 2px 2px rgba(0, 0, 0, 0.5));
         }
 
         .modal-player-name {
-            font-size: 0.8em;
-            color: rgba(255, 255, 255, 0.7);
-            margin-top: 8px;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-
-        /* See All Button */
-        .see-all-card {
-            flex: 0 0 140px;
-            background: rgba(50, 60, 80, 0.5);
-            border-radius: 12px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            transition: all 0.3s;
-            border: 2px dashed rgba(255, 255, 255, 0.3);
-        }
-
-        .see-all-card:hover {
-            background: rgba(100, 150, 255, 0.2);
-            border-color: #00d4ff;
-        }
-
-        .see-all-text {
-            font-size: 1em;
-            color: #fff;
-        }
-
-        /* Modal Footer Buttons */
-        .modal-footer {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-top: 30px;
-            flex-wrap: wrap;
-            gap: 15px;
-        }
-
-        .modal-footer-left {
-            display: flex;
-            gap: 10px;
-        }
-
-        .details-btn {
-            padding: 12px 25px;
-            background: rgba(50, 60, 80, 0.8);
-            border: 2px solid rgba(255, 255, 255, 0.3);
-            border-radius: 25px;
-            color: #fff;
-            cursor: pointer;
-            transition: all 0.3s;
-        }
-
-        .details-btn:hover {
-            border-color: #ec4899;
-            color: #ec4899;
-        }
-
-        .modal-buy-buttons {
-            display: flex;
-            gap: 15px;
-        }
-
-        .modal-buy-btn {
-            padding: 15px 25px;
-            border-radius: 30px;
-            border: none;
-            background: linear-gradient(135deg, rgba(50, 60, 80, 0.9), rgba(30, 40, 60, 0.95));
-            color: #fff;
-            cursor: pointer;
-            transition: all 0.3s;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            font-size: 1em;
-            border: 2px solid rgba(255, 255, 255, 0.2);
-        }
-
-        .modal-buy-btn:hover {
-            border-color: #ffd700;
-            background: rgba(255, 215, 0, 0.1);
-        }
-
-        .modal-buy-btn .cost {
-            color: #ffd700;
-            font-weight: bold;
-        }
-
-        /* All Players View */
-        .all-players-view {
-            display: none;
-        }
-
-        .all-players-view.show {
-            display: block;
-        }
-
-        .all-players-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-        }
-
-        .all-players-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-            gap: 15px;
-        }
-
-        .all-player-card {
-            background: linear-gradient(135deg, rgba(100, 50, 150, 0.8), rgba(50, 20, 100, 0.9));
-            border-radius: 12px;
-            padding: 15px;
-            text-align: center;
-            border: 2px solid rgba(200, 100, 255, 0.3);
-            transition: all 0.3s;
-        }
-
-        .all-player-card:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 8px 20px rgba(150, 50, 200, 0.4);
-        }
-
-        .all-player-card[data-rarity="Iconic"] {
-            background: linear-gradient(135deg, rgba(219, 10, 91, 0.8), rgba(139, 0, 139, 0.9));
-            border-color: rgba(255, 20, 147, 0.5);
-        }
-
-        .all-player-card[data-rarity="Legend"] {
-            background: linear-gradient(135deg, rgba(218, 165, 32, 0.8), rgba(139, 101, 8, 0.9));
-            border-color: rgba(255, 215, 0, 0.5);
-        }
-
-        .all-player-card[data-rarity="Black"] {
-            background: linear-gradient(135deg, rgba(50, 50, 50, 0.9), rgba(20, 20, 20, 0.95));
-            border-color: rgba(100, 100, 100, 0.5);
-        }
-
-        .all-player-card[data-rarity="Gold"] {
-            background: linear-gradient(135deg, rgba(180, 150, 50, 0.8), rgba(120, 100, 30, 0.9));
-            border-color: rgba(200, 170, 50, 0.5);
-        }
-
-        .all-player-rating-large {
-            font-size: 2.2em;
-            font-weight: bold;
-            color: #fff;
-        }
-
-        .all-player-pos {
-            font-size: 0.9em;
-            color: rgba(255, 255, 255, 0.8);
-            margin-top: 5px;
-        }
-
-        .all-player-name-full {
-            font-size: 0.85em;
-            color: rgba(255, 255, 255, 0.9);
-            margin-top: 10px;
-        }
-
-        .all-players-footer {
-            display: flex;
-            gap: 15px;
-            margin-top: 25px;
-        }
-
-        .footer-btn {
-            flex: 1;
-            padding: 15px;
-            border-radius: 10px;
-            border: 2px solid rgba(255, 255, 255, 0.3);
-            background: rgba(50, 60, 80, 0.5);
-            color: #fff;
-            font-size: 1em;
-            cursor: pointer;
-            transition: all 0.3s;
-        }
-
-        .footer-btn:hover {
-            border-color: #3b82f6;
-            background: rgba(59, 130, 246, 0.2);
-        }
-
-        .footer-btn.primary {
-            background: linear-gradient(135deg, #3b82f6, #1d4ed8);
-            border-color: #3b82f6;
-        }
-
-        /* Loading */
-        #loading {
-            text-align: center;
-            padding: 50px;
-            font-size: 1.2em;
-            color: #00d4ff;
-        }
-
-        /* Player Detail Modal Styles */
-        .player-detail-modal {
-            display: none;
-            position: fixed;
-            top: 0;
+            position: absolute;
+            bottom: 15px;
             left: 0;
             right: 0;
+            text-align: center;
+            color: #fff;
+            font-weight: bold;
+            font-size: 0.95em;
+            text-shadow: 1px 1px 3px #000;
+            z-index: 3;
+        }
+
+        .modal-player-bottom-label {
+            position: absolute;
+            bottom: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.8);
+            color: #fff;
+            padding: 4px 15px;
+            border-radius: 12px;
+            font-size: 0.8em;
+            font-weight: bold;
+            z-index: 4;
+            width: 80%;
+        }
+
+        /* Full Body Image in Card */
+        .modal-player-card img {
+            position: absolute;
             bottom: 0;
-            background: rgba(0, 0, 0, 0.9);
-            z-index: 2000;
+            right: -20px;
+            width: 150%;
+            /* Large to fill */
+            height: auto;
+            max-height: 95%;
+            object-fit: contain;
+            object-position: bottom right;
+            z-index: 1;
+            filter: drop-shadow(5px 5px 10px rgba(0, 0, 0, 0.5));
+        }
+
+        /* See All Card - Match Size */
+        .see-all-card {
+            flex: 0 0 160px;
+            height: 240px;
+            background: rgba(50, 60, 80, 0.4);
+            border: 2px dashed rgba(255, 255, 255, 0.3);
+            border-radius: 12px;
+            display: flex;
             align-items: center;
             justify-content: center;
-            backdrop-filter: blur(5px);
+            cursor: pointer;
+            transition: all 0.3s;
         }
 
-        .player-detail-modal.active {
-            display: flex;
-        }
-
-        .player-detail-container {
-            display: flex;
-            background: #0a0e1c;
-            border-radius: 20px;
-            overflow: hidden;
-            max-width: 900px;
-            width: 95%;
-            box-shadow: 0 0 50px rgba(0, 0, 0, 0.8);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-        }
-
-        .player-detail-left {
-            flex: 0 0 350px;
-            padding: 40px;
-            background: #0f1426;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            border-right: 1px solid rgba(255, 255, 255, 0.05);
-        }
-
-        .player-detail-right {
-            flex: 1;
-            padding: 30px 40px;
-            background: linear-gradient(135deg, #0a1024 0%, #050814 100%);
-        }
-
+        /* Player Detail Modal Card - Photo 4 Fix */
         .player-detail-card {
             position: relative;
-            width: 260px;
-            height: 380px;
-            border-radius: 15px;
+            width: 320px;
+            /* Increased to fix cutout clipping */
+            height: 460px;
+            /* Taller */
+            border-radius: 20px;
             overflow: hidden;
-            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.6);
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.7);
             transition: transform 0.3s;
+            background: #222;
+            /* Fallback */
         }
 
-        .player-detail-card:hover {
-            transform: scale(1.02);
+        .player-detail-card img.player-detail-image {
+            position: absolute;
+            bottom: 0;
+            right: -40px;
+            /* Move right to avoid left clipping */
+            width: auto;
+            height: 90%;
+            /* Fill vertically */
+            max-width: none;
+            /* remove constraint */
+            object-fit: contain;
+            z-index: 1;
         }
 
         .player-detail-info {
