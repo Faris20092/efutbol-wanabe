@@ -174,29 +174,33 @@ function openPackModal(packKey) {
     featuredContainer.innerHTML = '';
 
     topPlayers.forEach((player, index) => {
-        const rarityClass = player.rarity === 'Iconic' ? 'iconic' :
-            player.rarity === 'Legend' ? 'legend' : '';
-        const playerCard = document.createElement('div');
-        playerCard.className = `modal-player-card ${rarityClass}`;
         // Use full image for modal cards (full body)
         const playerImageName = player.name.replace(/[^a-zA-Z0-9\-_]/g, '_').toLowerCase().replace(/_+/g, '_').replace(/_+$/g, '');
         const playerImagePng = `/assets/playerimages/${playerImageName}.png`;
 
-        // Increased height/width in CSS, ensure image fits
-        playerCard.innerHTML = `
-            <div class="modal-player-rating" style="position:relative; z-index:2; font-size: 1.4em;">${player.overall || 0}</div>
-            <div class="modal-player-pos" style="position:relative; z-index:2; font-size: 0.9em; margin-top: 0;">${player.position || '-'}</div>
-            <img src="${playerImagePng}" 
-                 style="position: absolute; bottom: 0; right: -10px; height: 110%; width: auto; z-index: 1; pointer-events: none;"
-                 onerror="this.src='/assets/playerimages/default_player.png'">
-            <div class="modal-player-name" style="position:relative; z-index:2; bottom: 5px;">${truncateName(player.name)}</div>
+        const card = document.createElement('div');
+        // Wrapper styling
+        card.style.flex = "0 0 160px";
+        card.style.height = "240px"; // Consistent height wrapper
+        card.style.cursor = "pointer";
+        card.onclick = () => showPlayerDetails(player);
+
+        // Structure matches .efball-card CSS
+        card.innerHTML = `
+            <div class="efball-card" data-rarity="${player.rarity || 'Base'}" style="width: 100%; height: 100%;">
+                <div class="efball-card-pos">${player.position || 'CMF'}</div>
+                <div class="efball-card-rating">${player.overall || 0}</div>
+                <div class="efball-card-icon">💎</div>
+                <img src="${playerImagePng}" class="efball-card-img" 
+                     onerror="this.src='/assets/playerimages/default_player.png'">
+                <div class="efball-card-bottom">${player.rarity || 'Standard'}</div>
+            </div>
+            <div class="modal-player-name" style="margin-top: 5px; font-size: 0.8em; color: rgba(255,255,255,0.7); text-align: center;">
+                ${truncateName(player.name)}
+            </div>
         `;
 
-        // Make clickable
-        playerCard.style.cursor = 'pointer';
-        playerCard.onclick = () => showPlayerDetails(player);
-
-        featuredContainer.appendChild(playerCard);
+        featuredContainer.appendChild(card);
     });
 
     // Add "See All" card
@@ -225,18 +229,27 @@ function showAllPlayers() {
     grid.innerHTML = '';
 
     players.forEach(player => {
-        const card = document.createElement('div');
-        card.className = 'all-player-card';
-        card.setAttribute('data-rarity', player.rarity);
+        const playerImageName = player.name.replace(/[^a-zA-Z0-9\-_]/g, '_').toLowerCase().replace(/_+/g, '_').replace(/_+$/g, '');
+        const playerImagePng = `/assets/playerimages/${playerImageName}.png`;
 
-        // Add click handler
+        const card = document.createElement('div');
+        // Wrapper style
         card.style.cursor = 'pointer';
         card.onclick = () => showPlayerDetails(player);
 
+        // Use efball-card scaled down slightly for grid if needed, or keeping standard aspect
         card.innerHTML = `
-            <div class="all-player-rating-large">${player.overall || 0}</div>
-            <div class="all-player-pos">${player.position || '-'}</div>
-            <div class="all-player-name-full">${player.name || 'Unknown'}</div>
+            <div class="efball-card" data-rarity="${player.rarity || 'Base'}" style="width: 100%; aspect-ratio: 2.2/3;">
+                <div class="efball-card-pos" style="font-size: 0.8em; padding: 1px 6px; top: 10px; left: 10px;">${player.position || 'CMF'}</div>
+                <div class="efball-card-rating" style="font-size: 2em; top: 30px;">${player.overall || 0}</div>
+                <div class="efball-card-icon" style="font-size: 1.2em; top: 65px; left: 15px;">💎</div>
+                <img src="${playerImagePng}" class="efball-card-img" 
+                     onerror="this.src='/assets/playerimages/default_player.png'">
+                <div class="efball-card-bottom" style="font-size: 0.7em; padding: 2px 10px; bottom: 8px;">${player.rarity || 'Standard'}</div>
+            </div>
+            <div class="modal-player-name" style="margin-top: 5px; font-size: 0.8em; color: rgba(255,255,255,0.7); text-align: center;">
+                ${truncateName(player.name)}
+            </div>
         `;
         grid.appendChild(card);
     });
@@ -259,46 +272,25 @@ function showPlayerDetails(player) {
     const stats = player.stats || {};
     const isOwned = ownedPlayerIds.includes(player.id);
 
-    // Get player full image path (240x340 images)
-    const sanitizedName = player.name.replace(/[^a-zA-Z0-9\-_]/g, '_').toLowerCase().replace(/_+/g, '_').replace(/_+$/g, '');
-    const playerImagePath = `/assets/playerimages/${sanitizedName}.png`;
-
-    // Background colors for rarities
-    const rarityColors = {
-        'Iconic': 'linear-gradient(135deg, #db0a5b, #8b008b)',
-        'Legend': 'linear-gradient(135deg, #daa520, #8b6508)',
-        'Black': 'linear-gradient(135deg, #333, #000)',
-        'Gold': 'linear-gradient(135deg, #b49632, #78641e)',
-        'Silver': 'linear-gradient(135deg, #969696, #646464)',
-        'Bronze': 'linear-gradient(135deg, #b4783c, #785028)',
-        'White': 'linear-gradient(135deg, #c8c8c8, #969696)'
-    };
-
-    // Default to Black-like gradient if not found
-    const cardBg = rarityColors[player.rarity] || 'linear-gradient(135deg, #333, #000)';
+    const playerImageName = player.name.replace(/[^a-zA-Z0-9\-_]/g, '_').toLowerCase().replace(/_+/g, '_').replace(/_+$/g, '');
+    const playerImagePng = `/assets/playerimages/${playerImageName}.png`;
 
     content.innerHTML = `
         <div class="player-detail-container">
             <div class="player-detail-left">
-                <div class="player-detail-card" style="background: ${cardBg}; border: 2px solid rgba(255,255,255,0.3);">
-                    <!-- Top Left Info -->
-                    <div style="position: absolute; top: 15px; left: 15px; z-index: 2;">
-                        <div style="background: rgba(0,0,0,0.5); padding: 2px 8px; border-radius: 4px; color: #fff; font-weight: bold; font-size: 0.9em; margin-bottom: 2px;">${player.position}</div>
-                        <div style="color: #ffd700; font-size: 2.5em; font-weight: bold; text-shadow: 2px 2px 0 #000;">${player.overall}</div>
-                        <div style="font-size: 1.5em; text-shadow: 0 2px 5px rgba(0,0,0,0.5); margin-top: 10px;">${RARITY_EMOJIS[player.rarity] || '⚽'}</div>
-                    </div>
-                    
-                    <!-- Player Image -->
-                    <img src="${playerImagePath}" alt="${player.name}" 
-                         style="position: absolute; bottom: 0; right: -10px; width: 240px; height: auto; z-index: 1;"
+                <!-- Unified Design Card -->
+                <div class="efball-card" data-rarity="${player.rarity || 'Base'}" style="width: 260px; height: 380px; font-size: 1.25em;">
+                    <div class="efball-card-pos">${player.position || 'CMF'}</div>
+                    <div class="efball-card-rating">${player.overall || 0}</div>
+                    <div class="efball-card-icon">💎</div>
+                    <img src="${playerImagePng}" class="efball-card-img" 
                          onerror="this.src='/assets/playerimages/default_player.png'">
-                    
-                    <!-- Bottom Rarity Label -->
-                    <div style="position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%); background: rgba(0,0,0,0.7); padding: 8px 30px; border-radius: 20px; color: #fff; font-size: 0.9em; font-weight: bold; z-index: 2; width: 80%; text-align: center; border: 1px solid rgba(255,255,255,0.2);">
-                        ${player.rarity}
-                    </div>
+                    <div class="efball-card-bottom">${player.rarity || 'Standard'}</div>
                 </div>
-                ${isOwned ? '<p style="color: #27ae60; font-weight: bold; text-align: center; margin-top: 15px;">✓ You own this player</p>' : '<p style="color: #999; text-align: center; margin-top: 15px; font-size: 0.9em;">You don\'t own this player yet</p>'}
+                
+                <div style="margin-top: 20px; color: #4ade80; font-size: 1.1em; font-weight: bold; text-align: center;">
+                     ${isOwned ? '✔ You own this player' : ''}
+                </div>
             </div>
             
             <div class="player-detail-right">
