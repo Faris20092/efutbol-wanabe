@@ -139,22 +139,24 @@
             display: flex;
             gap: 15px;
             margin-bottom: 20px;
+            align-items: center;
+            justify-content: center;
         }
 
         .featured-player {
-            flex: 1;
             position: relative;
-            height: 180px;
+            width: 120px;
+            height: 160px;
             border-radius: 12px;
-            padding: 12px;
+            padding: 10px;
             text-align: left;
-            border: 3px solid rgba(255, 255, 255, 0.2);
+            border: 3px solid rgba(255, 255, 255, 0.3);
             overflow: hidden;
             cursor: pointer;
             transition: all 0.3s ease;
             display: flex;
             flex-direction: column;
-            justify-content: space-between;
+            justify-content: flex-start;
             background: linear-gradient(135deg, rgba(120, 80, 180, 0.9), rgba(80, 40, 140, 1));
             box-shadow: 0 8px 20px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.1);
         }

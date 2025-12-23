@@ -123,12 +123,13 @@ function renderPackCarousel() {
             // Adjust styles for face display within the small card
             playersHtml += `
                 <div class="featured-player ${rarityClass}" style="position: relative; overflow: hidden;">
-                    <div class="player-rating" style="position: relative; z-index: 2;">${player.overall || 0}</div>
-                    <div class="player-position" style="position: relative; z-index: 2;">${player.position || '-'}</div>
+                    <div style="position: absolute; top: 8px; left: 8px; z-index: 2;">
+                        <div class="player-position" style="margin-bottom: 2px;">${player.position || '-'}</div>
+                        <div class="player-rating">${player.overall || 0}</div>
+                    </div>
                     <img src="${playerImagePng}" 
-                         style="position: absolute; bottom: 0; right: 0; height: 60px; width: auto; z-index: 1;"
+                         style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; z-index: 1;"
                          onerror="this.src='/assets/faces/default_player.png'">
-                    <div class="player-name-small" style="position: relative; z-index: 2;">${truncateName(player.name)}</div>
                 </div>
             `;
         });
