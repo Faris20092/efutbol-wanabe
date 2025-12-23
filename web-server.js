@@ -208,6 +208,16 @@ app.get('/gameplan', isAuthenticated, (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'gameplan.html'));
 });
 
+// Contracts route
+app.get('/contracts', isAuthenticated, (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'contracts.html'));
+});
+
+// Special Players route
+app.get('/special-players', isAuthenticated, (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'special-players.html'));
+});
+
 // Mail route
 app.get('/mail', isAuthenticated, (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'mail.html'));

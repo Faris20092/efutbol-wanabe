@@ -7,544 +7,325 @@
     <title>Contracts - eFotball wannabe</title>
     <link rel="stylesheet" href="/styles.css">
     <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: linear-gradient(135deg, #0a0a1a 0%, #0a1a3a 50%, #0a0a2a 100%);
+            min-height: 100vh;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            color: #fff;
+            overflow-x: hidden;
+        }
+
         .contracts-container {
             max-width: 1400px;
             margin: 0 auto;
             padding: 20px;
+            min-height: 100vh;
         }
 
-        .pack-selector {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(450px, 1fr));
-            gap: 30px;
-            margin-bottom: 40px;
-        }
-
-        .pack-card {
-            background: rgba(15, 15, 15, 0.95);
-            border: 3px solid rgba(255, 237, 0, 0.4);
-            border-radius: 20px;
-            overflow: hidden;
-            cursor: pointer;
-            transition: all 0.3s;
-            position: relative;
-        }
-
-        .pack-card:hover {
-            transform: translateY(-8px);
-            border-color: var(--secondary);
-            box-shadow: 0 15px 40px rgba(255, 237, 0, 0.5);
-        }
-
-        .pack-banner {
-            width: 100%;
-            height: 200px;
-            object-fit: cover;
-            display: block;
-        }
-
-        .pack-content {
-            padding: 20px;
-        }
-
-        .pack-rarity-label {
-            font-size: 0.85em;
-            color: #aaa;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            margin-bottom: 8px;
-        }
-
-        .pack-name {
-            font-size: 1.8em;
-            font-weight: bold;
-            color: #fff;
-            margin-bottom: 15px;
-        }
-
-        .pack-name {
-            font-size: 1.4em;
-            font-weight: bold;
-            color: var(--secondary);
-            margin-bottom: 10px;
-        }
-
-        .pack-cost {
-            font-size: 1.2em;
-            color: #fff;
-            margin-bottom: 10px;
-        }
-
-        .pack-description {
-            color: #ccc;
-            font-size: 0.95em;
-            line-height: 1.4;
-        }
-
-        .pack-details {
-            background: rgba(0, 0, 51, 0.8);
-            border: 2px solid rgba(255, 237, 0, 0.3);
-            border-radius: 15px;
-            padding: 25px;
-            margin-bottom: 30px;
-        }
-
-        .pack-details h3 {
-            color: var(--secondary);
-            font-size: 1.5em;
-            margin-bottom: 15px;
-        }
-
-        .rarity-chances {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-            gap: 15px;
-            margin-top: 15px;
-        }
-
-        .rarity-item {
-            background: rgba(0, 0, 0, 0.4);
-            padding: 12px;
-            border-radius: 8px;
-            text-align: center;
-            border: 2px solid rgba(255, 255, 255, 0.1);
-        }
-
-        .rarity-name {
-            font-weight: bold;
-            margin-bottom: 5px;
-        }
-
-        .rarity-chance {
-            color: #ccc;
-            font-size: 0.9em;
-        }
-
-        .players-section {
-            margin-top: 30px;
-        }
-
-        .players-header {
+        /* Top Bar */
+        .top-bar {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 20px;
-            flex-wrap: wrap;
-            gap: 15px;
+            padding: 10px 0;
+            margin-bottom: 30px;
         }
 
-        .players-header h3 {
-            color: var(--secondary);
-            font-size: 1.8em;
-        }
-
-        .player-filters {
+        .currency-display {
             display: flex;
-            gap: 10px;
-            flex-wrap: wrap;
+            gap: 20px;
+            align-items: center;
         }
 
-        .player-filters input,
-        .player-filters select {
-            padding: 10px 15px;
-            border-radius: 8px;
-            border: 2px solid rgba(255, 237, 0, 0.3);
-            background: rgba(0, 0, 51, 0.8);
-            color: #fff;
-            font-size: 1em;
+        .currency-item {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 1.1em;
         }
 
-        .player-filters input:focus,
-        .player-filters select:focus {
-            outline: none;
-            border-color: var(--secondary);
+        .currency-item .icon {
+            font-size: 1.2em;
         }
 
-        .players-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+        .top-icons {
+            display: flex;
             gap: 15px;
-            margin-top: 20px;
+            align-items: center;
         }
 
-        .contract-player-card {
-            background: linear-gradient(135deg, rgba(0, 20, 220, 0.6), rgba(0, 0, 51, 0.9));
-            border: 2px solid rgba(255, 237, 0, 0.4);
-            border-radius: 12px;
-            padding: 12px;
-            text-align: center;
-            transition: all 0.3s;
+        .icon-btn {
+            width: 42px;
+            height: 42px;
+            border-radius: 10px;
+            border: none;
+            background: linear-gradient(135deg, rgba(50, 60, 80, 0.8), rgba(30, 40, 60, 0.9));
+            color: #fff;
+            font-size: 1.3em;
             cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .icon-btn:hover {
+            transform: scale(1.1);
+            background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+        }
+
+        /* Category Cards Grid */
+        .category-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .category-card {
             position: relative;
+            background: linear-gradient(135deg, rgba(30, 40, 60, 0.9), rgba(20, 30, 50, 0.95));
+            border-radius: 15px;
             overflow: hidden;
+            cursor: pointer;
+            transition: all 0.3s;
+            aspect-ratio: 16/10;
+            border: 2px solid rgba(100, 150, 255, 0.2);
         }
 
-        .contract-player-card[data-rarity="Iconic"] {
-            background: linear-gradient(135deg,
-                    rgba(219, 10, 91, 0.9) 0%,
-                    rgba(255, 20, 147, 0.8) 25%,
-                    rgba(199, 21, 133, 0.9) 50%,
-                    rgba(139, 0, 139, 0.95) 100%);
-            border: 2px solid rgba(255, 20, 147, 0.8);
-            box-shadow: 0 0 20px rgba(255, 20, 147, 0.4);
-        }
-
-        .contract-player-card[data-rarity="Legend"] {
-            background: linear-gradient(135deg,
-                    rgba(218, 165, 32, 0.9) 0%,
-                    rgba(255, 215, 0, 0.8) 25%,
-                    rgba(184, 134, 11, 0.9) 50%,
-                    rgba(139, 101, 8, 0.95) 100%);
-            border: 2px solid rgba(255, 215, 0, 0.8);
-            box-shadow: 0 0 20px rgba(255, 215, 0, 0.4);
-        }
-
-        .contract-player-card:hover {
+        .category-card:hover {
             transform: translateY(-5px);
-            box-shadow: 0 8px 20px rgba(255, 237, 0, 0.3);
-            border-color: var(--secondary);
+            border-color: rgba(100, 150, 255, 0.5);
+            box-shadow: 0 10px 30px rgba(0, 100, 255, 0.3);
         }
 
-        .contract-player-card[data-rarity="Iconic"]:hover {
-            box-shadow: 0 8px 30px rgba(255, 20, 147, 0.6);
-            border-color: rgba(255, 20, 147, 1);
+        .category-card.large {
+            grid-column: span 1;
+            grid-row: span 2;
+            aspect-ratio: auto;
         }
 
-        .contract-player-card[data-rarity="Legend"]:hover {
-            box-shadow: 0 8px 30px rgba(255, 215, 0, 0.6);
-            border-color: rgba(255, 215, 0, 1);
-        }
-
-        .contract-player-card.owned {
-            opacity: 0.4;
-            filter: grayscale(100%);
-            background: linear-gradient(135deg, rgba(50, 50, 50, 0.6), rgba(30, 30, 30, 0.9));
-            border-color: rgba(100, 100, 100, 0.4);
-        }
-
-        .contract-player-card.owned::after {
-            content: '✓';
+        .card-bg {
             position: absolute;
-            top: 5px;
-            right: 5px;
-            background: rgba(39, 174, 96, 0.9);
-            color: white;
-            width: 25px;
-            height: 25px;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-size: cover;
+            background-position: center;
+            opacity: 0.6;
+        }
+
+        .card-content {
+            position: relative;
+            z-index: 2;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+            padding: 15px;
+        }
+
+        .card-badge {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: #ef4444;
+            color: #fff;
+            width: 28px;
+            height: 28px;
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-weight: bold;
-            font-size: 1.1em;
-        }
-
-        .player-image-container {
-            width: 100%;
-            height: 120px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin-bottom: 8px;
-            position: relative;
-        }
-
-        .player-image-container img {
-            max-width: 100%;
-            max-height: 100%;
-            object-fit: contain;
-        }
-
-        .player-overall {
-            position: absolute;
-            top: 5px;
-            left: 5px;
-            background: rgba(0, 0, 0, 0.8);
-            color: var(--secondary);
-            padding: 5px 10px;
-            border-radius: 5px;
-            font-weight: bold;
-            font-size: 1.1em;
-        }
-
-        .player-position {
-            position: absolute;
-            top: 5px;
-            right: 5px;
-            background: rgba(0, 0, 0, 0.8);
-            color: #fff;
-            padding: 5px 8px;
-            border-radius: 5px;
             font-size: 0.85em;
             font-weight: bold;
+            box-shadow: 0 2px 10px rgba(239, 68, 68, 0.5);
+            z-index: 5;
         }
 
-        .player-name {
+        .card-title {
+            font-size: 1.1em;
             font-weight: bold;
-            font-size: 0.95em;
-            margin-bottom: 5px;
             color: #fff;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
+            margin-bottom: 5px;
         }
 
-        .player-rarity {
-            font-size: 1.2em;
-            margin-bottom: 3px;
+        .card-subtitle {
+            font-size: 0.85em;
+            color: rgba(255, 255, 255, 0.7);
         }
 
-        .stats-summary {
+        /* Decorative elements */
+        .diagonal-stripe {
+            position: fixed;
+            width: 150%;
+            height: 300px;
+            background: linear-gradient(135deg, transparent 0%, rgba(0, 100, 255, 0.1) 50%, transparent 100%);
+            transform: rotate(-15deg);
+            top: 30%;
+            left: -25%;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        /* Back button */
+        .back-btn {
             display: flex;
-            justify-content: space-around;
-            margin-top: 20px;
-            padding: 20px;
-            background: rgba(0, 0, 0, 0.3);
-            border-radius: 10px;
-        }
-
-        .stat-item {
-            text-align: center;
-        }
-
-        .stat-label {
-            color: #ccc;
-            font-size: 0.9em;
-            margin-bottom: 5px;
-        }
-
-        .stat-value {
-            color: var(--secondary);
-            font-size: 1.5em;
-            font-weight: bold;
-        }
-
-        .discord-notice {
-            background: rgba(88, 101, 242, 0.2);
-            border: 2px solid rgba(88, 101, 242, 0.5);
-            border-radius: 10px;
-            padding: 15px;
-            margin-bottom: 20px;
-            text-align: center;
-        }
-
-        .discord-notice p {
-            margin: 0;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 20px;
+            background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+            border: none;
+            border-radius: 25px;
             color: #fff;
+            font-size: 0.95em;
+            cursor: pointer;
+            transition: all 0.3s;
         }
 
-        .discord-notice strong {
-            color: #5865F2;
+        .back-btn:hover {
+            transform: translateX(-5px);
+            box-shadow: 0 5px 15px rgba(59, 130, 246, 0.4);
         }
 
-        .loading {
-            text-align: center;
-            padding: 40px;
-            font-size: 1.2em;
-            color: var(--secondary);
-        }
-
-        /* Card reveal animation */
-        @keyframes cardReveal {
-            0% {
-                opacity: 0;
-                transform: scale(0.8) rotateY(180deg);
+        /* Responsive */
+        @media (max-width: 900px) {
+            .category-grid {
+                grid-template-columns: repeat(2, 1fr);
             }
-            50% {
-                transform: scale(1.05) rotateY(90deg);
-            }
-            100% {
-                opacity: 1;
-                transform: scale(1) rotateY(0deg);
+
+            .category-card.large {
+                grid-row: span 1;
             }
         }
 
-        /* Modal styling for better animations */
-        #packResultModal .modal-content {
-            max-width: 90%;
-            max-height: 90vh;
-            overflow-y: auto;
-        }
-
-        /* Pulse animation for opening text */
-        @keyframes pulse {
-            0%, 100% {
-                transform: scale(1);
+        @media (max-width: 600px) {
+            .category-grid {
+                grid-template-columns: 1fr;
             }
-            50% {
-                transform: scale(1.05);
+
+            .category-card {
+                aspect-ratio: 16/8;
+            }
+
+            .currency-display {
+                gap: 12px;
+            }
+
+            .currency-item {
+                font-size: 0.95em;
             }
         }
     </style>
 </head>
 
 <body>
-    <nav class="navbar">
-        <div class="nav-brand">⚽ eFOOTBALL WANNABE</div>
-        <div class="nav-menu">
-            <a href="/dashboard" class="nav-link nav-btn">HOME</a>
-            <a href="/my-team" class="nav-link">My Team</a>
-            <a href="/contracts" class="nav-link active">Contracts</a>
-            <a href="/logout" class="nav-link nav-btn-pink">LOGOUT</a>
-        </div>
-        <div class="user-info" id="userInfo">
-            <img id="userAvatar" src="" alt="Avatar" class="user-avatar">
-            <span id="username">Loading...</span>
-        </div>
-    </nav>
+    <div class="diagonal-stripe"></div>
 
     <div class="contracts-container">
-        <div class="header">
-            <h1>📦 Contract Packs</h1>
-            <p>View available packs and all players you can get</p>
-        </div>
-
-        <!-- Currency display -->
-        <div class="currency-bar"
-            style="display: flex; justify-content: center; gap: 30px; margin-bottom: 20px; padding: 15px; background: rgba(0,0,51,0.8); border-radius: 10px;">
-            <div style="font-size: 1.3rem;">💰 <span id="userGP">0</span> GP</div>
-            <div style="font-size: 1.3rem;">🪙 <span id="userECoins">0</span> eCoins</div>
-        </div>
-
-        <!-- Pack purchase controls -->
-        <div class="buy-controls" id="buyControls"
-            style="display: none; text-align: center; margin-bottom: 30px; padding: 20px; background: rgba(0,0,51,0.8); border: 2px solid rgba(255,237,0,0.3); border-radius: 12px;">
-            <h3 id="selectedPackName" style="color: var(--secondary); margin-bottom: 10px;">Select a Pack</h3>
-            <p id="selectedPackCost" style="color: #ccc; margin-bottom: 15px;">Cost: -</p>
-            <button class="btn btn-secondary" onclick="showPackInfoModal()" 
-                style="margin-bottom: 15px; padding: 8px 20px;">
-                📊 View Pack Details & Rates
-            </button>
-            <div style="display: flex; gap: 15px; justify-content: center; flex-wrap: wrap;">
-                <button class="btn btn-primary" id="buyPackBtn" onclick="buyPack(1)"
-                    style="padding: 12px 30px; font-size: 1.1rem;">🎁 Open 1 Pack</button>
-                <button class="btn btn-primary" id="buyPack3Btn" onclick="buyPack(3)"
-                    style="padding: 12px 30px; font-size: 1.1rem;">🎁 Open 3 Packs</button>
-                <button class="btn btn-primary" id="buyPack10Btn" onclick="buyPack(10)"
-                    style="padding: 12px 30px; font-size: 1.1rem;">🎁 Open 10 Packs</button>
+        <!-- Top Bar -->
+        <div class="top-bar">
+            <div class="currency-display">
+                <div class="currency-item">
+                    <span class="icon">🪙</span>
+                    <span id="topEcoins">0</span>
+                </div>
+                <div class="currency-item">
+                    <span class="icon">Ⓖ</span>
+                    <span id="topGP">0</span>
+                </div>
+            </div>
+            <div class="top-icons">
+                <button class="back-btn" onclick="window.location.href='/dashboard'">
+                    ← Back
+                </button>
+                <button class="icon-btn" onclick="window.location.href='/dashboard'" title="Home">🏠</button>
             </div>
         </div>
 
-        <div class="pack-selector">
-            <!-- Iconic Pack -->
-            <div class="pack-card" onclick="showPackDetails('iconic')">
-                <img src="/assets/contractbanner/iconic.png" alt="Iconic Pack" class="pack-banner"
-                    onerror="this.src='/assets/contractbanner/iconic.jpg'">
-                <div class="pack-content">
-                    <div class="pack-rarity-label">Iconic</div>
-                    <div class="pack-name">Iconic Pack</div>
+        <!-- Category Cards Grid -->
+        <div class="category-grid">
+            <!-- Special Player List -->
+            <div class="category-card large" onclick="window.location.href='/special-players'">
+                <div class="card-bg" style="background: linear-gradient(135deg, #4a1a4a 0%, #2a0a3a 100%);"></div>
+                <div class="card-badge" id="specialBadge">3</div>
+                <div class="card-content">
+                    <div class="card-title">Special Player List</div>
+                    <div class="card-subtitle">Sign some amazing talent!</div>
                 </div>
             </div>
 
-            <!-- Legend Pack -->
-            <div class="pack-card" onclick="showPackDetails('legend')">
-                <img src="/assets/contractbanner/legend.png" alt="Legend Pack" class="pack-banner"
-                    onerror="this.src='/assets/contractbanner/legend.jpg'">
-                <div class="pack-content">
-                    <div class="pack-rarity-label">Epic</div>
-                    <div class="pack-name">Legend Pack</div>
+            <!-- Packs -->
+            <div class="category-card" onclick="window.location.href='/special-players'">
+                <div class="card-bg" style="background: linear-gradient(135deg, #8b0000 0%, #4a0000 100%);"></div>
+                <div class="card-content">
+                    <div class="card-title">Packs</div>
+                    <div class="card-subtitle">Get your hands on special products!</div>
                 </div>
             </div>
 
-            <!-- Standard Pack -->
-            <div class="pack-card" onclick="showPackDetails('standard')">
-                <img src="/assets/contractbanner/standard.png" alt="Standard Pack" class="pack-banner"
-                    onerror="this.src='/assets/contractbanner/standard.jpg'">
-                <div class="pack-content">
-                    <div class="pack-rarity-label">Standard</div>
-                    <div class="pack-name">Standard Pack</div>
+            <!-- Customisables -->
+            <div class="category-card" onclick="showComingSoon()">
+                <div class="card-bg" style="background: linear-gradient(135deg, #0a4a5a 0%, #0a2a3a 100%);"></div>
+                <div class="card-content">
+                    <div class="card-title">Customisables</div>
+                    <div class="card-subtitle">Get items that express your style.</div>
                 </div>
             </div>
-        </div>
 
-        <div id="packDetailsContainer" style="display: none;">
-            <div class="pack-details" id="packDetails">
-                <!-- Pack details will be shown here -->
-            </div>
-
-            <div class="players-section">
-                <div class="players-header">
-                    <h3>Available Players (<span id="playerCount">0</span>)</h3>
-                    <div class="player-filters">
-                        <input type="text" id="playerSearch" placeholder="Search players..." />
-                        <select id="rarityFilter">
-                            <option value="">All Rarities</option>
-                            <option value="Iconic">💎 Iconic</option>
-                            <option value="Legend">🌟 Legend</option>
-                            <option value="Black">⚫ Black</option>
-                            <option value="Gold">🟡 Gold</option>
-                            <option value="Silver">⚪ Silver</option>
-                            <option value="Bronze">🟤 Bronze</option>
-                            <option value="White">⬜ White</option>
-                        </select>
-                        <select id="ownedFilter">
-                            <option value="all">All Players</option>
-                            <option value="owned">Owned Only</option>
-                            <option value="not-owned">Not Owned</option>
-                        </select>
-                    </div>
-                </div>
-
-                <div class="stats-summary">
-                    <div class="stat-item">
-                        <div class="stat-label">Total Players</div>
-                        <div class="stat-value" id="totalPlayers">0</div>
-                    </div>
-                    <div class="stat-item">
-                        <div class="stat-label">Owned</div>
-                        <div class="stat-value" id="ownedPlayers">0</div>
-                    </div>
-                    <div class="stat-item">
-                        <div class="stat-label">Not Owned</div>
-                        <div class="stat-value" id="notOwnedPlayers">0</div>
-                    </div>
-                    <div class="stat-item">
-                        <div class="stat-label">Collection %</div>
-                        <div class="stat-value" id="collectionPercent">0%</div>
-                    </div>
-                </div>
-
-                <div class="players-grid" id="playersGrid">
-                    <!-- Player cards will be generated here -->
+            <!-- Standard Player -->
+            <div class="category-card" onclick="showComingSoon()">
+                <div class="card-bg" style="background: linear-gradient(135deg, #1a3a5a 0%, #0a2030 100%);"></div>
+                <div class="card-content">
+                    <div class="card-title">Standard Player</div>
                 </div>
             </div>
-        </div>
 
-        <div class="loading" id="loading">Loading...</div>
-    </div>
-
-    <!-- Player Modal -->
-    <div id="playerModal" class="modal">
-        <div class="modal-content">
-            <span class="close" onclick="closeModal()">&times;</span>
-            <div id="playerModalContent"></div>
-        </div>
-    </div>
-
-    <!-- Pack Result Modal -->
-    <div id="packResultModal" class="modal" style="display: none;">
-        <div class="modal-content" style="max-width: 600px; text-align: center;">
-            <span class="close" onclick="closePackResult()">&times;</span>
-            <h2 style="color: var(--secondary); margin-bottom: 20px;">🎉 Pack Opening!</h2>
-            <div id="packResultContent" style="display: flex; flex-wrap: wrap; gap: 15px; justify-content: center;">
-                <!-- Results will be shown here -->
+            <!-- Standard Player Tickets -->
+            <div class="category-card" onclick="showComingSoon()">
+                <div class="card-bg" style="background: linear-gradient(135deg, #2a3a4a 0%, #1a2030 100%);"></div>
+                <div class="card-content">
+                    <div class="card-title">Standard Player Tickets</div>
+                </div>
             </div>
-            <button class="btn btn-primary" onclick="closePackResult()" style="margin-top: 20px;">Close</button>
-        </div>
-    </div>
 
-    <!-- Pack Info Modal -->
-    <div id="packInfoModal" class="modal" style="display: none;">
-        <div class="modal-content" style="max-width: 700px;">
-            <span class="close" onclick="closePackInfoModal()">&times;</span>
-            <h2 style="color: var(--secondary); margin-bottom: 20px; text-align: center;">📊 Pack Information</h2>
-            <div id="packInfoContent">
-                <!-- Pack info will be shown here -->
+            <!-- Standard Manager -->
+            <div class="category-card" onclick="showComingSoon()">
+                <div class="card-bg" style="background: linear-gradient(135deg, #3a3a4a 0%, #2a2530 100%);"></div>
+                <div class="card-content">
+                    <div class="card-title">Standard Manager</div>
+                </div>
             </div>
         </div>
     </div>
 
-    <script src="/contracts.js"></script>
+    <script>
+        async function init() {
+            try {
+                const response = await fetch('/api/user');
+                const data = await response.json();
+                const userData = data.gameData;
+
+                document.getElementById('topGP').textContent = (userData.gp || 0).toLocaleString();
+                document.getElementById('topEcoins').textContent = userData.eCoins || 0;
+
+                // Update badge with number of available packs
+                document.getElementById('specialBadge').textContent = '3';
+            } catch (error) {
+                console.error('Error loading user data:', error);
+            }
+        }
+
+        function showComingSoon() {
+            alert('Coming Soon!');
+        }
+
+        document.addEventListener('DOMContentLoaded', init);
+    </script>
 </body>
 
 </html>

@@ -1,0 +1,653 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Special Player List - eFotball wannabe</title>
+    <link rel="stylesheet" href="/styles.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: linear-gradient(135deg, #0a0a1a 0%, #0a1a3a 50%, #0a0a2a 100%);
+            min-height: 100vh;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            color: #fff;
+            overflow-x: hidden;
+        }
+
+        .special-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        /* Top Bar */
+        .top-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 0;
+            margin-bottom: 20px;
+        }
+
+        .currency-display {
+            display: flex;
+            gap: 20px;
+            align-items: center;
+        }
+
+        .currency-item {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 1.1em;
+        }
+
+        .top-right {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .product-details-btn {
+            color: #ec4899;
+            font-size: 0.95em;
+            cursor: pointer;
+            border: none;
+            background: none;
+        }
+
+        .icon-btn {
+            width: 42px;
+            height: 42px;
+            border-radius: 10px;
+            border: none;
+            background: linear-gradient(135deg, rgba(50, 60, 80, 0.8), rgba(30, 40, 60, 0.9));
+            color: #fff;
+            font-size: 1.3em;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .icon-btn:hover {
+            transform: scale(1.1);
+            background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+        }
+
+        /* Pack Carousel */
+        .pack-carousel {
+            display: flex;
+            gap: 25px;
+            overflow-x: auto;
+            padding: 20px 0;
+            scroll-snap-type: x mandatory;
+        }
+
+        .pack-carousel::-webkit-scrollbar {
+            height: 8px;
+        }
+
+        .pack-carousel::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+        }
+
+        .pack-carousel::-webkit-scrollbar-thumb {
+            background: rgba(100, 150, 255, 0.5);
+            border-radius: 10px;
+        }
+
+        .pack-item {
+            flex: 0 0 350px;
+            background: linear-gradient(135deg, rgba(30, 40, 70, 0.95), rgba(20, 25, 50, 0.98));
+            border-radius: 15px;
+            padding: 20px;
+            scroll-snap-align: start;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: 2px solid rgba(100, 150, 255, 0.2);
+        }
+
+        .pack-item:hover {
+            transform: translateY(-5px);
+            border-color: rgba(100, 150, 255, 0.5);
+            box-shadow: 0 10px 30px rgba(0, 100, 255, 0.3);
+        }
+
+        .pack-type {
+            font-size: 0.85em;
+            color: rgba(255, 255, 255, 0.6);
+            margin-bottom: 5px;
+        }
+
+        .pack-name {
+            font-size: 1.3em;
+            font-weight: bold;
+            color: #fff;
+            margin-bottom: 15px;
+        }
+
+        /* Featured Players */
+        .featured-players {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .featured-player {
+            flex: 1;
+            background: linear-gradient(135deg, rgba(100, 50, 150, 0.8), rgba(50, 20, 100, 0.9));
+            border-radius: 10px;
+            padding: 10px;
+            text-align: center;
+            border: 2px solid rgba(200, 100, 255, 0.3);
+        }
+
+        .featured-player.iconic {
+            background: linear-gradient(135deg, rgba(219, 10, 91, 0.8), rgba(139, 0, 139, 0.9));
+            border-color: rgba(255, 20, 147, 0.5);
+        }
+
+        .featured-player.legend {
+            background: linear-gradient(135deg, rgba(218, 165, 32, 0.8), rgba(139, 101, 8, 0.9));
+            border-color: rgba(255, 215, 0, 0.5);
+        }
+
+        .player-rating {
+            font-size: 1.5em;
+            font-weight: bold;
+            color: #fff;
+        }
+
+        .player-position {
+            font-size: 0.75em;
+            color: rgba(255, 255, 255, 0.8);
+            margin-bottom: 5px;
+        }
+
+        .player-name-small {
+            font-size: 0.7em;
+            color: rgba(255, 255, 255, 0.7);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        /* Buy Buttons */
+        .buy-buttons {
+            display: flex;
+            gap: 10px;
+        }
+
+        .buy-btn {
+            flex: 1;
+            padding: 12px;
+            border-radius: 10px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            background: rgba(0, 0, 0, 0.3);
+            color: #fff;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            font-size: 0.9em;
+        }
+
+        .buy-btn:hover {
+            border-color: #ffd700;
+            background: rgba(255, 215, 0, 0.1);
+        }
+
+        .buy-btn .cost {
+            color: #ffd700;
+            font-weight: bold;
+        }
+
+        /* Bottom Bar */
+        .bottom-bar {
+            display: flex;
+            gap: 15px;
+            margin-top: 30px;
+        }
+
+        .back-btn {
+            padding: 12px 25px;
+            background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+            border: none;
+            border-radius: 25px;
+            color: #fff;
+            font-size: 0.95em;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .back-btn:hover {
+            transform: translateX(-5px);
+            box-shadow: 0 5px 15px rgba(59, 130, 246, 0.4);
+        }
+
+        /* Pack Detail Modal */
+        .pack-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.95);
+            z-index: 1000;
+            overflow-y: auto;
+        }
+
+        .pack-modal.show {
+            display: block;
+        }
+
+        .modal-content {
+            max-width: 1000px;
+            margin: 20px auto;
+            padding: 20px;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 20px;
+        }
+
+        .modal-pack-info {
+            flex: 1;
+        }
+
+        .modal-pack-type {
+            font-size: 0.9em;
+            color: #ec4899;
+            margin-bottom: 5px;
+        }
+
+        .modal-pack-name {
+            font-size: 2em;
+            font-weight: bold;
+            color: #00d4ff;
+            margin-bottom: 10px;
+        }
+
+        .modal-close {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.1);
+            border: none;
+            color: #fff;
+            font-size: 1.5em;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .modal-close:hover {
+            background: #ef4444;
+        }
+
+        /* Featured Players Row */
+        .modal-featured {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 30px;
+            overflow-x: auto;
+            padding-bottom: 10px;
+        }
+
+        .modal-player-card {
+            flex: 0 0 140px;
+            background: linear-gradient(135deg, rgba(100, 50, 150, 0.9), rgba(50, 20, 100, 0.95));
+            border-radius: 12px;
+            padding: 15px 10px;
+            text-align: center;
+            border: 2px solid rgba(200, 100, 255, 0.4);
+        }
+
+        .modal-player-card.iconic {
+            background: linear-gradient(135deg, rgba(219, 10, 91, 0.9), rgba(139, 0, 139, 0.95));
+            border-color: rgba(255, 20, 147, 0.6);
+        }
+
+        .modal-player-card.legend {
+            background: linear-gradient(135deg, rgba(218, 165, 32, 0.9), rgba(139, 101, 8, 0.95));
+            border-color: rgba(255, 215, 0, 0.6);
+        }
+
+        .modal-player-rating {
+            font-size: 2em;
+            font-weight: bold;
+            color: #fff;
+        }
+
+        .modal-player-pos {
+            font-size: 0.85em;
+            color: rgba(255, 255, 255, 0.8);
+            margin-top: 5px;
+        }
+
+        .modal-player-name {
+            font-size: 0.8em;
+            color: rgba(255, 255, 255, 0.7);
+            margin-top: 8px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        /* See All Button */
+        .see-all-card {
+            flex: 0 0 140px;
+            background: rgba(50, 60, 80, 0.5);
+            border-radius: 12px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: 2px dashed rgba(255, 255, 255, 0.3);
+        }
+
+        .see-all-card:hover {
+            background: rgba(100, 150, 255, 0.2);
+            border-color: #00d4ff;
+        }
+
+        .see-all-text {
+            font-size: 1em;
+            color: #fff;
+        }
+
+        /* Modal Footer Buttons */
+        .modal-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 30px;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .modal-footer-left {
+            display: flex;
+            gap: 10px;
+        }
+
+        .details-btn {
+            padding: 12px 25px;
+            background: rgba(50, 60, 80, 0.8);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 25px;
+            color: #fff;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .details-btn:hover {
+            border-color: #ec4899;
+            color: #ec4899;
+        }
+
+        .modal-buy-buttons {
+            display: flex;
+            gap: 15px;
+        }
+
+        .modal-buy-btn {
+            padding: 15px 25px;
+            border-radius: 30px;
+            border: none;
+            background: linear-gradient(135deg, rgba(50, 60, 80, 0.9), rgba(30, 40, 60, 0.95));
+            color: #fff;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 1em;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .modal-buy-btn:hover {
+            border-color: #ffd700;
+            background: rgba(255, 215, 0, 0.1);
+        }
+
+        .modal-buy-btn .cost {
+            color: #ffd700;
+            font-weight: bold;
+        }
+
+        /* All Players View */
+        .all-players-view {
+            display: none;
+        }
+
+        .all-players-view.show {
+            display: block;
+        }
+
+        .all-players-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .all-players-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 15px;
+        }
+
+        .all-player-card {
+            background: linear-gradient(135deg, rgba(100, 50, 150, 0.8), rgba(50, 20, 100, 0.9));
+            border-radius: 12px;
+            padding: 15px;
+            text-align: center;
+            border: 2px solid rgba(200, 100, 255, 0.3);
+            transition: all 0.3s;
+        }
+
+        .all-player-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(150, 50, 200, 0.4);
+        }
+
+        .all-player-card[data-rarity="Iconic"] {
+            background: linear-gradient(135deg, rgba(219, 10, 91, 0.8), rgba(139, 0, 139, 0.9));
+            border-color: rgba(255, 20, 147, 0.5);
+        }
+
+        .all-player-card[data-rarity="Legend"] {
+            background: linear-gradient(135deg, rgba(218, 165, 32, 0.8), rgba(139, 101, 8, 0.9));
+            border-color: rgba(255, 215, 0, 0.5);
+        }
+
+        .all-player-card[data-rarity="Black"] {
+            background: linear-gradient(135deg, rgba(50, 50, 50, 0.9), rgba(20, 20, 20, 0.95));
+            border-color: rgba(100, 100, 100, 0.5);
+        }
+
+        .all-player-card[data-rarity="Gold"] {
+            background: linear-gradient(135deg, rgba(180, 150, 50, 0.8), rgba(120, 100, 30, 0.9));
+            border-color: rgba(200, 170, 50, 0.5);
+        }
+
+        .all-player-rating-large {
+            font-size: 2.2em;
+            font-weight: bold;
+            color: #fff;
+        }
+
+        .all-player-pos {
+            font-size: 0.9em;
+            color: rgba(255, 255, 255, 0.8);
+            margin-top: 5px;
+        }
+
+        .all-player-name-full {
+            font-size: 0.85em;
+            color: rgba(255, 255, 255, 0.9);
+            margin-top: 10px;
+        }
+
+        .all-players-footer {
+            display: flex;
+            gap: 15px;
+            margin-top: 25px;
+        }
+
+        .footer-btn {
+            flex: 1;
+            padding: 15px;
+            border-radius: 10px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            background: rgba(50, 60, 80, 0.5);
+            color: #fff;
+            font-size: 1em;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .footer-btn:hover {
+            border-color: #3b82f6;
+            background: rgba(59, 130, 246, 0.2);
+        }
+
+        .footer-btn.primary {
+            background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+            border-color: #3b82f6;
+        }
+
+        /* Loading */
+        #loading {
+            text-align: center;
+            padding: 50px;
+            font-size: 1.2em;
+            color: #00d4ff;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .pack-item {
+                flex: 0 0 300px;
+            }
+
+            .modal-pack-name {
+                font-size: 1.5em;
+            }
+
+            .modal-player-card {
+                flex: 0 0 110px;
+            }
+
+            .all-players-grid {
+                grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="special-container">
+        <!-- Top Bar -->
+        <div class="top-bar">
+            <div class="currency-display">
+                <div class="currency-item">
+                    <span>🪙</span>
+                    <span id="topEcoins">0</span>
+                </div>
+                <div class="currency-item">
+                    <span>Ⓖ</span>
+                    <span id="topGP">0</span>
+                </div>
+            </div>
+            <div class="top-right">
+                <button class="product-details-btn">Product Details</button>
+                <button class="icon-btn" onclick="window.location.href='/dashboard'" title="Home">🏠</button>
+            </div>
+        </div>
+
+        <!-- Pack Carousel -->
+        <div class="pack-carousel" id="packCarousel">
+            <div id="loading">Loading packs...</div>
+        </div>
+
+        <!-- Bottom Bar -->
+        <div class="bottom-bar">
+            <button class="back-btn" onclick="window.location.href='/contracts'">← Back</button>
+        </div>
+    </div>
+
+    <!-- Pack Detail Modal -->
+    <div class="pack-modal" id="packModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-pack-info">
+                    <div class="modal-pack-type" id="modalPackType">Show Time</div>
+                    <div class="modal-pack-name" id="modalPackName">Pack Name</div>
+                </div>
+                <button class="modal-close" onclick="closePackModal()">×</button>
+            </div>
+
+            <!-- Featured View (default) -->
+            <div class="featured-view" id="featuredView">
+                <div class="modal-featured" id="modalFeatured">
+                    <!-- Featured players will be added here -->
+                </div>
+
+                <p style="color: rgba(255,255,255,0.6); font-size: 0.85em; margin-bottom: 20px;">
+                    *The displayed Overall Ratings reflect the highest possible Ratings of the players.
+                </p>
+
+                <div class="modal-footer">
+                    <div class="modal-footer-left">
+                        <button class="details-btn" onclick="showAllPlayers()">Product Details</button>
+                        <button class="details-btn">⋯</button>
+                    </div>
+                    <div class="modal-buy-buttons">
+                        <button class="modal-buy-btn" onclick="buyPack(1)">
+                            👤 ×1 | <span class="cost" id="cost1x">100</span> 🪙
+                        </button>
+                        <button class="modal-buy-btn" onclick="buyPack(10)">
+                            👤 ×10 | <span class="cost" id="cost10x">900</span> 🪙
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- All Players View -->
+            <div class="all-players-view" id="allPlayersView">
+                <div class="all-players-header">
+                    <span style="color: rgba(255,255,255,0.7);">All Available Players</span>
+                </div>
+                <div class="all-players-grid" id="allPlayersGrid">
+                    <!-- All players will be added here -->
+                </div>
+                <div class="all-players-footer">
+                    <button class="footer-btn primary" onclick="hideSeeAll()">← Back</button>
+                    <button class="footer-btn">Sort</button>
+                    <button class="footer-btn">Rotate</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="/special-players.js"></script>
+</body>
+
+</html>
