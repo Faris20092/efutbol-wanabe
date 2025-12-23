@@ -547,7 +547,7 @@
             color: #00d4ff;
         }
 
-        /* Player Detail Modal Styles */
+        /* Player Detail Modal Styles (Unified with card model.md) */
         .player-detail-modal {
             display: none;
             position: fixed;
@@ -566,7 +566,35 @@
             display: flex;
         }
 
-        /* Player Detail Container and Card (from card model.md) */
+        .modal-player-card:hover {
+            transform: scale(1.02);
+        }
+
+        .close-detail-btn {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.1);
+            border: none;
+            color: #fff;
+            font-size: 1.5em;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 2001;
+            transition: all 0.3s;
+        }
+
+        .close-detail-btn:hover {
+            background: rgba(239, 68, 68, 0.8);
+            transform: rotate(90deg);
+        }
+
+        /* CARD MODEL STYLES */
         .player-detail-container {
             display: flex;
             gap: 30px;
@@ -579,9 +607,6 @@
 
         .player-detail-left {
             flex-shrink: 0;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
         }
 
         .player-detail-card {
@@ -729,8 +754,6 @@
         .player-detail-right {
             flex: 1;
             color: white;
-            padding: 0;
-            background: transparent;
         }
 
         .player-detail-header {
@@ -738,6 +761,12 @@
             grid-template-columns: 1fr 1fr;
             gap: 20px;
             margin-bottom: 30px;
+        }
+
+        .player-detail-info {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
         }
 
         .player-detail-row {
@@ -780,7 +809,6 @@
             padding: 12px 15px;
             background: rgba(255, 255, 255, 0.05);
             border-radius: 8px;
-            border: none;
         }
 
         .stat-icon {
@@ -790,7 +818,6 @@
         .stat-label {
             flex: 1;
             color: rgba(255, 255, 255, 0.8);
-            font-weight: normal;
         }
 
         .stat-value {
@@ -807,29 +834,7 @@
             border-radius: 8px;
         }
 
-        .close-detail-btn {
-            position: absolute;
-            top: 20px;
-            right: 20px;
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            background: rgba(255, 255, 255, 0.1);
-            border: none;
-            color: #fff;
-            font-size: 1.5em;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            z-index: 2001;
-            transition: all 0.3s;
-        }
 
-        .close-detail-btn:hover {
-            background: rgba(239, 68, 68, 0.8);
-            transform: rotate(90deg);
-        }
 
         @media (max-width: 900px) {
             .player-detail-container {

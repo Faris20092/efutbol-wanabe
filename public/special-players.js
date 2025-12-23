@@ -179,21 +179,23 @@ function openPackModal(packKey) {
         const playerImagePng = `/assets/playerimages/${playerImageName}.png`;
 
         const card = document.createElement('div');
-        // Wrapper styling
-        card.style.flex = "0 0 160px";
-        card.style.height = "240px"; // Consistent height wrapper
+        // Wrapper styling - Using flexible layout to fit modal, but respecting aspect ratio
+        card.style.flex = "0 0 180px";
+        card.style.height = "255px";
         card.style.cursor = "pointer";
         card.onclick = () => showPlayerDetails(player);
 
-        // Structure matches .efball-card CSS
+        // Structure matches card model.md CSS
+        // Scale down the card content to fit the wrapper if needed, or rely on CSS flexibility
+        // Using inline styles on wrapper to force internal card to fit
         card.innerHTML = `
-            <div class="efball-card" data-rarity="${player.rarity || 'Base'}" style="width: 100%; height: 100%;">
-                <div class="efball-card-pos">${player.position || 'CMF'}</div>
-                <div class="efball-card-rating">${player.overall || 0}</div>
-                <div class="efball-card-icon">💎</div>
-                <img src="${playerImagePng}" class="efball-card-img" 
+            <div class="player-detail-card" data-rarity="${player.rarity || 'Base'}" style="width: 100%; height: 100%;">
+                <div class="player-card-position" style="font-size: 0.8em; padding: 2px 6px;">${player.position || 'CMF'}</div>
+                <div class="player-card-rating" style="font-size: 2em; top: 30px;">${player.overall || 0}</div>
+                <div class="player-card-rarity" style="font-size: 1.5em; top: 75px;">${RARITY_EMOJIS[player.rarity] || '💎'}</div>
+                <img src="${playerImagePng}" class="player-detail-image" 
                      onerror="this.src='/assets/playerimages/default_player.png'">
-                <div class="efball-card-bottom">${player.rarity || 'Standard'}</div>
+                <div class="player-card-rarity-bottom" style="bottom: 5px; font-size: 0.7em;">${player.rarity || 'Standard'}</div>
             </div>
             <div class="modal-player-name" style="margin-top: 5px; font-size: 0.8em; color: rgba(255,255,255,0.7); text-align: center;">
                 ${truncateName(player.name)}
@@ -237,15 +239,15 @@ function showAllPlayers() {
         card.style.cursor = 'pointer';
         card.onclick = () => showPlayerDetails(player);
 
-        // Use efball-card scaled down slightly for grid if needed, or keeping standard aspect
+        // Use player-detail-card scaled down for grid
         card.innerHTML = `
-            <div class="efball-card" data-rarity="${player.rarity || 'Base'}" style="width: 100%; aspect-ratio: 2.2/3;">
-                <div class="efball-card-pos" style="font-size: 0.8em; padding: 1px 6px; top: 10px; left: 10px;">${player.position || 'CMF'}</div>
-                <div class="efball-card-rating" style="font-size: 2em; top: 30px;">${player.overall || 0}</div>
-                <div class="efball-card-icon" style="font-size: 1.2em; top: 65px; left: 15px;">💎</div>
-                <img src="${playerImagePng}" class="efball-card-img" 
+            <div class="player-detail-card" data-rarity="${player.rarity || 'Base'}" style="width: 100%; aspect-ratio: 240/340;">
+                <div class="player-card-position" style="font-size: 0.8em; padding: 2px 6px;">${player.position || 'CMF'}</div>
+                <div class="player-card-rating" style="font-size: 2em; top: 30px;">${player.overall || 0}</div>
+                <div class="player-card-rarity" style="font-size: 1.5em; top: 75px;">${RARITY_EMOJIS[player.rarity] || '💎'}</div>
+                <img src="${playerImagePng}" class="player-detail-image" 
                      onerror="this.src='/assets/playerimages/default_player.png'">
-                <div class="efball-card-bottom" style="font-size: 0.7em; padding: 2px 10px; bottom: 8px;">${player.rarity || 'Standard'}</div>
+                <div class="player-card-rarity-bottom" style="bottom: 5px; font-size: 0.7em;">${player.rarity || 'Standard'}</div>
             </div>
             <div class="modal-player-name" style="margin-top: 5px; font-size: 0.8em; color: rgba(255,255,255,0.7); text-align: center;">
                 ${truncateName(player.name)}
@@ -278,10 +280,11 @@ function showPlayerDetails(player) {
     content.innerHTML = `
         <div class="player-detail-container">
             <div class="player-detail-left">
-                <div class="player-detail-card" data-rarity="${player.rarity || 'Iconic'}">
+                <!-- Unified Design Card (Standard Size 240x340 controlled by CSS class) -->
+                <div class="player-detail-card" data-rarity="${player.rarity || 'Base'}">
                     <div class="player-card-position">${player.position || 'CMF'}</div>
                     <div class="player-card-rating">${player.overall || 0}</div>
-                    <div class="player-card-rarity">💎</div>
+                    <div class="player-card-rarity">${RARITY_EMOJIS[player.rarity] || '💎'}</div>
                     <img src="${playerImagePng}" class="player-detail-image" 
                          onerror="this.src='/assets/playerimages/default_player.png'">
                     <div class="player-card-rarity-bottom">${player.rarity || 'Standard'}</div>
@@ -293,63 +296,65 @@ function showPlayerDetails(player) {
             </div>
             
             <div class="player-detail-right">
-                <div class="player-detail-header">
-                    <div class="player-detail-row">
-                        <span class="player-detail-label">Overall:</span>
-                        <span class="player-detail-value">${player.overall}</span>
+                <div class="player-detail-header-grid">
+                    <div class="detail-info-box">
+                        <span class="detail-label">Overall:</span>
+                        <span class="detail-value">${player.overall}</span>
                     </div>
-                    <div class="player-detail-row">
-                        <span class="player-detail-label">Rarity:</span>
-                        <span class="player-detail-value">${player.rarity}</span>
+                    <div class="detail-info-box">
+                        <span class="detail-label">Rarity:</span>
+                        <span class="detail-value">${player.rarity}</span>
                     </div>
-                    <div class="player-detail-row">
-                        <span class="player-detail-label">Position:</span>
-                        <span class="player-detail-value">${player.position}</span>
+                    <div class="detail-info-box">
+                        <span class="detail-label">Position:</span>
+                        <span class="detail-value">${player.position}</span>
                     </div>
-                    <div class="player-detail-row">
-                        <span class="player-detail-label">Style:</span>
-                        <span class="player-detail-value" style="font-size: 0.9em;">${player.playingStyle || 'N/A'}</span>
+                    <div class="detail-info-box">
+                        <span class="detail-label">Style:</span>
+                        <span class="detail-value" style="font-size: 0.9em;">${player.playingStyle || 'N/A'}</span>
                     </div>
                 </div>
                 
-                <div class="player-detail-section-title">Stats</div>
+                <h3 style="color: #00d4ff; margin-bottom: 15px; font-size: 1.2em;">Stats</h3>
                 <div class="player-detail-stats">
                     <div class="player-detail-stat">
                         <span class="stat-icon">⚔️</span>
                         <span class="stat-label">ATTACKING:</span>
-                        <span class="stat-value">${stats.attacking || 0}</span>
+                        <span class="stat-value" style="color: ${getStatColor(stats.attacking)}">${stats.attacking || 0}</span>
                     </div>
                     <div class="player-detail-stat">
                         <span class="stat-icon">🎯</span>
                         <span class="stat-label">DRIBBLING:</span>
-                        <span class="stat-value">${stats.dribbling || 0}</span>
+                        <span class="stat-value" style="color: ${getStatColor(stats.dribbling)}">${stats.dribbling || 0}</span>
                     </div>
                     <div class="player-detail-stat">
                         <span class="stat-icon">⚽</span>
                         <span class="stat-label">PASSING:</span>
-                        <span class="stat-value">${stats.passing || 0}</span>
+                        <span class="stat-value" style="color: ${getStatColor(stats.passing)}">${stats.passing || 0}</span>
                     </div>
                     <div class="player-detail-stat">
                         <span class="stat-icon">🛡️</span>
                         <span class="stat-label">DEFENDING:</span>
-                        <span class="stat-value">${stats.defending || 0}</span>
+                        <span class="stat-value" style="color: ${getStatColor(stats.defending)}">${stats.defending || 0}</span>
                     </div>
                     <div class="player-detail-stat">
                         <span class="stat-icon">💪</span>
                         <span class="stat-label">PHYSICALITY:</span>
-                        <span class="stat-value">${stats.physicality || 0}</span>
+                        <span class="stat-value" style="color: ${getStatColor(stats.physicality)}">${stats.physicality || 0}</span>
                     </div>
                     <div class="player-detail-stat">
                         <span class="stat-icon">🧤</span>
                         <span class="stat-label">GOALKEEPING:</span>
-                        <span class="stat-value">${stats.goalkeeping || 0}</span>
+                        <span class="stat-value" style="color: ${getStatColor(stats.goalkeeping)}">${stats.goalkeeping || 0}</span>
                     </div>
                 </div>
-
-                <div class="player-detail-section-title">Skills</div>
-                <div class="player-detail-skills">
-                    ${player.skills && player.skills.length > 0 ? player.skills.join(', ') : 'No special skills'}
-                </div>
+                
+                ${player.skills && player.skills.length > 0 ? `
+                    <h3 style="color: #00d4ff; margin: 20px 0 10px; font-size: 1.2em;">Skills</h3>
+                    <div style="background: rgba(10, 20, 40, 0.6); padding: 15px; border-radius: 10px; color: #ccc; font-size: 0.9em; line-height: 1.6; border: 1px solid rgba(255,255,255,0.05);">
+                        ${player.skills.join(', ')}
+                    </div>
+                ` : ''}
             </div>
         </div>
     `;
