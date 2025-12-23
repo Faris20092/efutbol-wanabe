@@ -572,789 +572,315 @@
                 height: 55px;
             }
 
-            .plate-card {
-                /* different scale for mobile? handled by slot size + pure CSS scaling */
-            }
-        }
-
-        /* PLATE CARD CSS (Miniature Version for Pitch) */
-        .plate-card-mini {
-            width: 160px;
-            /* Reference width, we scale this down */
-            height: 240px;
-            display: flex;
-            border-radius: 12px;
-            overflow: hidden;
-            position: absolute;
-            /* Absolute within slot */
-            top: 0;
-            left: 0;
-            background: #000;
-            border: 4px solid #999;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.5);
-            font-family: 'Segoe UI', sans-serif;
-            transform-origin: top left;
-            transform: scale(0.406);
-            /* 65px width / 160px = 0.406 */
-        }
-
-        .player-slot.empty .plate-card-mini {
-            display: none;
-        }
-
-        /* Border Colors */
-        .plate-card-mini[data-rarity="Iconic"] {
-            border-color: #fbcfe8;
-        }
-
-        .plate-card-mini[data-rarity="Legend"] {
-            border-color: #fef08a;
-        }
-
-        .plate-card-mini[data-rarity="Black"] {
-            border-color: #6b7280;
-        }
-
-        .plate-card-mini[data-rarity="Gold"] {
-            border-color: #fcd34d;
-        }
-
-        .plate-card-mini[data-rarity="Silver"] {
-            border-color: #e5e7eb;
-        }
-
-        .plate-left {
-            width: 38%;
-            background: linear-gradient(180deg, #1f2937, #000);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            padding-bottom: 25px;
-            border-right: 2px solid rgba(255, 255, 255, 0.15);
-            z-index: 2;
-        }
-
-        .plate-rating {
-            font-size: 3em;
-            font-weight: 900;
-            color: #fff;
-            line-height: 1;
-        }
-
-        .plate-pos {
-            font-size: 1.2em;
-            color: #fff;
-            font-weight: bold;
-        }
-
-        .plate-rarity-logo {
-            font-size: 2.5em;
-            margin-top: 10px;
-        }
-
-        .plate-right {
-            width: 62%;
-            position: relative;
-            background: #333;
-        }
-
-        /* Backgrounds */
-        .plate-card-mini[data-rarity="Iconic"] .plate-right {
-            background: linear-gradient(135deg, #be185d, #db2777);
-        }
-
-        .plate-card-mini[data-rarity="Legend"] .plate-right {
-            background: linear-gradient(135deg, #b45309, #d97706);
-        }
-
-        .plate-card-mini[data-rarity="Black"] .plate-right {
-            background: linear-gradient(135deg, #1f2937, #374151);
-        }
-
-        .plate-card-mini[data-rarity="Gold"] .plate-right {
-            background: linear-gradient(135deg, #ca8a04, #eab308);
-        }
-
-        .plate-card-mini[data-rarity="Silver"] .plate-right {
-            background: linear-gradient(135deg, #9ca3af, #d1d5db);
-        }
-
-        .plate-card-mini[data-rarity="White"] .plate-right {
-            background: #f3f4f6;
-        }
-
-        .plate-face {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            position: absolute;
-            bottom: 0;
-            right: 0;
-        }
-
-        .plate-name {
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            width: 100%;
-            background: #000;
-            color: #fff;
-            text-align: center;
-            font-size: 1.1em;
-            padding: 5px 0;
-            z-index: 20;
-            font-weight: 700;
-            text-transform: uppercase;
-        }
-
-        </head><body><div id="loading">⏳ Loading...</div><div class="gameplan-page">< !-- Left Sidebar --><div class="left-sidebar"><div class="sidebar-item" title="Manager">👤</div><div class="sidebar-item" title="Nationality">🔴</div><div class="sidebar-item" title="Home Kit" style="color: #00d4ff;">👕</div><div class="sidebar-item" title="Away Kit" style="color: #000080;">👕</div></div>< !-- Main Content --><div class="main-content"><div class="currency-bar"><div class="currency-display"><div class="currency-item"><span class="currency-icon ecoins">🪙</span><span id="topEcoins">0</span></div><div class="currency-item"><span class="currency-icon gp">G</span><span id="topGP">0</span></div></div><button class="home-btn" onclick="window.location.href='/dashboard'">🏠</button></div><div class="pitch-container"><div class="pitch-lines"><div class="center-circle"></div><div class="center-line"></div><div class="penalty-box"></div><div class="goal-box"></div></div><div class="positions-grid" id="positionsGrid"></div></div><div class="bottom-bar"><button class="back-btn" onclick="window.location.href='/my-team'">◀ Back</button><div class="bottom-actions"><button class="action-btn" onclick="autoSetSquad()" title="Auto Set">⚡</button><button class="action-btn" onclick="openFormationModal()" title="Formation">📐</button><button class="action-btn" title="Player Info">👤</button><button class="action-btn" onclick="saveSquad()" title="Save">📷</button></div></div></div>< !-- Right Sidebar --><div class="right-sidebar"><div class="stat-block"><div class="stat-label">Collective<br>Strength</div><div class="stat-value" id="collectiveStrength">0</div></div><div class="stat-block"><div class="stat-label">Team Playstyle</div><div class="playstyle-value" id="teamPlaystyle">Quick Counter</div></div><div class="stat-block"><div class="stat-label">Formation</div><div class="formation-value" id="currentFormation">4-3-3</div></div></div></div>< !-- Player Selection Modal --><div id="playerModal" class="modal"><div class="modal-content"><div class="modal-header"><h2 class="modal-title">Select Player - <span id="slotPosition">GK</span></h2><button class="modal-close" onclick="closePlayerModal()">&times;
-        </button></div><input type="text" class="filter-input" id="playerSearch" placeholder="Search players..."
-        onkeyup="filterPlayers()"><div class="players-grid" id="playersGrid"></div></div></div>< !-- Formation Modal --><div id="formationModal" class="modal"><div class="modal-content" style="max-width: 400px;"><div class="modal-header"><h2 class="modal-title">Select Formation</h2><button class="modal-close" onclick="closeFormationModal()">&times;
-        </button></div><div class="formation-grid"><button class="formation-btn" onclick="setFormation('4-3-3')">4-3-3</button><button class="formation-btn" onclick="setFormation('4-4-2')">4-4-2</button><button class="formation-btn" onclick="setFormation('3-5-2')">3-5-2</button><button class="formation-btn" onclick="setFormation('4-2-3-1')">4-2-3-1</button><button class="formation-btn" onclick="setFormation('3-4-3')">3-4-3</button><button class="formation-btn" onclick="setFormation('3-2-3-2')">3-2-3-2</button><button class="formation-btn" onclick="setFormation('5-3-2')">5-3-2</button><button class="formation-btn" onclick="setFormation('4-1-4-1')">4-1-4-1</button><button class="formation-btn" onclick="setFormation('4-5-1')">4-5-1</button></div></div></div><script>let userData=null;
-        let allPlayers=[];
-        let currentFormation='4-3-3';
-
-        let squad= {
-            main: new Array(11).fill(null), bench: []
-        }
-
-        ;
-        let selectedSlot=null;
-
-        const FORMATIONS= {
-            '4-3-3': [ {
-                pos: 'GK', x: 50, y: 88
+            .slot-rating {
+                font-size: 0.9em;
             }
 
-            ,
-            {
-            pos: 'LB', x: 15, y: 68
-        }
-
-        ,
-        {
-        pos: 'CB', x: 35, y: 73
-        }
-
-        ,
-        {
-        pos: 'CB', x: 65, y: 73
-        }
-
-        ,
-        {
-        pos: 'RB', x: 85, y: 68
-        }
-
-        ,
-        {
-        pos: 'CM', x: 30, y: 48
-        }
-
-        ,
-        {
-        pos: 'CM', x: 50, y: 43
-        }
-
-        ,
-        {
-        pos: 'CM', x: 70, y: 48
-        }
-
-        ,
-        {
-        pos: 'LW', x: 18, y: 20
-        }
-
-        ,
-        {
-        pos: 'CF', x: 50, y: 12
-        }
-
-        ,
-        {
-        pos: 'RW', x: 82, y: 20
-        }
-
-        ],
-        '4-4-2': [ {
-            pos: 'GK', x: 50, y: 88
-        }
-
-        ,
-        {
-        pos: 'LB', x: 15, y: 68
-        }
-
-        ,
-        {
-        pos: 'CB', x: 35, y: 73
-        }
-
-        ,
-        {
-        pos: 'CB', x: 65, y: 73
-        }
-
-        ,
-        {
-        pos: 'RB', x: 85, y: 68
-        }
-
-        ,
-        {
-        pos: 'LM', x: 15, y: 43
-        }
-
-        ,
-        {
-        pos: 'CM', x: 35, y: 48
-        }
-
-        ,
-        {
-        pos: 'CM', x: 65, y: 48
-        }
-
-        ,
-        {
-        pos: 'RM', x: 85, y: 43
-        }
-
-        ,
-        {
-        pos: 'CF', x: 35, y: 15
-        }
-
-        ,
-        {
-        pos: 'CF', x: 65, y: 15
-        }
-
-        ],
-        '3-5-2': [ {
-            pos: 'GK', x: 50, y: 88
-        }
-
-        ,
-        {
-        pos: 'CB', x: 25, y: 73
-        }
-
-        ,
-        {
-        pos: 'CB', x: 50, y: 76
-        }
-
-        ,
-        {
-        pos: 'CB', x: 75, y: 73
-        }
-
-        ,
-        {
-        pos: 'LM', x: 10, y: 48
-        }
-
-        ,
-        {
-        pos: 'CM', x: 30, y: 50
-        }
-
-        ,
-        {
-        pos: 'CM', x: 50, y: 45
-        }
-
-        ,
-        {
-        pos: 'CM', x: 70, y: 50
-        }
-
-        ,
-        {
-        pos: 'RM', x: 90, y: 48
-        }
-
-        ,
-        {
-        pos: 'CF', x: 35, y: 15
-        }
-
-        ,
-        {
-        pos: 'CF', x: 65, y: 15
-        }
-
-        ],
-        '4-2-3-1': [ {
-            pos: 'GK', x: 50, y: 88
-        }
-
-        ,
-        {
-        pos: 'LB', x: 15, y: 68
-        }
-
-        ,
-        {
-        pos: 'CB', x: 35, y: 73
-        }
-
-        ,
-        {
-        pos: 'CB', x: 65, y: 73
-        }
-
-        ,
-        {
-        pos: 'RB', x: 85, y: 68
-        }
-
-        ,
-        {
-        pos: 'DMF', x: 35, y: 53
-        }
-
-        ,
-        {
-        pos: 'DMF', x: 65, y: 53
-        }
-
-        ,
-        {
-        pos: 'LW', x: 18, y: 33
-        }
-
-        ,
-        {
-        pos: 'AMF', x: 50, y: 30
-        }
-
-        ,
-        {
-        pos: 'RW', x: 82, y: 33
-        }
-
-        ,
-        {
-        pos: 'CF', x: 50, y: 12
-        }
-
-        ],
-        '3-4-3': [ {
-            pos: 'GK', x: 50, y: 88
-        }
-
-        ,
-        {
-        pos: 'CB', x: 25, y: 73
-        }
-
-        ,
-        {
-        pos: 'CB', x: 50, y: 76
-        }
-
-        ,
-        {
-        pos: 'CB', x: 75, y: 73
-        }
-
-        ,
-        {
-        pos: 'LM', x: 15, y: 48
-        }
-
-        ,
-        {
-        pos: 'CM', x: 40, y: 50
-        }
-
-        ,
-        {
-        pos: 'CM', x: 60, y: 50
-        }
-
-        ,
-        {
-        pos: 'RM', x: 85, y: 48
-        }
-
-        ,
-        {
-        pos: 'LW', x: 18, y: 18
-        }
-
-        ,
-        {
-        pos: 'CF', x: 50, y: 12
-        }
-
-        ,
-        {
-        pos: 'RW', x: 82, y: 18
-        }
-
-        ],
-        '3-2-3-2': [ {
-            pos: 'GK', x: 50, y: 88
-        }
-
-        ,
-        {
-        pos: 'CB', x: 25, y: 73
-        }
-
-        ,
-        {
-        pos: 'CB', x: 50, y: 76
-        }
-
-        ,
-        {
-        pos: 'CB', x: 75, y: 73
-        }
-
-        ,
-        {
-        pos: 'DMF', x: 35, y: 55
-        }
-
-        ,
-        {
-        pos: 'DMF', x: 65, y: 55
-        }
-
-        ,
-        {
-        pos: 'LW', x: 18, y: 35
-        }
-
-        ,
-        {
-        pos: 'AMF', x: 50, y: 32
-        }
-
-        ,
-        {
-        pos: 'RW', x: 82, y: 35
-        }
-
-        ,
-        {
-        pos: 'CF', x: 35, y: 12
-        }
-
-        ,
-        {
-        pos: 'CF', x: 65, y: 12
-        }
-
-        ],
-        '5-3-2': [ {
-            pos: 'GK', x: 50, y: 88
-        }
-
-        ,
-        {
-        pos: 'LWB', x: 10, y: 62
-        }
-
-        ,
-        {
-        pos: 'CB', x: 30, y: 73
-        }
-
-        ,
-        {
-        pos: 'CB', x: 50, y: 76
-        }
-
-        ,
-        {
-        pos: 'CB', x: 70, y: 73
-        }
-
-        ,
-        {
-        pos: 'RWB', x: 90, y: 62
-        }
-
-        ,
-        {
-        pos: 'CM', x: 30, y: 45
-        }
-
-        ,
-        {
-        pos: 'CM', x: 50, y: 42
-        }
-
-        ,
-        {
-        pos: 'CM', x: 70, y: 45
-        }
-
-        ,
-        {
-        pos: 'CF', x: 35, y: 15
-        }
-
-        ,
-        {
-        pos: 'CF', x: 65, y: 15
-        }
-
-        ],
-        '4-1-4-1': [ {
-            pos: 'GK', x: 50, y: 88
-        }
-
-        ,
-        {
-        pos: 'LB', x: 15, y: 68
-        }
-
-        ,
-        {
-        pos: 'CB', x: 35, y: 73
-        }
-
-        ,
-        {
-        pos: 'CB', x: 65, y: 73
-        }
-
-        ,
-        {
-        pos: 'RB', x: 85, y: 68
-        }
-
-        ,
-        {
-        pos: 'DMF', x: 50, y: 55
-        }
-
-        ,
-        {
-        pos: 'LM', x: 15, y: 38
-        }
-
-        ,
-        {
-        pos: 'CM', x: 40, y: 40
-        }
-
-        ,
-        {
-        pos: 'CM', x: 60, y: 40
-        }
-
-        ,
-        {
-        pos: 'RM', x: 85, y: 38
-        }
-
-        ,
-        {
-        pos: 'CF', x: 50, y: 12
-        }
-
-        ],
-        '4-5-1': [ {
-            pos: 'GK', x: 50, y: 88
-        }
-
-        ,
-        {
-        pos: 'LB', x: 15, y: 68
-        }
-
-        ,
-        {
-        pos: 'CB', x: 35, y: 73
-        }
-
-        ,
-        {
-        pos: 'CB', x: 65, y: 73
-        }
-
-        ,
-        {
-        pos: 'RB', x: 85, y: 68
-        }
-
-        ,
-        {
-        pos: 'LM', x: 15, y: 43
-        }
-
-        ,
-        {
-        pos: 'CM', x: 35, y: 46
-        }
-
-        ,
-        {
-        pos: 'CM', x: 50, y: 40
-        }
-
-        ,
-        {
-        pos: 'CM', x: 65, y: 46
-        }
-
-        ,
-        {
-        pos: 'RM', x: 85, y: 43
-        }
-
-        ,
-        {
-        pos: 'CF', x: 50, y: 12
-        }
-
-        ]
-        }
-
-        ;
+            .pitch-container {
+                min-height: 280px;
+                margin: 5px;
+            }
+
+            .action-btn {
+                width: 34px;
+                height: 34px;
+                font-size: 0.9em;
+            }
+
+            .currency-item {
+                font-size: 0.85em;
+            }
+
+            .home-btn {
+                width: 32px;
+                height: 32px;
+                font-size: 1em;
+            }
+
+            .modal-content {
+                margin: 10px;
+                padding: 15px;
+            }
+
+            .players-grid {
+                grid-template-columns: repeat(auto-fill, minmax(70px, 1fr));
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div id="loading">⏳ Loading...</div>
+
+    <div class="gameplan-page">
+        <!-- Left Sidebar -->
+        <div class="left-sidebar">
+            <div class="sidebar-item" title="Manager">👤</div>
+            <div class="sidebar-item" title="Nationality">🔴</div>
+            <div class="sidebar-item" title="Home Kit" style="color: #00d4ff;">👕</div>
+            <div class="sidebar-item" title="Away Kit" style="color: #000080;">👕</div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <div class="currency-bar">
+                <div class="currency-display">
+                    <div class="currency-item">
+                        <span class="currency-icon ecoins">🪙</span>
+                        <span id="topEcoins">0</span>
+                    </div>
+                    <div class="currency-item">
+                        <span class="currency-icon gp">G</span>
+                        <span id="topGP">0</span>
+                    </div>
+                </div>
+                <button class="home-btn" onclick="window.location.href='/dashboard'">🏠</button>
+            </div>
+
+            <div class="pitch-container">
+                <div class="pitch-lines">
+                    <div class="center-circle"></div>
+                    <div class="center-line"></div>
+                    <div class="penalty-box"></div>
+                    <div class="goal-box"></div>
+                </div>
+                <div class="positions-grid" id="positionsGrid"></div>
+            </div>
+
+            <div class="bottom-bar">
+                <button class="back-btn" onclick="window.location.href='/my-team'">◀ Back</button>
+                <div class="bottom-actions">
+                    <button class="action-btn" onclick="autoSetSquad()" title="Auto Set">⚡</button>
+                    <button class="action-btn" onclick="openFormationModal()" title="Formation">📐</button>
+                    <button class="action-btn" title="Player Info">👤</button>
+                    <button class="action-btn" onclick="saveSquad()" title="Save">📷</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Sidebar -->
+        <div class="right-sidebar">
+            <div class="stat-block">
+                <div class="stat-label">Collective<br>Strength</div>
+                <div class="stat-value" id="collectiveStrength">0</div>
+            </div>
+            <div class="stat-block">
+                <div class="stat-label">Team Playstyle</div>
+                <div class="playstyle-value" id="teamPlaystyle">Quick Counter</div>
+            </div>
+            <div class="stat-block">
+                <div class="stat-label">Formation</div>
+                <div class="formation-value" id="currentFormation">4-3-3</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Player Selection Modal -->
+    <div id="playerModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">Select Player - <span id="slotPosition">GK</span></h2>
+                <button class="modal-close" onclick="closePlayerModal()">&times;</button>
+            </div>
+            <input type="text" class="filter-input" id="playerSearch" placeholder="Search players..."
+                onkeyup="filterPlayers()">
+            <div class="players-grid" id="playersGrid"></div>
+        </div>
+    </div>
+
+    <!-- Formation Modal -->
+    <div id="formationModal" class="modal">
+        <div class="modal-content" style="max-width: 400px;">
+            <div class="modal-header">
+                <h2 class="modal-title">Select Formation</h2>
+                <button class="modal-close" onclick="closeFormationModal()">&times;</button>
+            </div>
+            <div class="formation-grid">
+                <button class="formation-btn" onclick="setFormation('4-3-3')">4-3-3</button>
+                <button class="formation-btn" onclick="setFormation('4-4-2')">4-4-2</button>
+                <button class="formation-btn" onclick="setFormation('3-5-2')">3-5-2</button>
+                <button class="formation-btn" onclick="setFormation('4-2-3-1')">4-2-3-1</button>
+                <button class="formation-btn" onclick="setFormation('3-4-3')">3-4-3</button>
+                <button class="formation-btn" onclick="setFormation('3-2-3-2')">3-2-3-2</button>
+                <button class="formation-btn" onclick="setFormation('5-3-2')">5-3-2</button>
+                <button class="formation-btn" onclick="setFormation('4-1-4-1')">4-1-4-1</button>
+                <button class="formation-btn" onclick="setFormation('4-5-1')">4-5-1</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let userData = null;
+        let allPlayers = [];
+        let currentFormation = '4-3-3';
+        let squad = { main: new Array(11).fill(null), bench: [] };
+        let selectedSlot = null;
+
+        const FORMATIONS = {
+            '4-3-3': [
+                { pos: 'GK', x: 50, y: 88 },
+                { pos: 'LB', x: 15, y: 68 }, { pos: 'CB', x: 35, y: 73 }, { pos: 'CB', x: 65, y: 73 }, { pos: 'RB', x: 85, y: 68 },
+                { pos: 'CM', x: 30, y: 48 }, { pos: 'CM', x: 50, y: 43 }, { pos: 'CM', x: 70, y: 48 },
+                { pos: 'LW', x: 18, y: 20 }, { pos: 'CF', x: 50, y: 12 }, { pos: 'RW', x: 82, y: 20 }
+            ],
+            '4-4-2': [
+                { pos: 'GK', x: 50, y: 88 },
+                { pos: 'LB', x: 15, y: 68 }, { pos: 'CB', x: 35, y: 73 }, { pos: 'CB', x: 65, y: 73 }, { pos: 'RB', x: 85, y: 68 },
+                { pos: 'LM', x: 15, y: 43 }, { pos: 'CM', x: 35, y: 48 }, { pos: 'CM', x: 65, y: 48 }, { pos: 'RM', x: 85, y: 43 },
+                { pos: 'CF', x: 35, y: 15 }, { pos: 'CF', x: 65, y: 15 }
+            ],
+            '3-5-2': [
+                { pos: 'GK', x: 50, y: 88 },
+                { pos: 'CB', x: 25, y: 73 }, { pos: 'CB', x: 50, y: 76 }, { pos: 'CB', x: 75, y: 73 },
+                { pos: 'LM', x: 10, y: 48 }, { pos: 'CM', x: 30, y: 50 }, { pos: 'CM', x: 50, y: 45 }, { pos: 'CM', x: 70, y: 50 }, { pos: 'RM', x: 90, y: 48 },
+                { pos: 'CF', x: 35, y: 15 }, { pos: 'CF', x: 65, y: 15 }
+            ],
+            '4-2-3-1': [
+                { pos: 'GK', x: 50, y: 88 },
+                { pos: 'LB', x: 15, y: 68 }, { pos: 'CB', x: 35, y: 73 }, { pos: 'CB', x: 65, y: 73 }, { pos: 'RB', x: 85, y: 68 },
+                { pos: 'DMF', x: 35, y: 53 }, { pos: 'DMF', x: 65, y: 53 },
+                { pos: 'LW', x: 18, y: 33 }, { pos: 'AMF', x: 50, y: 30 }, { pos: 'RW', x: 82, y: 33 },
+                { pos: 'CF', x: 50, y: 12 }
+            ],
+            '3-4-3': [
+                { pos: 'GK', x: 50, y: 88 },
+                { pos: 'CB', x: 25, y: 73 }, { pos: 'CB', x: 50, y: 76 }, { pos: 'CB', x: 75, y: 73 },
+                { pos: 'LM', x: 15, y: 48 }, { pos: 'CM', x: 40, y: 50 }, { pos: 'CM', x: 60, y: 50 }, { pos: 'RM', x: 85, y: 48 },
+                { pos: 'LW', x: 18, y: 18 }, { pos: 'CF', x: 50, y: 12 }, { pos: 'RW', x: 82, y: 18 }
+            ],
+            '3-2-3-2': [
+                { pos: 'GK', x: 50, y: 88 },
+                { pos: 'CB', x: 25, y: 73 }, { pos: 'CB', x: 50, y: 76 }, { pos: 'CB', x: 75, y: 73 },
+                { pos: 'DMF', x: 35, y: 55 }, { pos: 'DMF', x: 65, y: 55 },
+                { pos: 'LW', x: 18, y: 35 }, { pos: 'AMF', x: 50, y: 32 }, { pos: 'RW', x: 82, y: 35 },
+                { pos: 'CF', x: 35, y: 12 }, { pos: 'CF', x: 65, y: 12 }
+            ],
+            '5-3-2': [
+                { pos: 'GK', x: 50, y: 88 },
+                { pos: 'LWB', x: 10, y: 62 }, { pos: 'CB', x: 30, y: 73 }, { pos: 'CB', x: 50, y: 76 }, { pos: 'CB', x: 70, y: 73 }, { pos: 'RWB', x: 90, y: 62 },
+                { pos: 'CM', x: 30, y: 45 }, { pos: 'CM', x: 50, y: 42 }, { pos: 'CM', x: 70, y: 45 },
+                { pos: 'CF', x: 35, y: 15 }, { pos: 'CF', x: 65, y: 15 }
+            ],
+            '4-1-4-1': [
+                { pos: 'GK', x: 50, y: 88 },
+                { pos: 'LB', x: 15, y: 68 }, { pos: 'CB', x: 35, y: 73 }, { pos: 'CB', x: 65, y: 73 }, { pos: 'RB', x: 85, y: 68 },
+                { pos: 'DMF', x: 50, y: 55 },
+                { pos: 'LM', x: 15, y: 38 }, { pos: 'CM', x: 40, y: 40 }, { pos: 'CM', x: 60, y: 40 }, { pos: 'RM', x: 85, y: 38 },
+                { pos: 'CF', x: 50, y: 12 }
+            ],
+            '4-5-1': [
+                { pos: 'GK', x: 50, y: 88 },
+                { pos: 'LB', x: 15, y: 68 }, { pos: 'CB', x: 35, y: 73 }, { pos: 'CB', x: 65, y: 73 }, { pos: 'RB', x: 85, y: 68 },
+                { pos: 'LM', x: 15, y: 43 }, { pos: 'CM', x: 35, y: 46 }, { pos: 'CM', x: 50, y: 40 }, { pos: 'CM', x: 65, y: 46 }, { pos: 'RM', x: 85, y: 43 },
+                { pos: 'CF', x: 50, y: 12 }
+            ]
+        };
 
         async function init() {
             try {
-                const response=await fetch('/api/user');
-                const data=await response.json();
-                userData=data;
+                const response = await fetch('/api/user');
+                const data = await response.json();
+                userData = data;
 
                 if (data.gameData) {
-                    document.getElementById('topGP').textContent=(data.gameData.gp || 0).toLocaleString();
-                    document.getElementById('topEcoins').textContent=(data.gameData.eCoins || 0).toLocaleString();
+                    document.getElementById('topGP').textContent = (data.gameData.gp || 0).toLocaleString();
+                    document.getElementById('topEcoins').textContent = (data.gameData.eCoins || 0).toLocaleString();
 
-                    allPlayers=data.gameData.players || [];
-                    currentFormation=data.gameData.formation || '4-3-3';
+                    allPlayers = data.gameData.players || [];
+                    currentFormation = data.gameData.formation || '4-3-3';
 
                     if (data.gameData.squad?.main) {
-                        squad.main=data.gameData.squad.main.slice(0, 11);
+                        squad.main = data.gameData.squad.main.slice(0, 11);
                         while (squad.main.length < 11) squad.main.push(null);
                     }
-
                     if (data.gameData.squad?.bench) {
-                        squad.bench=data.gameData.squad.bench;
+                        squad.bench = data.gameData.squad.bench;
                     }
 
-                    document.getElementById('currentFormation').textContent=currentFormation;
+                    document.getElementById('currentFormation').textContent = currentFormation;
                     updateFormationButtons();
                     renderPitch();
                     updateStats();
                 }
 
-                document.getElementById('loading').style.display='none';
-            }
-
-            catch (error) {
+                document.getElementById('loading').style.display = 'none';
+            } catch (error) {
                 console.error('Init error:', error);
-                document.getElementById('loading').innerHTML='❌ Error. <a href="/login" style="color:#00d4ff;">Login</a>';
+                document.getElementById('loading').innerHTML = '❌ Error. <a href="/login" style="color:#00d4ff;">Login</a>';
             }
         }
 
         function renderPitch() {
-            const grid=document.getElementById('positionsGrid');
-            const positions=FORMATIONS[currentFormation] || FORMATIONS['4-3-3'];
+            const grid = document.getElementById('positionsGrid');
+            const positions = FORMATIONS[currentFormation] || FORMATIONS['4-3-3'];
 
-            grid.innerHTML=positions.map((p, i)=> {
-                    const playerId=squad.main[i];
-                    const player=playerId ? allPlayers.find(pl=> pl.id===playerId) : null;
+            grid.innerHTML = positions.map((p, i) => {
+                const playerId = squad.main[i];
+                const player = playerId ? allPlayers.find(pl => pl.id === playerId) : null;
 
-                    if (player) {
-                        const playerImageName=player.name.replace(/[^a-zA-Z0-9\-_]/g, '_').toLowerCase().replace(/_+/g, '_').replace(/_+$/g, '');
-
-                        const playerImagePng=`/assets/playerimages/$ {
-                            playerImageName
-                        }
-
-                        .png`;
-
-                        return ` <div class="player-slot" style="left: ${p.x}%; top: ${p.y}%;" onclick="openPlayerModal(${i})" > <div class="plate-card-mini" data-rarity="${player.rarity || 'Base'}" > <div class="plate-left" > <div class="plate-rating" >$ {
-                            player.overall || 0
-                        }
-
-                        </div> <div class="plate-pos" >$ {
-                            p.pos
-                        }
-
-                        </div> <div class="plate-rarity-logo" >$ {
-                            RARITY_EMOJIS[player.rarity] || '💎'
-                        }
-
-                        </div> </div> <div class="plate-right" > <img src="${playerImagePng}" class="plate-face"
-
-                        onerror="this.src='/assets/playerimages/default_player.png'" > </div> <div class="plate-name" >$ {
-                            truncateName(player.name)
-                        }
-
-                        </div> </div> </div> `;
-                    }
-
-                    else {
-                        return ` <div class="player-slot empty" style="left: ${p.x}%; top: ${p.y}%;" onclick="openPlayerModal(${i})" > <div class="slot-pos" >$ {
-                            p.pos
-                        }
-
-                        </div> <div class="slot-icon" >➕</div> </div> `;
-                    }
-                }).join('');
+                if (player) {
+                    return `
+                        <div class="player-slot" style="left: ${p.x}%; top: ${p.y}%;" onclick="openPlayerModal(${i})">
+                            <div class="slot-pos">${p.pos}</div>
+                            <div class="slot-rating">${player.overall || 0}</div>
+                            <div class="slot-name">${player.name?.split(' ').pop() || 'Player'}</div>
+                            <span class="slot-flag">🏴</span>
+                        </div>
+                    `;
+                } else {
+                    return `
+                        <div class="player-slot empty" style="left: ${p.x}%; top: ${p.y}%;" onclick="openPlayerModal(${i})">
+                            <div class="slot-pos">${p.pos}</div>
+                            <div class="slot-icon">➕</div>
+                        </div>
+                    `;
+                }
+            }).join('');
         }
 
         function openPlayerModal(slotIndex) {
-            selectedSlot=slotIndex;
-            const positions=FORMATIONS[currentFormation];
-            document.getElementById('slotPosition').textContent=positions[slotIndex].pos;
+            selectedSlot = slotIndex;
+            const positions = FORMATIONS[currentFormation];
+            document.getElementById('slotPosition').textContent = positions[slotIndex].pos;
             document.getElementById('playerModal').classList.add('active');
-            document.getElementById('playerSearch').value='';
+            document.getElementById('playerSearch').value = '';
             renderPlayersGrid();
         }
 
         function closePlayerModal() {
             document.getElementById('playerModal').classList.remove('active');
-            selectedSlot=null;
+            selectedSlot = null;
         }
 
         function renderPlayersGrid() {
-            const grid=document.getElementById('playersGrid');
-            const search=document.getElementById('playerSearch').value.toLowerCase();
+            const grid = document.getElementById('playersGrid');
+            const search = document.getElementById('playerSearch').value.toLowerCase();
 
-            const usedIds=squad.main.filter(id=> id);
-            const available=allPlayers.filter(p=> !usedIds.includes(p.id) && (p.name?.toLowerCase().includes(search) || !search)).sort((a, b)=> (b.overall || 0) - (a.overall || 0));
+            const usedIds = squad.main.filter(id => id);
+            const available = allPlayers.filter(p =>
+                !usedIds.includes(p.id) &&
+                (p.name?.toLowerCase().includes(search) || !search)
+            ).sort((a, b) => (b.overall || 0) - (a.overall || 0));
 
-            if (available.length===0) {
-                grid.innerHTML='<p style="color: rgba(255,255,255,0.5); text-align: center; grid-column: 1/-1;">No available players</p>';
+            if (available.length === 0) {
+                grid.innerHTML = '<p style="color: rgba(255,255,255,0.5); text-align: center; grid-column: 1/-1;">No available players</p>';
                 return;
             }
 
-            grid.innerHTML=available.map(p=> ` <div class="player-card-select" onclick="selectPlayer('${p.id}')" > <div class="rating" >$ {
-                    p.overall || 0
-                }
-
-                </div> <div class="pos" >$ {
-                    p.position || 'N/A'
-                }
-
-                </div> <div class="name" >$ {
-                    p.name
-                }
-
-                </div> </div> `).join('');
+            grid.innerHTML = available.map(p => `
+                <div class="player-card-select" onclick="selectPlayer('${p.id}')">
+                    <div class="rating">${p.overall || 0}</div>
+                    <div class="pos">${p.position || 'N/A'}</div>
+                    <div class="name">${p.name}</div>
+                </div>
+            `).join('');
         }
 
-        function filterPlayers() {
-            renderPlayersGrid();
-        }
+        function filterPlayers() { renderPlayersGrid(); }
 
         function selectPlayer(playerId) {
-            if (selectedSlot !==null) {
-                squad.main[selectedSlot]=playerId;
+            if (selectedSlot !== null) {
+                squad.main[selectedSlot] = playerId;
                 renderPitch();
                 updateStats();
                 closePlayerModal();
@@ -1371,103 +897,78 @@
         }
 
         function updateFormationButtons() {
-            document.querySelectorAll('.formation-btn').forEach(btn=> {
-                    btn.classList.toggle('active', btn.textContent===currentFormation);
-                });
+            document.querySelectorAll('.formation-btn').forEach(btn => {
+                btn.classList.toggle('active', btn.textContent === currentFormation);
+            });
         }
 
         function setFormation(formation) {
-            currentFormation=formation;
-            document.getElementById('currentFormation').textContent=formation;
+            currentFormation = formation;
+            document.getElementById('currentFormation').textContent = formation;
             updateFormationButtons();
             renderPitch();
             closeFormationModal();
         }
 
         function updateStats() {
-            let total=0,
-            count=0;
+            let total = 0, count = 0;
+            squad.main.forEach(id => {
+                if (id) {
+                    const player = allPlayers.find(p => p.id === id);
+                    if (player) { total += player.overall || 0; count++; }
+                }
+            });
 
-            squad.main.forEach(id=> {
-                    if (id) {
-                        const player=allPlayers.find(p=> p.id===id);
+            const strength = count > 0 ? Math.round(total * count / 11 * 3) : 0;
+            document.getElementById('collectiveStrength').textContent = strength;
 
-                        if (player) {
-                            total +=player.overall || 0; count++;
-                        }
-                    }
-                });
-
-            const strength=count>0 ? Math.round(total * count / 11 * 3) : 0;
-            document.getElementById('collectiveStrength').textContent=strength;
-
-            const styles=['Quick Counter',
-            'Possession',
-            'Long Ball',
-            'Out Wide'];
-            document.getElementById('teamPlaystyle').textContent=styles[count % 4];
+            const styles = ['Quick Counter', 'Possession', 'Long Ball', 'Out Wide'];
+            document.getElementById('teamPlaystyle').textContent = styles[count % 4];
         }
 
         async function autoSetSquad() {
             try {
-                const response=await fetch('/api/squad/autoset', {
-
+                const response = await fetch('/api/squad/autoset', {
                     method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    }
+                    headers: { 'Content-Type': 'application/json' }
                 });
-            const data=await response.json();
-
-            if (data.success) {
-                squad.main=data.squad.main;
-                squad.bench=data.squad.bench;
-                renderPitch();
-                updateStats();
-                alert('Squad auto-set!');
+                const data = await response.json();
+                if (data.success) {
+                    squad.main = data.squad.main;
+                    squad.bench = data.squad.bench;
+                    renderPitch();
+                    updateStats();
+                    alert('Squad auto-set!');
+                } else {
+                    alert(data.error || 'Failed');
+                }
+            } catch (error) {
+                console.error('Auto-set error:', error);
+                alert('Failed to auto-set');
             }
-
-            else {
-                alert(data.error || 'Failed');
-            }
-        }
-
-        catch (error) {
-            console.error('Auto-set error:', error);
-            alert('Failed to auto-set');
-        }
         }
 
         async function saveSquad() {
             try {
-                const response=await fetch('/api/squad', {
-
+                const response = await fetch('/api/squad', {
                     method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    }
-
-                    ,
-                    body: JSON.stringify({
-                        squad, formation: currentFormation
-                    })
-            });
-        const data=await response.json();
-
-        if (data.success) {
-            alert('Squad saved!');
-        }
-
-        else {
-            alert(data.error || 'Failed');
-        }
-        }
-
-        catch (error) {
-            console.error('Save error:', error);
-            alert('Failed to save');
-        }
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ squad, formation: currentFormation })
+                });
+                const data = await response.json();
+                if (data.success) {
+                    alert('Squad saved!');
+                } else {
+                    alert(data.error || 'Failed');
+                }
+            } catch (error) {
+                console.error('Save error:', error);
+                alert('Failed to save');
+            }
         }
 
         document.addEventListener('DOMContentLoaded', init);
-        </script></body></html>
+    </script>
+</body>
+
+</html>

@@ -179,25 +179,28 @@ function openPackModal(packKey) {
         const playerImagePng = `/assets/playerimages/${playerImageName}.png`;
 
         const card = document.createElement('div');
-        // Wrapper styling - Flexible but fixed height
-        card.style.flex = "0 0 160px";
-        card.style.height = "250px";
+        // Wrapper styling
+        card.style.flex = "0 0 180px";
+        // Let CSS handle height via aspect-ratio on child
         card.style.cursor = "pointer";
         card.onclick = () => showPlayerDetails(player);
 
-        // PLATE CARD STRUCTURE
         card.innerHTML = `
-            <div class="plate-card" data-rarity="${player.rarity || 'Base'}">
-                <div class="plate-left">
-                    <div class="plate-rating">${player.overall || 0}</div>
-                    <div class="plate-pos">${player.position || 'CMF'}</div>
-                    <div class="plate-rarity-logo">${RARITY_EMOJIS[player.rarity] || '💎'}</div>
+            <div class="efball-list-card" data-rarity="${player.rarity || 'Base'}">
+                <div class="list-card-content">
+                    <div class="list-card-left">
+                        <div class="list-card-rating">${player.overall || 0}</div>
+                        <div class="list-card-pos">${player.position || 'CMF'}</div>
+                        <div class="list-card-logo">${RARITY_EMOJIS[player.rarity] || '💎'}</div>
+                    </div>
+                    <div class="list-card-right">
+                        <img src="${playerImagePng}" class="list-card-image" 
+                             onerror="this.src='/assets/playerimages/default_player.png'">
+                    </div>
                 </div>
-                <div class="plate-right">
-                    <img src="${playerImagePng}" class="plate-face" 
-                         onerror="this.src='/assets/playerimages/default_player.png'">
+                <div class="list-card-name-bar">
+                    ${truncateName(player.name)}
                 </div>
-                <div class="plate-name">${truncateName(player.name)}</div>
             </div>
         `;
 
@@ -233,24 +236,23 @@ function showAllPlayers() {
         const playerImageName = player.name.replace(/[^a-zA-Z0-9\-_]/g, '_').toLowerCase().replace(/_+/g, '_').replace(/_+$/g, '');
         const playerImagePng = `/assets/playerimages/${playerImageName}.png`;
 
-        const card = document.createElement('div');
-        // Wrapper style
-        card.style.cursor = 'pointer';
-        card.onclick = () => showPlayerDetails(player);
-
-        // Use plate-card scaled down for grid
+        // Use efball-list-card for grid view
         card.innerHTML = `
-            <div class="plate-card" data-rarity="${player.rarity || 'Base'}" style="width: 100%; aspect-ratio: 160/250;">
-                <div class="plate-left">
-                    <div class="plate-rating" style="font-size: 1.8em;">${player.overall || 0}</div>
-                    <div class="plate-pos" style="font-size: 0.85em;">${player.position || 'CMF'}</div>
-                    <div class="plate-rarity-logo" style="font-size: 1.4em;">${RARITY_EMOJIS[player.rarity] || '💎'}</div>
+            <div class="efball-list-card" data-rarity="${player.rarity || 'Base'}">
+                <div class="list-card-content">
+                    <div class="list-card-left">
+                        <div class="list-card-rating">${player.overall || 0}</div>
+                        <div class="list-card-pos">${player.position || 'CMF'}</div>
+                        <div class="list-card-logo">${RARITY_EMOJIS[player.rarity] || '💎'}</div>
+                    </div>
+                    <div class="list-card-right">
+                        <img src="${playerImagePng}" class="list-card-image" 
+                             onerror="this.src='/assets/playerimages/default_player.png'">
+                    </div>
                 </div>
-                <div class="plate-right">
-                    <img src="${playerImagePng}" class="plate-face" 
-                         onerror="this.src='/assets/playerimages/default_player.png'">
+                <div class="list-card-name-bar">
+                    ${truncateName(player.name)}
                 </div>
-                <div class="plate-name" style="font-size: 0.7em;">${truncateName(player.name)}</div>
             </div>
         `;
         grid.appendChild(card);
@@ -280,18 +282,14 @@ function showPlayerDetails(player) {
     content.innerHTML = `
         <div class="player-detail-container">
             <div class="player-detail-left">
-                <!-- Unified Design Card (Plate Style) -->
-                <div class="plate-card" data-rarity="${player.rarity || 'Base'}" style="width: 100%; max-width: 320px; height: 480px;">
-                    <div class="plate-left" style="width: 38%;">
-                        <div class="plate-rating" style="font-size: 3em;">${player.overall || 0}</div>
-                        <div class="plate-pos" style="font-size: 1.4em; padding: 4px 10px;">${player.position || 'CMF'}</div>
-                        <div class="plate-rarity-logo" style="font-size: 2.5em; margin-top: 15px;">${RARITY_EMOJIS[player.rarity] || '💎'}</div>
-                    </div>
-                    <div class="plate-right" style="width: 62%;">
-                        <img src="${playerImagePng}" class="plate-face" 
-                             onerror="this.src='/assets/playerimages/default_player.png'">
-                    </div>
-                    <div class="plate-name" style="font-size: 1.2em; padding: 8px 0;">${player.name}</div>
+                <!-- Unified Design Card (Standard Size 240x340 controlled by CSS class) -->
+                <div class="player-detail-card" data-rarity="${player.rarity || 'Base'}">
+                    <div class="player-card-position">${player.position || 'CMF'}</div>
+                    <div class="player-card-rating">${player.overall || 0}</div>
+                    <div class="player-card-rarity">${RARITY_EMOJIS[player.rarity] || '💎'}</div>
+                    <img src="${playerImagePng}" class="player-detail-image" 
+                         onerror="this.src='/assets/playerimages/default_player.png'">
+                    <div class="player-card-rarity-bottom">${player.rarity || 'Standard'}</div>
                 </div>
                 
                 <div style="margin-top: 20px; color: #4ade80; font-size: 1.1em; font-weight: bold; text-align: center;">
