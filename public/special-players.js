@@ -115,19 +115,19 @@ function renderPackCarousel() {
             const rarityClass = player.rarity === 'Iconic' ? 'iconic' :
                 player.rarity === 'Legend' ? 'legend' : '';
 
-            // Use playerimages (full cutout) instead of faces for better quality
+            // Use faces for carousel as requested
             const playerImageName = player.name.replace(/[^a-zA-Z0-9\-_]/g, '_').toLowerCase().replace(/_+/g, '_').replace(/_+$/g, '');
-            const playerImagePng = `/assets/playerimages/${playerImageName}.png`;
-            const playerImageJpg = `/assets/playerimages/${playerImageName}.jpg`;
+            const playerImagePng = `/assets/faces/${playerImageName}.png`;
+            const playerImageJpg = `/assets/faces/${playerImageName}.jpg`;
 
-            // Adjust styles for full image display within the small card
+            // Adjust styles for face display within the small card
             playersHtml += `
                 <div class="featured-player ${rarityClass}" style="position: relative; overflow: hidden;">
                     <div class="player-rating" style="position: relative; z-index: 2;">${player.overall || 0}</div>
                     <div class="player-position" style="position: relative; z-index: 2;">${player.position || '-'}</div>
                     <img src="${playerImagePng}" 
-                         style="position: absolute; bottom: -10px; right: -10px; height: 120%; width: auto; opacity: 0.8; z-index: 1;"
-                         onerror="this.style.display='none'">
+                         style="position: absolute; bottom: 0; right: 0; height: 60px; width: auto; z-index: 1;"
+                         onerror="this.src='/assets/faces/default_player.png'">
                     <div class="player-name-small" style="position: relative; z-index: 2;">${truncateName(player.name)}</div>
                 </div>
             `;
@@ -178,17 +178,18 @@ function openPackModal(packKey) {
             player.rarity === 'Legend' ? 'legend' : '';
         const playerCard = document.createElement('div');
         playerCard.className = `modal-player-card ${rarityClass}`;
-        // Use full image for modal cards too
+        // Use full image for modal cards (full body)
         const playerImageName = player.name.replace(/[^a-zA-Z0-9\-_]/g, '_').toLowerCase().replace(/_+/g, '_').replace(/_+$/g, '');
         const playerImagePng = `/assets/playerimages/${playerImageName}.png`;
 
+        // Increased height/width in CSS, ensure image fits
         playerCard.innerHTML = `
-            <div class="modal-player-rating" style="position:relative; z-index:2;">${player.overall || 0}</div>
-            <div class="modal-player-pos" style="position:relative; z-index:2;">${player.position || '-'}</div>
+            <div class="modal-player-rating" style="position:relative; z-index:2; font-size: 1.4em;">${player.overall || 0}</div>
+            <div class="modal-player-pos" style="position:relative; z-index:2; font-size: 0.9em; margin-top: 0;">${player.position || '-'}</div>
             <img src="${playerImagePng}" 
-                 style="position: absolute; bottom: 0; right: -5px; height: 90px; width: auto; z-index: 1;"
-                 onerror="this.style.display='none'">
-            <div class="modal-player-name" style="position:relative; z-index:2;">${truncateName(player.name)}</div>
+                 style="position: absolute; bottom: 0; right: -10px; height: 110%; width: auto; z-index: 1; pointer-events: none;"
+                 onerror="this.src='/assets/playerimages/default_player.png'">
+            <div class="modal-player-name" style="position:relative; z-index:2; bottom: 5px;">${truncateName(player.name)}</div>
         `;
 
         // Make clickable
