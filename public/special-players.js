@@ -111,28 +111,14 @@ function renderPackCarousel() {
         packEl.onclick = () => openPackModal(key);
 
         let playersHtml = '';
-        topPlayers.forEach(player => {
-            const rarity = player.rarity || 'White';
-            const rarityClass = rarity.toLowerCase();
-
-            // Use faces for carousel as requested
-            const playerImageName = player.name.replace(/[^a-zA-Z0-9\-_]/g, '_').toLowerCase().replace(/_+/g, '_').replace(/_+$/g, '');
-            const playerImagePng = `/assets/faces/${playerImageName}.png`;
-            const playerImageJpg = `/assets/faces/${playerImageName}.jpg`;
-
-            // Adjust styles for face display within the small card
-            playersHtml += `
-                <div class="featured-player ${rarityClass}" style="position: relative; overflow: hidden;">
-                    <div style="position: absolute; top: 8px; left: 8px; z-index: 2;">
-                        <div class="player-position" style="margin-bottom: 2px;">${player.position || '-'}</div>
-                        <div class="player-rating">${player.overall || 0}</div>
-                    </div>
-                    <img src="${playerImagePng}" 
-                         style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; z-index: 1;"
-                         onerror="this.src='/assets/faces/default_player.png'">
-                </div>
-            `;
-        });
+        
+        // Display contract banner
+        playersHtml = `
+            <div class="featured-player">
+                <img src="/assets/contractbanner/contractbanner.png" 
+                     onerror="this.src='/assets/contractbanner/contractbanner.jpg'">
+            </div>
+        `;
 
         packEl.innerHTML = `
             <div class="pack-type">${pack.type}</div>
