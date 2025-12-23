@@ -271,10 +271,10 @@ async function buyPack(count) {
 async function showPackResultWithAnimation(players, packType, count) {
     const modal = document.getElementById('packResultModal');
     const content = document.getElementById('packResultContent');
-    
+
     // Show modal first
     modal.style.display = 'flex';
-    
+
     // Step 1: Show opening text
     content.innerHTML = `
         <div style="width: 100%; text-align: center; padding: 40px;">
@@ -284,14 +284,14 @@ async function showPackResultWithAnimation(players, packType, count) {
             <div style="font-size: 1.2em; color: #fff;">Preparing your cards...</div>
         </div>
     `;
-    
+
     await delay(1000);
-    
+
     // Step 2: Show rarity GIF animation (10 seconds)
     // Get the highest rarity from pulled players
     const rarities = ['Iconic', 'Legend', 'Black', 'Gold', 'Silver', 'Bronze', 'White'];
     const highestRarity = rarities.find(r => players.some(p => p.rarity === r)) || 'White';
-    
+
     content.innerHTML = `
         <div style="width: 100%; text-align: center;">
             <h2 style="color: var(--secondary); font-size: 2em; margin-bottom: 20px;">
@@ -306,9 +306,9 @@ async function showPackResultWithAnimation(players, packType, count) {
             </div>
         </div>
     `;
-    
+
     await delay(10000);
-    
+
     // Step 3: Reveal all cards in a grid
     if (count === 1) {
         // Single card - large display
@@ -338,10 +338,10 @@ function showSingleCard(content, player) {
                 <div class="player-name" style="font-size: 1.5em; font-weight: bold;" title="${player.name}">
                     ${player.name}
                 </div>
-                ${player.isDuplicate ? 
-                    '<div style="color: #f59e0b; font-size: 1em; margin-top: 10px;">💰 Duplicate - Converted to GP</div>' : 
-                    '<div style="color: #10b981; font-size: 1em; margin-top: 10px;">✨ NEW!</div>'
-                }
+                ${player.isDuplicate ?
+            '<div style="color: #f59e0b; font-size: 1em; margin-top: 10px;">💰 Duplicate - Converted to GP</div>' :
+            '<div style="color: #10b981; font-size: 1em; margin-top: 10px;">✨ NEW!</div>'
+        }
             </div>
         </div>
     `;
@@ -350,7 +350,7 @@ function showSingleCard(content, player) {
 // Show multiple cards in grid
 function showMultipleCards(content, players) {
     const gridColumns = players.length <= 3 ? players.length : players.length <= 6 ? 3 : players.length <= 9 ? 3 : 5;
-    
+
     content.innerHTML = `
         <div style="width: 100%; text-align: center;">
             <h2 style="color: var(--secondary); font-size: 2em; margin-bottom: 20px;">
@@ -368,10 +368,10 @@ function showMultipleCards(content, players) {
                         <div class="player-name" style="font-size: 0.9em;" title="${player.name}">
                             ${player.name}
                         </div>
-                        ${player.isDuplicate ? 
-                            '<div style="color: #f59e0b; font-size: 0.75em;">💰 +GP</div>' : 
-                            '<div style="color: #10b981; font-size: 0.75em;">✨ NEW</div>'
-                        }
+                        ${player.isDuplicate ?
+            '<div style="color: #f59e0b; font-size: 0.75em;">💰 +GP</div>' :
+            '<div style="color: #10b981; font-size: 0.75em;">✨ NEW</div>'
+        }
                     </div>
                 `).join('')}
             </div>
@@ -437,13 +437,13 @@ function showPackInfoModal() {
         <h3 style="color: var(--secondary); margin: 20px 0 15px;">📊 Drop Rates</h3>
         <div style="background: rgba(0,0,51,0.4); border-radius: 10px; padding: 15px;">
             ${Object.entries(packConfig.rarity_chances)
-                .filter(([_, chance]) => chance > 0)
-                .sort((a, b) => b[1] - a[1])
-                .map(([rarity, chance]) => {
-                    const percentage = (chance * 100).toFixed(2);
-                    const count = rarityCount[rarity] || 0;
-                    const emoji = RARITY_EMOJIS[rarity] || '⚽';
-                    return `
+            .filter(([_, chance]) => chance > 0)
+            .sort((a, b) => b[1] - a[1])
+            .map(([rarity, chance]) => {
+                const percentage = (chance * 100).toFixed(2);
+                const count = rarityCount[rarity] || 0;
+                const emoji = RARITY_EMOJIS[rarity] || '⚽';
+                return `
                         <div style="display: flex; justify-content: space-between; align-items: center; padding: 12px; 
                                     border-bottom: 1px solid rgba(255,255,255,0.1); margin-bottom: 8px;">
                             <div style="display: flex; align-items: center; gap: 10px;">
@@ -457,7 +457,7 @@ function showPackInfoModal() {
                             </div>
                         </div>
                     `;
-                }).join('')}
+            }).join('')}
         </div>
 
         <div style="margin-top: 20px; padding: 15px; background: rgba(0,20,220,0.2); border-radius: 10px; border: 1px solid rgba(255,237,0,0.3);">
@@ -608,10 +608,9 @@ function renderPlayers() {
         card.onclick = () => showPlayerDetails(player);
         card.style.cursor = 'pointer';
 
-        // Sanitize player name for image
-        const playerImageName = player.name.replace(/[^a-zA-Z0-9\-_]/g, '_').toLowerCase().replace(/_+/g, '_').replace(/_+$/g, '');
-        const playerImagePng = `/assets/faces/${playerImageName}.png`;
-        const playerImageJpg = `/assets/faces/${playerImageName}.jpg`;
+        // Get player image from local assets using player ID
+        const playerImagePng = `/assets/faces/${player.id}.png`;
+        const playerImageJpg = `/assets/faces/${player.id}.jpg`;
 
         card.innerHTML = `
             <div class="player-image-container">
@@ -636,9 +635,8 @@ function showPlayerDetails(player) {
     const stats = player.stats || {};
     const isOwned = ownedPlayerIds.includes(player.id);
 
-    // Get player full image path (240x340 images)
-    const sanitizedName = player.name.replace(/[^a-zA-Z0-9\-_]/g, '_').toLowerCase().replace(/_+/g, '_').replace(/_+$/g, '');
-    const playerImagePath = `/assets/playerimages/${sanitizedName}.png`;
+    // Get player full image path using player ID
+    const playerImagePath = `/assets/playerimages/${player.id}.png`;
 
     // Rarity icons
     const rarityIcons = {

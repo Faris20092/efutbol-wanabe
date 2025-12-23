@@ -111,7 +111,7 @@ function renderPackCarousel() {
         packEl.onclick = () => openPackModal(key);
 
         let playersHtml = '';
-        
+
         // Display contract banner
         playersHtml = `
             <div class="featured-player">
@@ -161,9 +161,8 @@ function openPackModal(packKey) {
     featuredContainer.innerHTML = '';
 
     topPlayers.forEach((player, index) => {
-        // Use full image for modal cards (full body)
-        const playerImageName = player.name.replace(/[^a-zA-Z0-9\-_]/g, '_').toLowerCase().replace(/_+/g, '_').replace(/_+$/g, '');
-        const playerImagePng = `/assets/playerimages/${playerImageName}.png`;
+        // Use full image for modal cards using player ID
+        const playerImagePng = `/assets/playerimages/${player.id}.png`;
 
         // CSS Class logic for rarity
         let rarityClass = 'base'; // Default
@@ -218,8 +217,8 @@ function showAllPlayers() {
     grid.innerHTML = '';
 
     players.forEach(player => {
-        const playerImageName = player.name.replace(/[^a-zA-Z0-9\-_]/g, '_').toLowerCase().replace(/_+/g, '_').replace(/_+$/g, '');
-        const playerImagePng = `/assets/playerimages/${playerImageName}.png`;
+        // Use full image using player ID
+        const playerImagePng = `/assets/playerimages/${player.id}.png`;
 
         const card = document.createElement('div');
         // Wrapper style
@@ -261,8 +260,8 @@ function showPlayerDetails(player) {
     const stats = player.stats || {};
     const isOwned = ownedPlayerIds.includes(player.id);
 
-    const playerImageName = player.name.replace(/[^a-zA-Z0-9\-_]/g, '_').toLowerCase().replace(/_+/g, '_').replace(/_+$/g, '');
-    const playerImagePng = `/assets/playerimages/${playerImageName}.png`;
+    // Use full image using player ID
+    const playerImagePng = `/assets/playerimages/${player.id}.png`;
 
     content.innerHTML = `
         <div class="player-detail-container">
@@ -429,9 +428,8 @@ function showPackResult(players) {
             'White': 'linear-gradient(135deg, rgba(200,200,200,0.8), rgba(150,150,150,0.9))'
         };
 
-        // Use faces for result cards as it matches the style
-        const playerImageName = player.name.replace(/[^a-zA-Z0-9\-_]/g, '_').toLowerCase().replace(/_+/g, '_').replace(/_+$/g, '');
-        const playerImagePng = `/assets/faces/${playerImageName}.png`;
+        // Use faces for result cards using player ID
+        const playerImagePng = `/assets/faces/${player.id}.png`;
 
         resultHtml += `
             <div style="background:${rarityColors[player.rarity] || rarityColors['White']};padding:15px;border-radius:12px;text-align:center;min-width:120px;">
