@@ -413,333 +413,260 @@ async function buyPack(count) {
 }
 
 // ==========================================
-// SPINNING BALL ANIMATION SYSTEM
+// EFW MOBILE CONTRACT ANIMATION SYSTEM
 // ==========================================
 
-// Get ball style for each rarity
-function getBallStyle(rarity) {
-    const styles = {
-        'Iconic': {
-            background: 'radial-gradient(circle at 30% 30%, #ff69b4 0%, #db0a5b 50%, #8b008b 100%)',
-            border: '3px solid #ff1493',
-            glow: '0 0 20px rgba(255, 20, 147, 0.8)'
-        },
-        'Legend': {
-            background: 'radial-gradient(circle at 30% 30%, #ffd700 0%, #daa520 50%, #8b6508 100%)',
-            border: '3px solid #ffd700',
-            glow: '0 0 20px rgba(255, 215, 0, 0.8)'
-        },
-        'Black': {
-            background: 'radial-gradient(circle at 30% 30%, #4a4a4a 0%, #2a2a2a 50%, #0a0a0a 100%)',
-            border: '3px solid #555',
-            glow: '0 0 20px rgba(80, 80, 80, 0.8)'
-        },
-        'Gold': {
-            background: 'radial-gradient(circle at 30% 30%, #ffc300 0%, #b8860b 50%, #8b6508 100%)',
-            border: '3px solid #ffc300',
-            glow: '0 0 20px rgba(255, 195, 0, 0.8)'
-        },
-        'Silver': {
-            background: 'radial-gradient(circle at 30% 30%, #e0e0e0 0%, #a0a0a0 50%, #707070 100%)',
-            border: '3px solid #c0c0c0',
-            glow: '0 0 20px rgba(192, 192, 192, 0.8)'
-        },
-        'Bronze': {
-            background: 'radial-gradient(circle at 30% 30%, #e67e22 0%, #cd7f32 50%, #8b4513 100%)',
-            border: '3px solid #cd7f32',
-            glow: '0 0 20px rgba(205, 127, 50, 0.8)'
-        },
-        'White': {
-            background: 'radial-gradient(circle at 30% 30%, #ffffff 0%, #e0e0e0 50%, #c0c0c0 100%)',
-            border: '3px solid #fff',
-            glow: '0 0 20px rgba(255, 255, 255, 0.6)'
-        }
-    };
-    return styles[rarity] || styles['White'];
-}
+// Global state for animation
+let efwState = {
+    speed: 40,
+    offset: 0,
+    isSpinning: false,
+    isDecelerating: false,
+    targetRarity: null,
+    animationId: null,
+    wonPlayers: []
+};
 
-// Create a ball element for the horizontal track
-function createTrackBall(rarity) {
-    const style = getBallStyle(rarity);
-    return `
-        <div class="track-ball" data-rarity="${rarity}" style="
-            width: 70px;
-            height: 70px;
-            border-radius: 50%;
-            background: ${style.background};
-            border: ${style.border};
-            box-shadow: ${style.glow};
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: 900;
-            font-size: 0.9em;
-            color: ${rarity === 'White' || rarity === 'Silver' ? '#333' : '#fff'};
-            text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
-            flex-shrink: 0;
-            margin: 0 8px;
-        ">EFW</div>
-    `;
-}
+// RARITY CONFIGURATION
+const RARITY_STYLES = {
+    'Iconic': { color: '#db0a5b' },
+    'Legend': { color: '#ffd700' },
+    'Black': { color: '#ffffff' },
+    'Gold': { color: '#f1c40f' },
+    'Silver': { color: '#bdc3c7' },
+    'Bronze': { color: '#cd7f32' },
+    'White': { color: '#fff' }
+};
 
-// Utility delay function
-function delay(ms) {
-    return new Promise(resolve => setTimeout(resolve, ms));
-}
+// Create a ball element
+function createBallElement(forcedRarity = null) {
+    const el = document.createElement('div');
+    let type = forcedRarity;
 
-// Global skip flag
-let skipAnimation = false;
-let spinnerAnimationId = null;
-
-// Wait for skip or delay
-async function waitForSkipOrDelay(ms) {
-    const checkInterval = 100;
-    let elapsed = 0;
-    while (elapsed < ms && !skipAnimation) {
-        await delay(checkInterval);
-        elapsed += checkInterval;
+    if (!type) {
+        // Weighted random filler balls
+        const r = Math.random();
+        if (r > 0.95) type = 'Black';
+        else if (r > 0.85) type = 'Gold';
+        else if (r > 0.5) type = 'Silver';
+        else type = 'Bronze';
     }
-    skipAnimation = false;
+
+    el.className = 'efw-ball';
+    el.dataset.rarity = type; // Used by CSS attribute selector
+    el.innerText = "EFW";
+    return el;
 }
 
-// Main pack result with PES-style horizontal scrolling animation
+// Add ball to track
+function addBall(track, forcedRarity = null) {
+    track.appendChild(createBallElement(forcedRarity));
+}
+
+// MAIN ANIMATION FUNCTION
 async function showPackResult(players) {
-    skipAnimation = false;
     const count = players.length;
 
-    // Get highest rarity
+    // 1. Determine Target Rarity Logic
     const rarityOrder = ['Iconic', 'Legend', 'Black', 'Gold', 'Silver', 'Bronze', 'White'];
     const highestRarity = rarityOrder.find(r => players.some(p => p.rarity === r)) || 'White';
 
-    // Create overlay container
+    // Initialize State
+    efwState = {
+        speed: 40,
+        offset: 0,
+        isSpinning: true,
+        isDecelerating: false,
+        targetRarity: highestRarity,
+        wonPlayers: players,
+        animationId: null,
+        trackElement: null
+    };
+
+    // 2. Build Environment (Stadium, Lights, Spinner)
     const overlay = document.createElement('div');
-    overlay.id = 'spinOverlay';
-    overlay.style.cssText = 'position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.95);z-index:2000;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px;overflow:hidden;';
-    document.body.appendChild(overlay);
-
-    // Create many balls in sequence for smooth scrolling (repeated pattern)
-    const allRarities = ['Iconic', 'Legend', 'Black', 'Gold', 'Silver', 'Bronze', 'White'];
-    let ballSequence = [];
-    // Create enough balls to fill screen + buffer (about 15-20 balls)
-    for (let i = 0; i < 3; i++) {
-        ballSequence = ballSequence.concat(allRarities);
-    }
-
-    const ballsHtml = ballSequence.map(r => createTrackBall(r)).join('');
+    overlay.className = 'efw-background';
+    overlay.id = 'efwOverlay';
 
     overlay.innerHTML = `
-        <h2 style="color: #ffd700; font-size: 2em; margin-bottom: 20px;">
-            🎰 ${count > 1 ? count + 'x ' : ''}Signing...
-        </h2>
-        
-        <!-- Pointer/Arrow indicator -->
-        <div style="width: 0; height: 0; border-left: 20px solid transparent; border-right: 20px solid transparent; border-top: 30px solid #ffd700; margin-bottom: 10px; filter: drop-shadow(0 3px 6px rgba(255,215,0,0.5));"></div>
-        
-        <!-- Track container with mask -->
-        <div id="trackContainer" style="
-            width: 100%;
-            max-width: 600px;
-            height: 100px;
-            overflow: hidden;
-            position: relative;
-            display: flex;
-            align-items: center;
-            background: linear-gradient(90deg, rgba(0,0,0,0.8) 0%, transparent 10%, transparent 90%, rgba(0,0,0,0.8) 100%);
-        ">
-            <!-- The scrolling track -->
-            <div id="ballTrack" style="
-                display: flex;
-                align-items: center;
-                position: absolute;
-                left: 0;
-                transition: none;
-            ">
-                ${ballsHtml}
+        <!-- Stadium Lights -->
+        <div class="efw-lights">
+            <div class="efw-light-beam"></div>
+            <div class="efw-light-beam"></div>
+            <div class="efw-light-beam"></div>
+        </div>
+
+        <!-- Spinner UI -->
+        <div class="efw-spinner-wrapper">
+            <div class="efw-selector"></div>
+            <div class="efw-track" id="efwTrack"></div>
+        </div>
+
+        <!-- Status / Controls -->
+        <div style="position: absolute; bottom: 15%; text-align: center; z-index: 2020;">
+             <h2 style="color: #ffd700; font-size: 2em; margin-bottom: 20px; text-shadow: 0 2px 4px rgba(0,0,0,0.8);">
+                🎰 Signing ${count}x Player${count > 1 ? 's' : ''}...
+            </h2>
+            <div id="efwStatus" style="font-size: 1.2em; color: #fff; background: rgba(0,0,0,0.5); padding: 10px 20px; border-radius: 20px; cursor: pointer;">
+                👆 Tap screen to stop
             </div>
         </div>
-        
-        <!-- Highlight frame in center -->
-        <div style="
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -15px);
-            width: 85px;
-            height: 85px;
-            border: 4px solid #ffd700;
-            border-radius: 50%;
-            pointer-events: none;
-            box-shadow: 0 0 20px rgba(255,215,0,0.5), inset 0 0 20px rgba(255,215,0,0.2);
-        "></div>
-        
-        <div id="spinStatus" style="margin-top: 25px; font-size: 1.2em; color: #fff;">⏳ Determining your players...</div>
     `;
 
-    // Get track element and animate with leapfrog technique
-    const track = document.getElementById('ballTrack');
-    const container = document.getElementById('trackContainer');
-    const balls = track.querySelectorAll('.track-ball');
-    const ballWidth = 86; // 70px + 16px margin
-    const containerWidth = container.offsetWidth;
-    const centerOffset = (containerWidth / 2) - (ballWidth / 2);
-    const totalTrackWidth = ballSequence.length * ballWidth;
+    document.body.appendChild(overlay);
 
-    // Position track so first ball is at center
-    let currentOffset = centerOffset;
-    track.style.left = `${currentOffset}px`;
+    // 3. Initialize Track
+    const track = document.getElementById('efwTrack');
+    efwState.trackElement = track;
 
-    // Animation state
-    let speed = 12; // pixels per frame
-    let isSpinning = true;
-    let isStopping = false;
-    let stopFrameCount = 0;
-    const decelerateDuration = 120; // ~2 seconds deceleration
+    const BALL_SIZE = 130;
+    const GAP = 20;
+    const UNIT = BALL_SIZE + GAP;
 
-    // Find target ball index (first occurrence of highest rarity)
-    const targetRarityIndex = allRarities.indexOf(highestRarity);
-    // We'll calculate exact target when user taps
-    let targetOffset = 0;
-    let targetBallIndex = 0;
+    // Fill track with enough balls to cover screen + buffer
+    const ballsNeeded = Math.ceil(window.innerWidth / UNIT) + 5;
+    for (let i = 0; i < ballsNeeded; i++) addBall(track);
 
-    // Update status to prompt user
-    document.getElementById('spinStatus').innerHTML = `👆 Tap to reveal!`;
+    // 4. Start Physics Loop
+    function loop() {
+        if (!efwState.isSpinning) return;
 
-    function animate() {
-        if (!isSpinning) return;
+        // Move Left
+        efwState.offset -= efwState.speed;
 
-        // Continuous spinning phase (before tap)
-        if (!isStopping) {
-            currentOffset -= speed;
+        // Infinite Scroll Leapfrog logic
+        if (efwState.offset <= -UNIT) {
+            efwState.offset += UNIT;
+            const first = track.firstElementChild;
+            track.appendChild(first); // Move first ball to end of line
 
-            // Leapfrog: when track moves too far left, reset position
-            // This creates infinite scrolling illusion
-            if (currentOffset < -totalTrackWidth + containerWidth) {
-                currentOffset += totalTrackWidth;
-            }
-        }
-        // Deceleration phase (after tap)
-        else {
-            stopFrameCount++;
-            const progress = stopFrameCount / decelerateDuration;
-
-            if (progress < 1) {
-                // Ease out cubic - smooth deceleration
-                const easeOut = 1 - Math.pow(1 - progress, 3);
-                const distanceToTarget = currentOffset - targetOffset;
-                currentOffset = currentOffset - (distanceToTarget * 0.08);
-
-                if (progress > 0.5) {
-                    document.getElementById('spinStatus').innerHTML = `✨ Stopping on ${highestRarity}...`;
+            // RECYCLE LOGIC: Rigging the spin
+            if (efwState.isDecelerating && efwState.targetRarity) {
+                if (efwState.speed < 15) {
+                    first.dataset.rarity = efwState.targetRarity;
+                } else {
+                    const r = Math.random();
+                    let filler = 'Silver';
+                    if (r > 0.8) filler = 'Gold';
+                    if (r > 0.95) filler = 'Black';
+                    first.dataset.rarity = filler;
                 }
-            } else {
-                // Stopped
-                isSpinning = false;
-                currentOffset = targetOffset;
-                track.style.left = `${currentOffset}px`;
-
-                // Highlight the winning ball
-                const winningBall = balls[targetBallIndex];
-                if (winningBall) {
-                    winningBall.style.transform = 'scale(1.2)';
-                    winningBall.style.transition = 'all 0.3s ease';
-                    winningBall.style.boxShadow = getBallStyle(highestRarity).glow + ', 0 0 40px rgba(255,215,0,0.8)';
-                }
-
-                // Continue to next phase
-                setTimeout(() => showGifAndCards(overlay, players, highestRarity, rarityOrder), 1000);
-                return;
             }
         }
 
-        track.style.left = `${currentOffset}px`;
-        spinnerAnimationId = requestAnimationFrame(animate);
+        track.style.transform = `translateX(${efwState.offset}px)`;
+
+        // DECELERATION PHYSICS
+        if (efwState.isDecelerating) {
+            efwState.speed *= 0.985; // Friction
+
+            // STOP CONDITION
+            if (efwState.speed < 0.2) {
+                efwState.speed = 0;
+                efwState.isSpinning = false; // Stop loop
+                snapToGrid();
+                return; // End loop
+            }
+        }
+
+        efwState.animationId = requestAnimationFrame(loop);
     }
 
-    // Handle tap to stop
-    function handleTap() {
-        if (isStopping) return; // Already stopping
+    // 5. Handle Tap
+    overlay.onclick = () => {
+        if (efwState.isDecelerating) return; // Already stopping
+        efwState.isDecelerating = true;
+        document.getElementById('efwStatus').innerHTML = "✨ Decelerating...";
+        document.getElementById('efwStatus').style.cursor = 'default';
+        overlay.onclick = null; // Prevent double tap
+    };
 
-        isStopping = true;
-        overlay.onclick = null; // Remove click handler
-
-        // Calculate which ball to stop on
-        // Find current center ball, then find next occurrence of target rarity
-        const currentCenterBallIndex = Math.floor((centerOffset - currentOffset) / ballWidth);
-
-        // Find next target rarity ball after current position
-        for (let i = currentCenterBallIndex; i < ballSequence.length; i++) {
-            if (ballSequence[i] === highestRarity) {
-                targetBallIndex = i;
-                break;
-            }
-        }
-
-        // Calculate where track needs to be for this ball to be centered
-        targetOffset = centerOffset - (targetBallIndex * ballWidth);
-    }
-
-    // Add click handler to overlay
-    overlay.onclick = handleTap;
-
-    // Start animation
-    spinnerAnimationId = requestAnimationFrame(animate);
+    // Start Loop
+    loop();
 }
 
-// Show GIF and then cards
-async function showGifAndCards(overlay, players, highestRarity, rarityOrder) {
-    // Stop any ongoing animation
-    if (spinnerAnimationId) {
-        cancelAnimationFrame(spinnerAnimationId);
-        spinnerAnimationId = null;
+// SNAP AND ALIGN LOGIC
+function snapToGrid() {
+    const track = efwState.trackElement;
+
+    // 1. Find center ball visually
+    const centerX = window.innerWidth / 2;
+    const trackRect = track.getBoundingClientRect();
+    const centerY = trackRect.top + (trackRect.height / 2);
+
+    const selector = document.querySelector('.efw-selector');
+    if (selector) selector.style.display = 'none';
+
+    let el = document.elementFromPoint(centerX, centerY);
+
+    if (selector) selector.style.display = 'block';
+
+    // 2. Align visually
+    if (el && el.classList.contains('efw-ball')) {
+        if (el.dataset.rarity !== efwState.targetRarity) {
+            el.dataset.rarity = efwState.targetRarity;
+        }
+
+        const rect = el.getBoundingClientRect();
+        const diff = (window.innerWidth / 2) - (rect.left + rect.width / 2);
+
+        track.style.transition = 'transform 0.5s ease-out';
+        track.style.transform = `translateX(${efwState.offset + diff}px)`;
+
+        // 3. Highlight Effect
+        el.style.transform = 'scale(1.1)';
+        el.style.transition = 'transform 0.3s ease';
+        el.style.boxShadow = `0 0 50px ${RARITY_STYLES[efwState.targetRarity]?.color || '#fff'}`;
+
+        // 4. Start Cinematic
+        setTimeout(() => {
+            startCinematic(efwState.targetRarity);
+        }, 1000);
+    } else {
+        console.warn("Snap failed, force");
+        startCinematic(efwState.targetRarity);
     }
+}
 
-    // Show rarity reveal with ball highlight
-    const style = getBallStyle(highestRarity);
-    overlay.innerHTML = `
-        <h2 style="color: #ffd700; font-size: 2.5em; margin-bottom: 30px;">
-            ${RARITY_EMOJIS[highestRarity]} ${highestRarity}!
-        </h2>
-        <div style="
-            width: 120px;
-            height: 120px;
-            border-radius: 50%;
-            background: ${style.background};
-            border: ${style.border};
-            box-shadow: ${style.glow}, 0 0 60px ${style.glow.split(')')[0]}0.6);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: 900;
-            font-size: 1.5em;
-            color: ${highestRarity === 'White' || highestRarity === 'Silver' ? '#333' : '#fff'};
-            animation: ballPulse 0.5s ease-in-out infinite alternate;
-        ">EFW</div>
-        <div style="margin-top: 30px; font-size: 1em; color: #aaa;">Tap to continue...</div>
-    `;
+// CINEMATIC SCREEN
+function startCinematic(rarity) {
+    const cinematic = document.createElement('div');
+    cinematic.className = 'efw-cinematic-screen active';
+    cinematic.id = 'efwCinematic';
 
-    overlay.onclick = () => { skipAnimation = true; };
-    await waitForSkipOrDelay(1500);
-    overlay.onclick = null;
+    const color = RARITY_STYLES[rarity]?.color || '#fff';
+    const gifPath = `/assets/gifs/${rarity.toLowerCase()}.gif`;
 
-    // Show GIF (skippable)
-    overlay.innerHTML = `
-        <div style="text-align: center; cursor: pointer; width: 100%;" onclick="skipAnimation = true;">
-            <h2 style="color: #ffd700; font-size: 2em; margin-bottom: 20px;">
-                ${RARITY_EMOJIS[highestRarity]} ${highestRarity} Reveal!
-            </h2>
-            <img src="/assets/gifs/${highestRarity.toLowerCase()}.gif" 
-                 alt="${highestRarity}" 
-                 style="max-width: 450px; width: 100%; border-radius: 15px; box-shadow: 0 0 30px rgba(255,215,0,0.5);"
-                 onerror="this.style.display='none'" />
-            <div style="margin-top: 20px; font-size: 1.2em; color: #fff;">✨ Revealing your players...</div>
-            <div style="margin-top: 10px; font-size: 0.9em; color: #aaa;">👆 Tap to skip</div>
+    cinematic.innerHTML = `
+        <div class="efw-cinematic-content">
+            <h1 style="font-size: 50px; margin: 0 0 20px 0; text-shadow: 0 0 20px ${color};">EFW</h1>
+            <p style="font-size: 20px; color: ${color}; font-weight: bold; text-transform: uppercase; margin-bottom: 30px;">
+                OFFICIAL SIGNING
+            </p>
+            <img src="${gifPath}" 
+                 style="max-width: 90%; max-height: 50vh; border-radius: 10px; box-shadow: 0 0 30px ${color}80;"
+                 onerror="this.style.display='none'">
+            <div class="efw-skip-hint">TAP SCREEN TO SKIP</div>
         </div>
     `;
 
-    await waitForSkipOrDelay(5000);
+    document.body.appendChild(cinematic);
 
-    // Step 5: Show cards
-    const sortedPlayers = [...players].sort((a, b) => {
+    cinematic.onclick = () => {
+        cinematic.classList.remove('active');
+        setTimeout(() => cinematic.remove(), 300);
+        showReveal();
+    };
+
+    setTimeout(() => {
+        if (document.body.contains(cinematic)) cinematic.click();
+    }, 6000);
+}
+
+// FINAL REVEAL
+function showReveal() {
+    const rarityOrder = ['Iconic', 'Legend', 'Black', 'Gold', 'Silver', 'Bronze', 'White'];
+    const sortedPlayers = [...efwState.wonPlayers].sort((a, b) => {
         const aIdx = rarityOrder.indexOf(a.rarity);
         const bIdx = rarityOrder.indexOf(b.rarity);
         if (aIdx !== bIdx) return aIdx - bIdx;
@@ -750,26 +677,40 @@ async function showGifAndCards(overlay, players, highestRarity, rarityOrder) {
         const playerImagePath = `/assets/playerimages/${player.id}.png`;
         return `
             <div class="player-detail-card" data-rarity="${player.rarity}" 
-                 style="width: 140px; height: 200px; animation: cardReveal 0.5s ease-out ${index * 0.1}s both; cursor: pointer;">
+                 style="width: 140px; height: 200px; animation: cardReveal 0.5s ease-out ${index * 0.1}s both; cursor: pointer; margin: 10px;">
                 <div class="player-card-rating" style="font-size: 1.8em; top: 30px;">${player.overall || 0}</div>
                 <div class="player-card-position" style="font-size: 0.85em;">${player.position}</div>
                 <div class="player-card-rarity" style="font-size: 1.2em; top: 70px;">${RARITY_EMOJIS[player.rarity] || '⚽'}</div>
-                <img src="${playerImagePath}" class="player-detail-image" onerror="this.src='/assets/playerimages/default_player.png'">
+                <img src="${playerImagePng}" class="player-detail-image" onerror="this.src='/assets/playerimages/default_player.png'">
                 <div class="player-card-rarity-bottom" style="font-size: 0.7em; padding: 4px;">${truncateName(player.name)}</div>
                 ${player.isDuplicate ? '<div style="position: absolute; bottom: 30px; left: 50%; transform: translateX(-50%); background: rgba(245, 158, 11, 0.9); color: #000; padding: 2px 6px; border-radius: 4px; font-size: 0.6em; font-weight: bold; z-index: 20;">DUPLICATE</div>' : ''}
             </div>
         `;
     }).join('');
 
+    const revealScreen = document.createElement('div');
+    revealScreen.className = 'efw-reveal-screen active';
+
     const gridCols = sortedPlayers.length <= 3 ? sortedPlayers.length : sortedPlayers.length <= 5 ? sortedPlayers.length : 5;
 
-    overlay.innerHTML = `
+    revealScreen.innerHTML = `
         <h2 style="color: #ffd700; font-size: 2em; margin-bottom: 25px;">🎉 Signings</h2>
-        <div style="display: grid; grid-template-columns: repeat(${gridCols}, 1fr); gap: 12px; justify-items: center; max-width: 780px;">
+        <div style="display: grid; grid-template-columns: repeat(${gridCols}, 1fr); gap: 10px; justify-items: center; max-width: 800px;">
             ${cardsHtml}
         </div>
-        <button onclick="document.getElementById('spinOverlay').remove()" style="margin-top: 30px; padding: 15px 40px; background: #ffd700; border: none; border-radius: 25px; color: #000; font-size: 1.1em; font-weight: bold; cursor: pointer; text-transform: uppercase;">Continue</button>
+        <button onclick="cleanupAnimation()" style="margin-top: 30px; padding: 15px 40px; background: #ffd700; border: none; border-radius: 25px; color: #000; font-size: 1.1em; font-weight: bold; cursor: pointer; text-transform: uppercase;">Continue</button>
     `;
+
+    document.body.appendChild(revealScreen);
+}
+
+// CLEANUP
+function cleanupAnimation() {
+    efwState.isSpinning = false;
+    if (efwState.animationId) cancelAnimationFrame(efwState.animationId);
+
+    const overlays = document.querySelectorAll('.efw-background, .efw-cinematic-screen, .efw-reveal-screen, #spinOverlay');
+    overlays.forEach(el => el.remove());
 }
 
 // Mock test function for testing
@@ -797,4 +738,3 @@ async function testSpinAnimation(highestRarity = 'Iconic', count = 10) {
 window.testSpinAnimation = testSpinAnimation;
 
 document.addEventListener('DOMContentLoaded', init);
-
