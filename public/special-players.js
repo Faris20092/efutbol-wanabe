@@ -443,8 +443,13 @@ function closeConfirmModal() {
 }
 
 async function confirmPurchase() {
+    if (!pendingPurchase || pendingPurchase.count === 0) return;
+
+    // Capture data before closing modal (which clears it)
+    const { count, isFree, freeCount } = pendingPurchase;
+
     closeConfirmModal();
-    await buyPack(pendingPurchase.count, pendingPurchase.isFree, pendingPurchase.freeCount);
+    await buyPack(count, isFree, freeCount);
 }
 
 async function buyPack(count, isFree = false, freeCount = 0) {

@@ -396,7 +396,11 @@ app.post('/api/contracts/open', isAuthenticated, (req, res) => {
 
         res.json({
             success: true,
-            newBalance: useFree ? (user.eCoins || 0) : user[packConfig.currency === 'GP' ? 'gp' : 'eCoins'],
+            newBalance: user.eCoins, // Return eCoins as standard for the UI
+            balances: {
+                gp: user.gp,
+                eCoins: user.eCoins
+            },
             players: pulledPlayers
         });
 
