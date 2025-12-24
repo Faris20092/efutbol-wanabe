@@ -641,7 +641,10 @@ app.post('/api/mail/claim', isAuthenticated, (req, res) => {
         else if (mail.type === 'trainer' && mail.trainerName) {
             // Add trainer to inventory or handle as needed
             userData.inventory = userData.inventory || {};
-            userData.inventory.trainers = userData.inventory.trainers || [];
+            // Ensure trainers is an array (fix for existing non-array data)
+            if (!Array.isArray(userData.inventory.trainers)) {
+                userData.inventory.trainers = [];
+            }
             userData.inventory.trainers.push(mail.trainerName);
         }
     }
@@ -720,7 +723,10 @@ app.post('/api/mail/claim-all', isAuthenticated, (req, res) => {
                 }
                 else if (mail.type === 'trainer' && mail.trainerName) {
                     userData.inventory = userData.inventory || {};
-                    userData.inventory.trainers = userData.inventory.trainers || [];
+                    // Ensure trainers is an array (fix for existing non-array data)
+                    if (!Array.isArray(userData.inventory.trainers)) {
+                        userData.inventory.trainers = [];
+                    }
                     userData.inventory.trainers.push(mail.trainerName);
                 }
             }
