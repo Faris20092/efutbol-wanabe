@@ -363,20 +363,101 @@ function getStatColor(value) {
 
 async function selectPackAndBuy(packKey, count) {
     selectedPack = packKey;
-    await buyPack(count);
+    showConfirmation(count);
 }
 
-async function buyPack(count) {
+// Pending purchase state
+let pendingPurchase = {
+    count: 0,
+    isFree: false,
+    freeCount: 0
+};
+
+// Get free packs for a pack type
+function getFreePacks(packKey) {
+    if (!userData.inventory || !userData.inventory.freePacks) return 0;
+    // Map pack keys to rarity keys
+    const keyMap = {
+        'iconic': 'Iconic',
+        'legend': 'Legend',
+        'standard': 'Black'
+    };
+    const rarityKey = keyMap[packKey] || 'Black';
+    return userData.inventory.freePacks[rarityKey] || 0;
+}
+
+// Show confirmation modal
+function showConfirmation(count) {
+    const pack = PACKS[selectedPack];
+    if (!pack) return;
+
+    const freeAvailable = getFreePacks(selectedPack);
+    const modal = document.getElementById('confirmModal');
+    const descEl = document.getElementById('confirmDesc');
+    const costEl = document.getElementById('confirmCost');
+    const btnEl = document.getElementById('confirmBuyBtn');
+
+    if (count === 1) {
+        // 1x spin
+        if (freeAvailable > 0) {
+            // Free 1x
+            descEl.textContent = `Sign a player using your Free ${pack.type} Pack.`;
+            costEl.textContent = 'Free 1x';
+            btnEl.classList.add('free-btn');
+            btnEl.querySelector('.coin-icon').textContent = '🎁';
+            pendingPurchase = { count: 1, isFree: true, freeCount: 1 };
+        } else {
+            // Paid 1x
+            descEl.textContent = `Sign a player using eFootball™ Coins. This ${pack.type} Pack costs ${pack.cost} eCoins.`;
+            costEl.textContent = pack.cost;
+            btnEl.classList.remove('free-btn');
+            btnEl.querySelector('.coin-icon').textContent = '🪙';
+            pendingPurchase = { count: 1, isFree: false, freeCount: 0 };
+        }
+    } else {
+        // 10x spin
+        if (freeAvailable > 0) {
+            // Use free packs (max 10)
+            const useCount = Math.min(freeAvailable, 10);
+            descEl.textContent = `Sign ${useCount} player${useCount > 1 ? 's' : ''} using your Free ${pack.type} Packs.`;
+            costEl.textContent = `Free ${useCount}x`;
+            btnEl.classList.add('free-btn');
+            btnEl.querySelector('.coin-icon').textContent = '🎁';
+            pendingPurchase = { count: useCount, isFree: true, freeCount: useCount };
+        } else {
+            // Paid 10x
+            descEl.textContent = `Sign 10 players using eFootball™ Coins. This ${pack.type} Pack bundle costs ${pack.cost10x} eCoins.`;
+            costEl.textContent = pack.cost10x;
+            btnEl.classList.remove('free-btn');
+            btnEl.querySelector('.coin-icon').textContent = '🪙';
+            pendingPurchase = { count: 10, isFree: false, freeCount: 0 };
+        }
+    }
+
+    modal.classList.add('show');
+}
+
+function closeConfirmModal() {
+    document.getElementById('confirmModal').classList.remove('show');
+    pendingPurchase = { count: 0, isFree: false, freeCount: 0 };
+}
+
+async function confirmPurchase() {
+    closeConfirmModal();
+    await buyPack(pendingPurchase.count, pendingPurchase.isFree, pendingPurchase.freeCount);
+}
+
+async function buyPack(count, isFree = false, freeCount = 0) {
     if (!selectedPack) {
         alert('Please select a pack first');
         return;
     }
 
     const pack = PACKS[selectedPack];
-    const totalCost = count === 10 ? pack.cost10x : pack.cost * count;
+    const totalCost = isFree ? 0 : (count === 10 ? pack.cost10x : pack.cost * count);
 
-    // Check balance
-    if ((userData.eCoins || 0) < totalCost) {
+    // Check balance if not free
+    if (!isFree && (userData.eCoins || 0) < totalCost) {
         alert(`Not enough eCoins! You need ${totalCost} eCoins.`);
         return;
     }
@@ -388,7 +469,9 @@ async function buyPack(count) {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
                 packType: selectedPack,
-                count: count
+                count: count,
+                useFree: isFree,
+                freeCount: freeCount
             })
         });
 
@@ -400,8 +483,15 @@ async function buyPack(count) {
         }
 
         // Update balance
-        userData.eCoins = result.newBalance || (userData.eCoins - totalCost);
+        userData.eCoins = result.newBalance ?? (userData.eCoins - totalCost);
         document.getElementById('topEcoins').textContent = userData.eCoins;
+
+        // Update free packs if used
+        if (isFree && userData.inventory && userData.inventory.freePacks) {
+            const keyMap = { 'iconic': 'Iconic', 'legend': 'Legend', 'standard': 'Black' };
+            const rarityKey = keyMap[selectedPack] || 'Black';
+            userData.inventory.freePacks[rarityKey] = Math.max(0, (userData.inventory.freePacks[rarityKey] || 0) - freeCount);
+        }
 
         // Show result
         showPackResult(result.players || []);

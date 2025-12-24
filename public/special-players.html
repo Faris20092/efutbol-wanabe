@@ -1054,6 +1054,122 @@
                 padding: 20px;
             }
         }
+
+        /* Payment Confirmation Modal */
+        .confirm-modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 3000;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(5px);
+        }
+
+        .confirm-modal-overlay.show {
+            display: flex;
+        }
+
+        .confirm-modal-content {
+            background: #fff;
+            border-radius: 15px;
+            padding: 30px;
+            width: 90%;
+            max-width: 400px;
+            text-align: center;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+        }
+
+        .confirm-title {
+            color: #1a1a2e;
+            font-size: 1.4em;
+            font-weight: bold;
+            margin-bottom: 15px;
+        }
+
+        .confirm-desc {
+            color: #333;
+            font-size: 0.95em;
+            margin-bottom: 20px;
+            line-height: 1.5;
+        }
+
+        .confirm-links {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin-bottom: 25px;
+        }
+
+        .confirm-link {
+            color: #3b82f6;
+            font-size: 0.9em;
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+
+        .confirm-link:hover {
+            color: #1d4ed8;
+            text-decoration: underline;
+        }
+
+        .confirm-btn-primary {
+            width: 100%;
+            padding: 15px 25px;
+            border: none;
+            border-radius: 10px;
+            background: linear-gradient(135deg, #a5d8ff, #74c0fc);
+            color: #1a1a2e;
+            font-size: 1.2em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            margin-bottom: 12px;
+        }
+
+        .confirm-btn-primary:hover {
+            background: linear-gradient(135deg, #74c0fc, #4dabf7);
+            transform: translateY(-2px);
+        }
+
+        .confirm-btn-primary .coin-icon {
+            font-size: 1.2em;
+        }
+
+        .confirm-btn-primary.free-btn {
+            background: linear-gradient(135deg, #69db7c, #40c057);
+            color: #fff;
+        }
+
+        .confirm-btn-primary.free-btn:hover {
+            background: linear-gradient(135deg, #40c057, #37b24d);
+        }
+
+        .confirm-btn-cancel {
+            width: 100%;
+            padding: 12px 25px;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            background: transparent;
+            color: #3b82f6;
+            font-size: 1em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .confirm-btn-cancel:hover {
+            background: rgba(59, 130, 246, 0.1);
+            border-color: #3b82f6;
+        }
     </style>
 </head>
 
@@ -1115,10 +1231,10 @@
                         <button class="details-btn">⋯</button>
                     </div>
                     <div class="modal-buy-buttons">
-                        <button class="modal-buy-btn" onclick="buyPack(1)">
+                        <button class="modal-buy-btn" onclick="showConfirmation(1)">
                             👤 ×1 | <span class="cost" id="cost1x">100</span> 🪙
                         </button>
-                        <button class="modal-buy-btn" onclick="buyPack(10)">
+                        <button class="modal-buy-btn" onclick="showConfirmation(10)">
                             👤 ×10 | <span class="cost" id="cost10x">900</span> 🪙
                         </button>
                     </div>
@@ -1146,6 +1262,22 @@
     <div class="player-detail-modal" id="playerModal">
         <button class="close-detail-btn" onclick="closePlayerModal()">×</button>
         <div id="playerModalContent"></div>
+    </div>
+
+    <!-- Payment Confirmation Modal -->
+    <div class="confirm-modal-overlay" id="confirmModal">
+        <div class="confirm-modal-content">
+            <h2 class="confirm-title">Payment Confirmation</h2>
+            <p class="confirm-desc" id="confirmDesc">Sign a player using eFootball™ Coins.</p>
+            <div class="confirm-links">
+                <a href="#" class="confirm-link">Details on Payment Methods, Delivery Date and Cancellations</a>
+                <a href="#" class="confirm-link">Product Details</a>
+            </div>
+            <button class="confirm-btn-primary" id="confirmBuyBtn" onclick="confirmPurchase()">
+                <span class="coin-icon">🪙</span><span id="confirmCost">100</span>
+            </button>
+            <button class="confirm-btn-cancel" onclick="closeConfirmModal()">Cancel</button>
+        </div>
     </div>
 
     <script src="/special-players.js"></script>

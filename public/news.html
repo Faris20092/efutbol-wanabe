@@ -1,11 +1,13 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>News - eFotball wannabe</title>
     <link rel="stylesheet" href="/styles.css">
 </head>
+
 <body>
     <nav class="navbar">
         <div class="nav-brand">⚽ eFOOTBALL WANNABE</div>
@@ -20,7 +22,10 @@
                     📬
                     <span class="notification-badge" id="mailBadge" style="display:none;">0</span>
                 </button>
-                <button class="icon-btn active" onclick="window.location.href='/news'" title="News">📰</button>
+                <button class="icon-btn active" onclick="window.location.href='/news'" title="News">
+                    📰
+                    <span class="notification-badge" id="newsBadge" style="display:none;">0</span>
+                </button>
                 <button class="icon-btn" onclick="window.location.href='/logout'" title="Logout">🚪</button>
             </div>
             <div class="user-info" id="userInfo">
@@ -34,6 +39,7 @@
         <div class="news-container">
             <div class="news-header">
                 <h1 class="news-title">News</h1>
+                <button class="btn-mark-read" id="markAllReadBtn" onclick="markAllAsRead()">✓ Mark All as Read</button>
             </div>
 
             <div id="newsList" class="news-list">
@@ -63,4 +69,5 @@
 
     <script src="/news.js"></script>
 </body>
+
 </html>
