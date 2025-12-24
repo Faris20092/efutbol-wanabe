@@ -663,17 +663,18 @@ async function showPackResult(players) {
             // RECYCLE LOGIC: PES Mobile Colorful Deceleration
             if (efwState.isDecelerating && efwState.targetRarity && efwState.speed < 12) {
                 // Rigging the spin ONLY when very close to stopping to avoid uniform color trail
-                // We'll give it a 40% chance to be the target rarity when slow, otherwise random colorful
+                // We'll give it a 30% chance to be the target rarity when slow, otherwise random colorful
                 const r = Math.random();
-                if (r > 0.6) {
+                if (r > 0.7) {
                     first.dataset.rarity = efwState.targetRarity;
                 } else {
                     // Still colorful during deceleration
                     const r2 = Math.random();
                     let filler = 'Silver';
-                    if (r2 > 0.9) filler = 'Black';
-                    else if (r2 > 0.6) filler = 'Gold';
-                    else if (r2 > 0.3) filler = 'Silver';
+                    if (r2 > 0.95) filler = 'Iconic';
+                    else if (r2 > 0.85) filler = 'Black';
+                    else if (r2 > 0.55) filler = 'Gold';
+                    else if (r2 > 0.25) filler = 'Silver';
                     else filler = 'Bronze';
                     first.dataset.rarity = filler;
                 }
@@ -808,6 +809,10 @@ function startCinematic(rarity) {
 
 // FINAL REVEAL
 function showReveal() {
+    // 1. Remove the spinner background overlay
+    const overlay = document.getElementById('efwOverlay');
+    if (overlay) overlay.remove();
+
     const rarityOrder = ['Iconic', 'Legend', 'Black', 'Gold', 'Silver', 'Bronze', 'White'];
     const sortedPlayers = [...efwState.wonPlayers].sort((a, b) => {
         const aIdx = rarityOrder.indexOf(a.rarity);
@@ -817,14 +822,17 @@ function showReveal() {
     });
 
     const cardsHtml = sortedPlayers.map((player, index) => {
-        const playerImagePath = `/assets/playerimages/${player.id}.png`;
+        // Try multiple paths: ID.png, name.jpg (lowercase), name.png
+        const nameSlug = player.name.toLowerCase().replace(/\s+/g, '_');
         return `
             <div class="player-detail-card" data-rarity="${player.rarity}" 
                  style="width: 140px; height: 200px; animation: cardReveal 0.5s ease-out ${index * 0.1}s both; cursor: pointer; margin: 10px;">
                 <div class="player-card-rating" style="font-size: 1.8em; top: 30px;">${player.overall || 0}</div>
                 <div class="player-card-position" style="font-size: 0.85em;">${player.position}</div>
                 <div class="player-card-rarity" style="font-size: 1.2em; top: 70px;">${RARITY_EMOJIS[player.rarity] || '⚽'}</div>
-                <img src="${playerImagePath}" class="player-detail-image" onerror="this.src='/assets/playerimages/default_player.png'">
+                <img src="/assets/playerimages/${player.id}.png" 
+                     class="player-detail-image" 
+                     onerror="this.onerror=null; this.src='/assets/faces/${nameSlug}.jpg'; this.onerror=function(){this.src='/assets/playerimages/default_player.png'}">
                 <div class="player-card-rarity-bottom" style="font-size: 0.7em; padding: 4px;">${truncateName(player.name)}</div>
                 ${player.isDuplicate ? '<div style="position: absolute; bottom: 30px; left: 50%; transform: translateX(-50%); background: rgba(245, 158, 11, 0.9); color: #000; padding: 2px 6px; border-radius: 4px; font-size: 0.6em; font-weight: bold; z-index: 20;">DUPLICATE</div>' : ''}
             </div>
