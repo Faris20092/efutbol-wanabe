@@ -534,15 +534,15 @@ function createBallElement(forcedRarity = null) {
     let type = forcedRarity;
 
     if (!type) {
-        // Weighted random filler balls - More colors!
+        // Weighted random filler balls - PES mobile colorful style!
         const r = Math.random();
-        if (r > 0.98) type = 'Iconic';
-        else if (r > 0.96) type = 'Legend';
-        else if (r > 0.90) type = 'Black';
-        else if (r > 0.80) type = 'Gold';
-        else if (r > 0.50) type = 'Silver';
-        else if (r > 0.20) type = 'Bronze';
-        else type = 'White';
+        if (r > 0.97) type = 'Iconic';
+        else if (r > 0.93) type = 'Legend';
+        else if (r > 0.85) type = 'Black';
+        else if (r > 0.55) type = 'Gold';  // More gold balls for colorful look
+        else if (r > 0.30) type = 'Silver';
+        else if (r > 0.10) type = 'Bronze';
+        else type = 'White';  // Reduced white probability
     }
 
     el.className = 'efw-ball';
@@ -559,6 +559,12 @@ function addBall(track, forcedRarity = null) {
 // MAIN ANIMATION FUNCTION
 async function showPackResult(players) {
     const count = players.length;
+
+    // Guard for empty players
+    if (count === 0) {
+        alert('No players were pulled. Please try again.');
+        return;
+    }
 
     // 1. Determine Target Rarity Logic
     const rarityOrder = ['Iconic', 'Legend', 'Black', 'Gold', 'Silver', 'Bronze', 'White'];
@@ -638,16 +644,16 @@ async function showPackResult(players) {
                 // Rigging the spin when close to stopping
                 first.dataset.rarity = efwState.targetRarity;
             } else {
-                // Regenerate random filler - More colors for PES mobile style!
+                // Regenerate random filler - PES mobile colorful style!
                 const r = Math.random();
                 let filler = 'Silver';
-                if (r > 0.98) filler = 'Iconic';
-                else if (r > 0.95) filler = 'Legend';
-                else if (r > 0.90) filler = 'Black';
-                else if (r > 0.75) filler = 'Gold';
-                else if (r > 0.50) filler = 'Silver';
-                else if (r > 0.25) filler = 'Bronze';
-                else filler = 'White';
+                if (r > 0.97) filler = 'Iconic';
+                else if (r > 0.93) filler = 'Legend';
+                else if (r > 0.85) filler = 'Black';
+                else if (r > 0.55) filler = 'Gold';  // 30% Gold for more color
+                else if (r > 0.30) filler = 'Silver'; // 25% Silver
+                else if (r > 0.10) filler = 'Bronze'; // 20% Bronze
+                else filler = 'White';  // Only 10% White
                 first.dataset.rarity = filler;
             }
         }
