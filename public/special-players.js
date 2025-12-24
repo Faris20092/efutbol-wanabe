@@ -543,21 +543,22 @@ async function showPackResult(players) {
             const first = track.firstElementChild;
             track.appendChild(first); // Move first ball to end of line
 
-            // RECYCLE LOGIC: Rigging the spin
-            if (efwState.isDecelerating && efwState.targetRarity) {
-                // Delay rigging until speed is lower (22) so current visible balls remain random
-                if (efwState.speed < 22) {
-                    first.dataset.rarity = efwState.targetRarity;
-                } else {
-                    // Regenerate filler
-                    const r = Math.random();
-                    let filler = 'Silver';
-                    if (r > 0.98) filler = 'Iconic';
-                    else if (r > 0.95) filler = 'Legend';
-                    else if (r > 0.9) filler = 'Black';
-                    else if (r > 0.8) filler = 'Gold';
-                    first.dataset.rarity = filler;
-                }
+            // RECYCLE LOGIC: Always regenerate random rarity for colorful PES mobile effect
+            if (efwState.isDecelerating && efwState.targetRarity && efwState.speed < 22) {
+                // Rigging the spin when close to stopping
+                first.dataset.rarity = efwState.targetRarity;
+            } else {
+                // Regenerate random filler - More colors for PES mobile style!
+                const r = Math.random();
+                let filler = 'Silver';
+                if (r > 0.98) filler = 'Iconic';
+                else if (r > 0.95) filler = 'Legend';
+                else if (r > 0.90) filler = 'Black';
+                else if (r > 0.75) filler = 'Gold';
+                else if (r > 0.50) filler = 'Silver';
+                else if (r > 0.25) filler = 'Bronze';
+                else filler = 'White';
+                first.dataset.rarity = filler;
             }
         }
 
