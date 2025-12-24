@@ -464,18 +464,28 @@ async function buyPack(count, isFree = false, freeCount = 0) {
 
     try {
         // Open pack via API
+        console.log(`[Pack] Opening ${selectedPack}, count: ${count}, isFree: ${isFree}`);
+
         const response = await fetch('/api/contracts/open', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
                 packType: selectedPack,
-                count: count,
-                useFree: isFree,
-                freeCount: freeCount
+                count: Number(count), // Ensure number
+                useFree: !!isFree,
+                freeCount: Number(freeCount) || 0
             })
         });
 
+        if (!response.ok) {
+            const errText = await response.text();
+            console.error('API Error:', errText);
+            alert(`Server Error: ${response.status}. Please check console.`);
+            return;
+        }
+
         const result = await response.json();
+        console.log('[Pack] API Result:', result);
 
         if (!result.success) {
             alert(result.message || 'Failed to open pack');
@@ -494,7 +504,13 @@ async function buyPack(count, isFree = false, freeCount = 0) {
         }
 
         // Show result
-        showPackResult(result.players || []);
+        const pulledPlayers = result.players || [];
+        if (pulledPlayers.length === 0) {
+            console.error('[Pack] Critical: Server returned success but empty players array!', result);
+            alert('Error: Server returned empty player list. Check balance or try again.');
+            return;
+        }
+        showPackResult(pulledPlayers);
 
     } catch (error) {
         console.error('Buy pack error:', error);
@@ -639,12 +655,25 @@ async function showPackResult(players) {
             const first = track.firstElementChild;
             track.appendChild(first); // Move first ball to end of line
 
-            // RECYCLE LOGIC: Always regenerate random rarity for colorful PES mobile effect
-            if (efwState.isDecelerating && efwState.targetRarity && efwState.speed < 22) {
-                // Rigging the spin when close to stopping
-                first.dataset.rarity = efwState.targetRarity;
+            // RECYCLE LOGIC: PES Mobile Colorful Deceleration
+            if (efwState.isDecelerating && efwState.targetRarity && efwState.speed < 12) {
+                // Rigging the spin ONLY when very close to stopping to avoid uniform color trail
+                // We'll give it a 40% chance to be the target rarity when slow, otherwise random colorful
+                const r = Math.random();
+                if (r > 0.6) {
+                    first.dataset.rarity = efwState.targetRarity;
+                } else {
+                    // Still colorful during deceleration
+                    const r2 = Math.random();
+                    let filler = 'Silver';
+                    if (r2 > 0.9) filler = 'Black';
+                    else if (r2 > 0.6) filler = 'Gold';
+                    else if (r2 > 0.3) filler = 'Silver';
+                    else filler = 'Bronze';
+                    first.dataset.rarity = filler;
+                }
             } else {
-                // Regenerate random filler - PES mobile colorful style!
+                // Regular random filler during high speed - PES mobile colorful style!
                 const r = Math.random();
                 let filler = 'Silver';
                 if (r > 0.97) filler = 'Iconic';
