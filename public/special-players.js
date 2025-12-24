@@ -666,12 +666,14 @@ async function showPackResult(players) {
             // RECYCLE LOGIC: Rigid Physics Rigging
             if (efwState.isDecelerating) {
                 efwState.ballsPassed++;
+
+                // IMPORTANT: The ball we just appended (first) is the NEW ball entering from the right.
+                // We want to rig the EXACT ball that will end up in the center.
                 if (efwState.ballsPassed === efwState.targetBallIndex) {
-                    // This is the WINNING ball!
                     first.dataset.rarity = efwState.targetRarity;
-                    console.log("[Physics] Rigged landing ball at index:", efwState.ballsPassed);
+                    first.classList.add('winning-ball'); // Marker for failsafe
+                    console.log("[Physics] Rigged NEW winning ball at pass count:", efwState.ballsPassed);
                 } else {
-                    // Visual variety during stop
                     const r = Math.random();
                     let filler = 'Silver';
                     if (r > 0.9) filler = 'Black';
@@ -679,6 +681,7 @@ async function showPackResult(players) {
                     else if (r > 0.3) filler = 'Silver';
                     else filler = 'Bronze';
                     first.dataset.rarity = filler;
+                    first.classList.remove('winning-ball');
                 }
             } else {
                 // High speed random filler
@@ -720,7 +723,15 @@ async function showPackResult(players) {
                         bestBall = b;
                     }
                 });
+
                 if (bestBall) {
+                    // FAILSAFE: If physics was off by a pixel and we landed on the wrong color,
+                    // silently fix it NOW. This is better than a visual "pop" later.
+                    if (bestBall.dataset.rarity !== efwState.targetRarity) {
+                        console.warn("[Physics] Failsafe: Correcting ball rarity at stop");
+                        bestBall.dataset.rarity = efwState.targetRarity;
+                    }
+
                     bestBall.style.transform = 'scale(1.1)';
                     bestBall.style.transition = 'transform 0.3s ease';
                     bestBall.style.boxShadow = `0 0 50px ${RARITY_STYLES[efwState.targetRarity]?.color || '#fff'}`;
@@ -754,20 +765,25 @@ async function showPackResult(players) {
         // Logic: Ball center = offset + i*UNIT + UNIT/2. We want this to be centerX.
         // i*UNIT + UNIT/2 + (currentOffset - D) = centerX
         // D = (currentOffset + UNIT/2 - centerX) + i*UNIT
+        // Solve for i: i*UNIT = D - currentOffset - UNIT/2 + centerX
+        const i = Math.round((D - currentOffset - (UNIT / 2) + centerX) / UNIT);
 
-        const baseD = D;
-        const remainder = (currentOffset + UNIT / 2 - centerX - baseD) % UNIT;
-        D = baseD + remainder;
+        // Accurate Distance
+        const accurateD = (i * UNIT) + (centerX - currentOffset - (UNIT / 2));
+        D = accurateD;
 
         // Re-calculate friction to hit D exactly
         efwState.friction = 1 - (currentSpeed / D);
         efwState.isDecelerating = true;
 
-        // Calculate how many balls will pass before stopping
-        // D / UNIT tells us the index skip
-        const ballsToSkip = Math.round(D / UNIT);
-        efwState.targetBallIndex = ballsToSkip;
+        // The targetBallIndex is 'i' minus the number of balls already on the track 
+        // to the right of the center.
+        // Index 0 is the leftmost ball. The balls recycle when offset <= -UNIT.
+        // We need to count how many balls pass the 'recycle' point.
+        efwState.targetBallIndex = i - (efwState.trackElement.children.length - 1);
         efwState.ballsPassed = 0;
+
+        console.log("[Physics] Stopping in", D, "px. Index i:", i, "TargetRecycleIndex:", efwState.targetBallIndex);
 
         document.getElementById('efwStatus').innerHTML = "✨ Decelerating...";
         document.getElementById('efwStatus').style.cursor = 'default';
