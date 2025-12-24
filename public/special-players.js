@@ -535,7 +535,10 @@ let efwState = {
     isDecelerating: false,
     targetRarity: null,
     animationId: null,
-    wonPlayers: []
+    trackElement: null,
+    friction: 0.99,
+    targetBallIndex: -1,
+    ballsPassed: 0
 };
 
 // RARITY CONFIGURATION
@@ -660,35 +663,34 @@ async function showPackResult(players) {
             const first = track.firstElementChild;
             track.appendChild(first); // Move first ball to end of line
 
-            // RECYCLE LOGIC: PES Mobile Colorful Deceleration
-            if (efwState.isDecelerating && efwState.targetRarity && efwState.speed < 15) {
-                // To avoid "color jump" at stop, we must seed the track with the target rarity
-                // during deceleration. 35% chance to be target, otherwise colorful filler.
-                const r = Math.random();
-                if (r > 0.65) {
+            // RECYCLE LOGIC: Rigid Physics Rigging
+            if (efwState.isDecelerating) {
+                efwState.ballsPassed++;
+                if (efwState.ballsPassed === efwState.targetBallIndex) {
+                    // This is the WINNING ball!
                     first.dataset.rarity = efwState.targetRarity;
+                    console.log("[Physics] Rigged landing ball at index:", efwState.ballsPassed);
                 } else {
-                    // Still colorful during deceleration
-                    const r2 = Math.random();
+                    // Visual variety during stop
+                    const r = Math.random();
                     let filler = 'Silver';
-                    if (r2 > 0.95) filler = 'Iconic';
-                    else if (r2 > 0.85) filler = 'Black';
-                    else if (r2 > 0.55) filler = 'Gold';
-                    else if (r2 > 0.25) filler = 'Silver';
+                    if (r > 0.9) filler = 'Black';
+                    else if (r > 0.6) filler = 'Gold';
+                    else if (r > 0.3) filler = 'Silver';
                     else filler = 'Bronze';
                     first.dataset.rarity = filler;
                 }
             } else {
-                // Regular random filler during high speed - PES mobile colorful style!
+                // High speed random filler
                 const r = Math.random();
                 let filler = 'Silver';
                 if (r > 0.97) filler = 'Iconic';
                 else if (r > 0.93) filler = 'Legend';
                 else if (r > 0.85) filler = 'Black';
-                else if (r > 0.55) filler = 'Gold';  // 30% Gold for more color
-                else if (r > 0.30) filler = 'Silver'; // 25% Silver
-                else if (r > 0.10) filler = 'Bronze'; // 20% Bronze
-                else filler = 'White';  // Only 10% White
+                else if (r > 0.55) filler = 'Gold';
+                else if (r > 0.30) filler = 'Silver';
+                else if (r > 0.10) filler = 'Bronze';
+                else filler = 'White';
                 first.dataset.rarity = filler;
             }
         }
@@ -697,14 +699,37 @@ async function showPackResult(players) {
 
         // DECELERATION PHYSICS
         if (efwState.isDecelerating) {
-            efwState.speed *= 0.99; // Low friction for long glide
+            efwState.speed *= efwState.friction;
 
             // STOP CONDITION
-            if (efwState.speed < 0.2) {
+            if (efwState.speed < 0.1) {
                 efwState.speed = 0;
                 efwState.isSpinning = false; // Stop loop
-                snapToGrid();
-                return; // End loop
+
+                // Final check - ensure we are centered
+                const track = efwState.trackElement;
+                const centerX = window.innerWidth / 2;
+                const balls = Array.from(track.children);
+                let bestBall = null;
+                let minDist = Infinity;
+                balls.forEach(b => {
+                    const r = b.getBoundingClientRect();
+                    const c = r.left + r.width / 2;
+                    if (Math.abs(c - centerX) < minDist) {
+                        minDist = Math.abs(c - centerX);
+                        bestBall = b;
+                    }
+                });
+                if (bestBall) {
+                    bestBall.style.transform = 'scale(1.1)';
+                    bestBall.style.transition = 'transform 0.3s ease';
+                    bestBall.style.boxShadow = `0 0 50px ${RARITY_STYLES[efwState.targetRarity]?.color || '#fff'}`;
+                }
+
+                setTimeout(() => {
+                    startCinematic(efwState.targetRarity);
+                }, 1000);
+                return;
             }
         }
 
@@ -713,11 +738,40 @@ async function showPackResult(players) {
 
     // 5. Handle Tap
     overlay.onclick = () => {
-        if (efwState.isDecelerating) return; // Already stopping
+        if (efwState.isDecelerating) return;
+
+        const currentSpeed = efwState.speed;
+        const currentOffset = efwState.offset;
+        const UNIT = 150; // 130 + 20
+        const centerX = window.innerWidth / 2;
+
+        // Prediction: Natural stop distance D = v / (1 - f)
+        // With f = 0.99, D = 100 * v. (e.g. 6000px)
+        let f = 0.994; // Slower deceleration for smoother feel
+        let D = currentSpeed / (1 - f);
+
+        // We want (currentOffset - D) to result in a ball being centered.
+        // Logic: Ball center = offset + i*UNIT + UNIT/2. We want this to be centerX.
+        // i*UNIT + UNIT/2 + (currentOffset - D) = centerX
+        // D = (currentOffset + UNIT/2 - centerX) + i*UNIT
+
+        const baseD = D;
+        const remainder = (currentOffset + UNIT / 2 - centerX - baseD) % UNIT;
+        D = baseD + remainder;
+
+        // Re-calculate friction to hit D exactly
+        efwState.friction = 1 - (currentSpeed / D);
         efwState.isDecelerating = true;
+
+        // Calculate how many balls will pass before stopping
+        // D / UNIT tells us the index skip
+        const ballsToSkip = Math.round(D / UNIT);
+        efwState.targetBallIndex = ballsToSkip;
+        efwState.ballsPassed = 0;
+
         document.getElementById('efwStatus').innerHTML = "✨ Decelerating...";
         document.getElementById('efwStatus').style.cursor = 'default';
-        overlay.onclick = null; // Prevent double tap
+        overlay.onclick = null;
     };
 
     // Start Loop
