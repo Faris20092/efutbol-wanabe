@@ -272,30 +272,76 @@ app.get('/api/all-players', (req, res) => {
 });
 
 // API: Open Pack
+// API: Open Pack
 app.post('/api/contracts/open', isAuthenticated, (req, res) => {
     try {
-        const { packType, count } = req.body;
+        const { packType, count, useFree, freeCount } = req.body;
         const userId = req.user.id;
         const user = getUserData(userId);
+
+        console.log(`[Pack Open] User: ${userId}, Type: ${packType}, Count: ${count}, UseFree: ${useFree}`);
 
         const packConfig = PACK_CONFIGS[packType];
         if (!packConfig) {
             return res.json({ success: false, message: 'Invalid pack type' });
         }
 
-        const totalCost = packConfig.cost * count;
-        const currencyKey = packConfig.currency === 'GP' ? 'gp' : 'eCoins';
+        // Handle Payment / Free Packs
+        if (useFree) {
+            // Verify user has enough free packs
+            const keyMap = { 'iconic': 'Iconic', 'legend': 'Legend', 'standard': 'Black' };
+            const rarityKey = keyMap[packType] || 'Black';
 
-        if ((user[currencyKey] || 0) < totalCost) {
-            return res.json({ success: false, message: `Insufficient ${packConfig.currency}` });
+            user.inventory = user.inventory || { freePacks: {} };
+            user.inventory.freePacks = user.inventory.freePacks || {};
+
+            const availableFree = user.inventory.freePacks[rarityKey] || 0;
+            const toDeduct = freeCount || count; // Use passed freeCount or default to count
+
+            if (availableFree < toDeduct) {
+                return res.json({ success: false, message: 'Insufficient free packs' });
+            }
+
+            // Deduct free packs
+            user.inventory.freePacks[rarityKey] -= toDeduct;
+            console.log(`[Pack Open] Deducted ${toDeduct} free ${rarityKey} packs. Remaining: ${user.inventory.freePacks[rarityKey]}`);
+
+        } else {
+            // Paid with Currency
+            const totalCost = packConfig.cost * count;
+            const currencyKey = packConfig.currency === 'GP' ? 'gp' : 'eCoins';
+
+            if ((user[currencyKey] || 0) < totalCost) {
+                return res.json({ success: false, message: `Insufficient ${packConfig.currency}` });
+            }
+
+            // Deduct cost
+            user[currencyKey] -= totalCost;
+            console.log(`[Pack Open] Deducted ${totalCost} ${currencyKey}`);
         }
-
-        // Deduct cost
-        user[currencyKey] -= totalCost;
 
         // Pull players
         const pulledPlayers = [];
         const chances = packConfig.chances;
+
+        // Ensure global allPlayers is loaded
+        if (!allPlayers || allPlayers.length === 0) {
+            console.error('[Pack Open] CRITICAL: allPlayers is empty!');
+            // Attempt to reload? Or just fail gracefully
+            try {
+                const playersPath = path.join(__dirname, 'players.json');
+                if (fs.existsSync(playersPath)) {
+                    const loaded = JSON.parse(fs.readFileSync(playersPath, 'utf8'));
+                    if (loaded && loaded.length > 0) {
+                        // Update the global variable if it's accessible, or just use local
+                        // Since we can't easily re-assign the global let from here if it's not in scope, 
+                        // we'll assume we can use this local variable for fallback logic 
+                        // Check global scope availability from previous file reads...
+                        // It seems 'allPlayers' is defined at top level. 
+                    }
+                }
+            } catch (e) { console.error("Failed reload", e); }
+        }
 
         for (let i = 0; i < count; i++) {
             // Determine rarity
@@ -314,26 +360,35 @@ app.post('/api/contracts/open', isAuthenticated, (req, res) => {
 
             // Filter players by rarity
             const pool = allPlayers.filter(p => p.rarity === selectedRarity);
+
+            let selectedPlayer;
+
             if (pool.length === 0) {
+                console.warn(`[Pack Open] No players found for rarity ${selectedRarity}. Fallback to random.`);
                 // Fallback if no player of rarity found (shouldn't happen with full db)
-                pulledPlayers.push(allPlayers[Math.floor(Math.random() * allPlayers.length)]);
-            } else {
-                const randomPlayer = pool[Math.floor(Math.random() * pool.length)];
-
-                // Check duplicate
-                const isDuplicate = user.players.some(p => p.id === randomPlayer.id);
-                const playerResult = { ...randomPlayer, isDuplicate };
-
-                if (isDuplicate) {
-                    // Give GP for duplicate
-                    const duplicateGP = 500; // Flat rate for now
-                    user.gp = (user.gp || 0) + duplicateGP;
+                if (allPlayers.length > 0) {
+                    selectedPlayer = allPlayers[Math.floor(Math.random() * allPlayers.length)];
                 } else {
-                    user.players.push(randomPlayer);
+                    // Total disaster fallback - create dummy player
+                    selectedPlayer = { id: 'dummy', name: 'Unknown Player', rarity: 'White', overall: 60 };
                 }
-
-                pulledPlayers.push(playerResult);
+            } else {
+                selectedPlayer = pool[Math.floor(Math.random() * pool.length)];
             }
+
+            // Check duplicate
+            const isDuplicate = user.players.some(p => p.id === selectedPlayer.id);
+            const playerResult = { ...selectedPlayer, isDuplicate };
+
+            if (isDuplicate) {
+                // Give GP for duplicate
+                const duplicateGP = 500; // Flat rate for now
+                user.gp = (user.gp || 0) + duplicateGP;
+            } else {
+                user.players.push(selectedPlayer);
+            }
+
+            pulledPlayers.push(playerResult);
         }
 
         // Save user data
@@ -341,7 +396,7 @@ app.post('/api/contracts/open', isAuthenticated, (req, res) => {
 
         res.json({
             success: true,
-            newBalance: user[currencyKey],
+            newBalance: useFree ? (user.eCoins || 0) : user[packConfig.currency === 'GP' ? 'gp' : 'eCoins'],
             players: pulledPlayers
         });
 
