@@ -35,7 +35,7 @@ const PACKS = {
 const RARITY_EMOJIS = {
     'Iconic': '💎',
     'Legend': '🌟',
-    'Black': '⚫',
+    'Black': '🌑',
     'Gold': '🟡',
     'Silver': '⚪',
     'Bronze': '🟤',
