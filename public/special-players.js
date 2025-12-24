@@ -661,11 +661,11 @@ async function showPackResult(players) {
             track.appendChild(first); // Move first ball to end of line
 
             // RECYCLE LOGIC: PES Mobile Colorful Deceleration
-            if (efwState.isDecelerating && efwState.targetRarity && efwState.speed < 12) {
-                // Rigging the spin ONLY when very close to stopping to avoid uniform color trail
-                // We'll give it a 30% chance to be the target rarity when slow, otherwise random colorful
+            if (efwState.isDecelerating && efwState.targetRarity && efwState.speed < 15) {
+                // To avoid "color jump" at stop, we must seed the track with the target rarity
+                // during deceleration. 35% chance to be target, otherwise colorful filler.
                 const r = Math.random();
-                if (r > 0.7) {
+                if (r > 0.65) {
                     first.dataset.rarity = efwState.targetRarity;
                 } else {
                     // Still colorful during deceleration
@@ -729,27 +729,41 @@ function snapToGrid() {
     const track = efwState.trackElement;
     const centerX = window.innerWidth / 2;
 
-    // Find closest ball geometrically
+    // Find closest ball geometrically that MATCHES the target rarity
     const balls = Array.from(track.children);
     let closestBall = null;
     let minDiff = Infinity;
 
+    // First try to find the closest ball that already HAS the target rarity
     balls.forEach(ball => {
-        const rect = ball.getBoundingClientRect();
-        const ballCenter = rect.left + (rect.width / 2);
-        const diff = Math.abs(centerX - ballCenter);
+        if (ball.dataset.rarity === efwState.targetRarity) {
+            const rect = ball.getBoundingClientRect();
+            const ballCenter = rect.left + (rect.width / 2);
+            const diff = Math.abs(centerX - ballCenter);
 
-        if (diff < minDiff) {
-            minDiff = diff;
-            closestBall = ball;
+            if (diff < minDiff) {
+                minDiff = diff;
+                closestBall = ball;
+            }
         }
     });
 
+    // Failsafe: if somehow no target ball exists, find absolute closest and force it (should be rare now)
+    if (!closestBall) {
+        console.warn("No target ball found on track, using absolute closest.");
+        balls.forEach(ball => {
+            const rect = ball.getBoundingClientRect();
+            const ballCenter = rect.left + (rect.width / 2);
+            const diff = Math.abs(centerX - ballCenter);
+            if (diff < minDiff) {
+                minDiff = diff;
+                closestBall = ball;
+            }
+        });
+        if (closestBall) closestBall.dataset.rarity = efwState.targetRarity;
+    }
+
     if (closestBall) {
-        // Magician's Choice
-        if (closestBall.dataset.rarity !== efwState.targetRarity) {
-            closestBall.dataset.rarity = efwState.targetRarity;
-        }
 
         const rect = closestBall.getBoundingClientRect();
         const diff = (window.innerWidth / 2) - (rect.left + rect.width / 2);
