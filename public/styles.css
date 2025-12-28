@@ -3320,3 +3320,195 @@ body {
     transform: scale(1);
     animation: cardReveal 0.5s ease-out both;
 }
+
+/* 
+=====================================================
+  WALKOUT ANIMATION STYLES (FIFA STYLE)
+=====================================================
+*/
+
+.efw-walkout-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: #000;
+    z-index: 9999;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    color: #fff;
+    font-family: 'Segoe UI', sans-serif;
+}
+
+/* 1. STADIUM LIGHTS BACKGROUND */
+.walkout-lights-bg {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: radial-gradient(circle at 50% 0%, var(--walkout-color, #fff) 0%, #000 60%);
+    opacity: 0;
+    animation: lightsOn 2s ease-out forwards;
+}
+
+.spotlight {
+    position: absolute;
+    top: -20%;
+    left: 50%;
+    width: 200px;
+    height: 150vh;
+    background: linear-gradient(to bottom, rgba(255,255,255,0.8), transparent);
+    transform-origin: top center;
+    filter: blur(20px);
+    opacity: 0.6;
+}
+
+.spotlight.left {
+    animation: swingLeft 4s ease-in-out infinite alternate;
+}
+
+.spotlight.right {
+    animation: swingRight 4s ease-in-out infinite alternate;
+}
+
+/* 2. WALKOUT INFORMATION (Country, League, Team, Position) */
+.walkout-info-container {
+    z-index: 10;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+}
+
+.walkout-text-huge {
+    font-size: 8em;
+    font-weight: 900;
+    text-transform: uppercase;
+    text-shadow: 0 0 30px rgba(255,255,255,0.5);
+    opacity: 0;
+    transform: scale(2);
+    /* Animation applied via JS classes */
+}
+
+.walkout-text-large {
+    font-size: 4em;
+    font-weight: 800;
+    text-transform: uppercase;
+    text-shadow: 0 0 20px rgba(255,255,255,0.5);
+    opacity: 0;
+    transform: translateY(50px);
+}
+
+.walkout-text-medium {
+    font-size: 2.5em;
+    font-weight: 700;
+    color: rgba(255,255,255,0.9);
+    opacity: 0;
+}
+
+.walkout-flag {
+    font-size: 10em; /* Emoji Size */
+    filter: drop-shadow(0 0 20px rgba(255,255,255,0.3));
+    opacity: 0;
+    transform: scale(0);
+}
+
+/* 3. CARD REVEAL */
+.walkout-card-container {
+    z-index: 20;
+    position: relative;
+    opacity: 0;
+    transform: scale(0.5) translateY(100px);
+}
+
+.walkout-card-glow {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 400px;
+    height: 400px;
+    background: radial-gradient(circle, var(--walkout-color) 0%, transparent 70%);
+    z-index: -1;
+    animation: pulseGlow 2s infinite alternate;
+}
+
+/* 4. ANIMATION CLASSES (Triggered by JS) */
+.animate-in-slam {
+    animation: textSlam 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+}
+
+.animate-in-fade {
+    animation: fadeUp 0.6s ease-out forwards;
+}
+
+.animate-card-reveal {
+    animation: cardRevealDramatic 0.8s cubic-bezier(0.68, -0.55, 0.265, 1.55) forwards;
+}
+
+.animate-out-fade {
+    animation: fadeOut 0.4s ease-in forwards;
+}
+
+.walkout-skip-btn {
+    position: absolute;
+    bottom: 30px;
+    padding: 10px 20px;
+    background: rgba(255,255,255,0.2);
+    border: 1px solid rgba(255,255,255,0.4);
+    border-radius: 20px;
+    color: #fff;
+    font-size: 0.9em;
+    cursor: pointer;
+    z-index: 100;
+    transition: background 0.2s;
+}
+.walkout-skip-btn:hover { background: rgba(255,255,255,0.4); }
+
+/* KEYFRAMES */
+@keyframes lightsOn {
+    0% { opacity: 0; }
+    100% { opacity: 0.8; }
+}
+
+@keyframes swingLeft {
+    0% { transform: rotate(-15deg) translateX(-50px); }
+    100% { transform: rotate(5deg) translateX(20px); }
+}
+
+@keyframes swingRight {
+    0% { transform: rotate(15deg) translateX(50px); }
+    100% { transform: rotate(-5deg) translateX(-20px); }
+}
+
+@keyframes textSlam {
+    0% { opacity: 0; transform: scale(3); filter: blur(10px); }
+    100% { opacity: 1; transform: scale(1); filter: blur(0); }
+}
+
+@keyframes fadeUp {
+    0% { opacity: 0; transform: translateY(50px); }
+    100% { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fadeOut {
+    0% { opacity: 1; transform: scale(1); }
+    100% { opacity: 0; transform: scale(1.2); filter: blur(5px); }
+}
+
+@keyframes cardRevealDramatic {
+    0% { opacity: 0; transform: scale(0.2) rotateY(180deg); filter: brightness(0); }
+    50% { opacity: 1; filter: brightness(2); }
+    100% { opacity: 1; transform: scale(1) rotateY(0deg); filter: brightness(1); }
+}
+
+@keyframes pulseGlow {
+    0% { opacity: 0.5; transform: translate(-50%, -50%) scale(0.8); }
+    100% { opacity: 1; transform: translate(-50%, -50%) scale(1.2); }
+}
