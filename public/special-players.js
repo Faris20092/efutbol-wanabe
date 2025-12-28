@@ -586,7 +586,7 @@ async function buyPack(count, isFree = false, freeCount = 0) {
 
 // Helper: Extract Country from League
 function getCountryFromLeague(league) {
-    if (!league) return 'Unknown';
+    if (!league || league === 'Unknown' || league === 'Unknown League') return 'World 🌍';
     if (league.includes('England')) return 'England 🏴󠁧󠁢󠁥󠁮󠁧󠁿';
     if (league.includes('Spain')) return 'Spain 🇪🇸';
     if (league.includes('Italy')) return 'Italy 🇮🇹';
@@ -683,7 +683,7 @@ function startWalkoutAnimation(player, allPlayers) {
         // 3. League Reveal
         const elLeague = document.getElementById('woLeague');
         if (elLeague) {
-            elLeague.textContent = player.league || 'Unknown League';
+            elLeague.textContent = (player.league && player.league !== 'Unknown' && player.league !== 'Unknown League') ? player.league : 'Global League';
             elLeague.classList.add('animate-in-fade');
         }
 
@@ -691,7 +691,7 @@ function startWalkoutAnimation(player, allPlayers) {
         await delay(800);
         const elTeam = document.getElementById('woTeam');
         if (elTeam) {
-            elTeam.textContent = player.team || '';
+            elTeam.textContent = (player.team && player.team !== 'Unknown' && player.team !== 'Unknown Team') ? player.team : 'Free Agent';
             elTeam.classList.add('animate-in-fade');
         }
         await delay(1500);
@@ -724,7 +724,7 @@ function startWalkoutAnimation(player, allPlayers) {
                 <div class="player-card-rarity" style="font-size: 2em; top: 80px;">${RARITY_EMOJIS[player.rarity] || '💎'}</div>
                 <img src="/assets/playerimages/${player.id}.png" 
                      class="player-detail-image" 
-                     onerror="this.onerror=null; this.src='${player.image}'; this.onerror=function(){this.src='/assets/playerimages/default_player.png'}">
+                     onerror="this.src='/assets/faces/${player.name.replace(/[^a-zA-Z0-9\-_]/g, '_').toLowerCase().replace(/_+/g, '_').replace(/_+$/g, '')}.png'; this.onerror=function(){this.src='/assets/playerimages/default_player.png'}">
                 <div class="player-card-rarity-bottom" style="font-size: 1em; padding: 10px;">${player.name}</div>
             </div>
         `;
@@ -767,7 +767,7 @@ function showRevealGrid(sortedPlayers) {
                 <div class="player-card-rarity" style="font-size: 1.2em; top: 70px;">${RARITY_EMOJIS[player.rarity] || '⚽'}</div>
                 <img src="/assets/playerimages/${player.id}.png" 
                      class="player-detail-image" 
-                     onerror="this.onerror=null; this.src='${player.image}'; this.onerror=function(){this.src='/assets/playerimages/default_player.png'}">
+                     onerror="this.src='/assets/faces/${player.name.replace(/[^a-zA-Z0-9\-_]/g, '_').toLowerCase().replace(/_+/g, '_').replace(/_+$/g, '')}.png'; this.onerror=function(){this.src='/assets/playerimages/default_player.png'}">
                 <div class="player-card-rarity-bottom" style="font-size: 0.7em; padding: 4px;">${truncateName(player.name)}</div>
             </div>
         `;
