@@ -73,16 +73,35 @@ async function loadAllPlayers() {
         const response = await fetch('/api/all-players');
         const data = await response.json();
         const rawPlayers = data.players || [];
-        
-        // Map new JSON schema to internal format and DERIVE RARITY
+
+        // Map new JSON schema to internal format
+        // USE DATABASE RARITY IF AVAILABLE (Updated via script)
         allPlayers = rawPlayers.map(p => {
             const rating = p.overall_rating || 75;
-            let derivedRarity = 'Bronze';
-            if (rating >= 90) derivedRarity = 'Iconic';
-            else if (rating >= 85) derivedRarity = 'Legend';
-            else if (rating >= 82) derivedRarity = 'Black';
-            else if (rating >= 78) derivedRarity = 'Gold';
-            else if (rating >= 75) derivedRarity = 'Silver';
+            let finalRarity = p.rarity; // Try to use DB value first
+
+            // Fallback Derivation if DB is missing rarity
+            if (!finalRarity) {
+                if (rating >= 90) finalRarity = 'Iconic';
+                else if (rating >= 86) finalRarity = 'Legend';
+                else if (rating >= 77 && rating <= 85) {
+                    finalRarity = 'Black';
+                    if (rating <= 79 && Math.random() < 0.4) finalRarity = 'Gold';
+                }
+                else if (rating >= 74 && rating <= 76) {
+                    finalRarity = 'Gold';
+                    if (Math.random() < 0.4) finalRarity = 'Silver';
+                }
+                else if (rating >= 70 && rating <= 73) {
+                    finalRarity = 'Silver';
+                    if (rating <= 72 && Math.random() < 0.4) finalRarity = 'Bronze';
+                }
+                else if (rating >= 65 && rating <= 69) {
+                    finalRarity = 'Bronze';
+                    if (rating <= 66 && Math.random() < 0.4) finalRarity = 'White';
+                }
+                else finalRarity = 'White';
+            }
 
             // Map Stats (Approximate mapping)
             const stats = {
@@ -97,7 +116,7 @@ async function loadAllPlayers() {
             return {
                 id: p.id,
                 name: p.name,
-                rarity: derivedRarity, // Derived
+                rarity: finalRarity,
                 overall: rating,
                 position: p.position,
                 team: p.team,
@@ -106,7 +125,7 @@ async function loadAllPlayers() {
                 image: p.image_url // Store external URL if needed
             };
         });
-        
+
     } catch (e) {
         console.error("Error loading players:", e);
     }
@@ -592,7 +611,7 @@ async function showPackResult(players) {
 
     // 1. Determine Main Walkout Player (Highest Rated)
     const rarityOrder = ['Iconic', 'Legend', 'Black', 'Gold', 'Silver', 'Bronze', 'White'];
-    
+
     // Sort logic matching the rarity order + rating
     const sortedPlayers = [...players].sort((a, b) => {
         const aIdx = rarityOrder.indexOf(a.rarity);
@@ -613,7 +632,7 @@ function startWalkoutAnimation(player, allPlayers) {
     const container = document.createElement('div');
     container.className = 'efw-walkout-container';
     container.style.setProperty('--walkout-color', color);
-    
+
     container.innerHTML = `
         <div class="walkout-lights-bg"></div>
         <div class="spotlight left"></div>
@@ -651,10 +670,10 @@ function startWalkoutAnimation(player, allPlayers) {
     (async () => {
         // 1. Lights Up
         await delay(500);
-        
+
         // 2. Country Reveal
         const elCountry = document.getElementById('woCountry');
-        if(elCountry) {
+        if (elCountry) {
             elCountry.style.opacity = '1';
             elCountry.style.transform = 'scale(1)';
             elCountry.classList.add('animate-in-slam');
@@ -663,40 +682,40 @@ function startWalkoutAnimation(player, allPlayers) {
 
         // 3. League Reveal
         const elLeague = document.getElementById('woLeague');
-        if(elLeague) {
+        if (elLeague) {
             elLeague.textContent = player.league || 'Unknown League';
             elLeague.classList.add('animate-in-fade');
         }
-        
+
         // 4. Team Reveal (Quickly after league)
         await delay(800);
         const elTeam = document.getElementById('woTeam');
-        if(elTeam) {
+        if (elTeam) {
             elTeam.textContent = player.team || '';
             elTeam.classList.add('animate-in-fade');
         }
         await delay(1500);
 
         // Hide Country/League/Team to make room for Position
-        if(elCountry) elCountry.classList.add('animate-out-fade');
-        if(elLeague) elLeague.classList.add('animate-out-fade');
-        if(elTeam) elTeam.classList.add('animate-out-fade');
+        if (elCountry) elCountry.classList.add('animate-out-fade');
+        if (elLeague) elLeague.classList.add('animate-out-fade');
+        if (elTeam) elTeam.classList.add('animate-out-fade');
         await delay(400);
 
         // 5. Position Reveal (Huge)
         const elPos = document.getElementById('woPos');
-        if(elPos) {
+        if (elPos) {
             elPos.textContent = player.position;
             elPos.classList.add('animate-in-slam');
         }
         await delay(1500);
-        if(elPos) elPos.classList.add('animate-out-fade'); // Fade out position
+        if (elPos) elPos.classList.add('animate-out-fade'); // Fade out position
         await delay(300);
 
         // 6. CARD DROP (The Reveal)
         const cardContainer = document.getElementById('woCardContainer');
         const nameSlug = player.name.toLowerCase().replace(/\s+/g, '_');
-        
+
         // Construct Card HTML
         cardContainer.innerHTML += `
             <div class="player-detail-card" data-rarity="${player.rarity}" style="width: 300px; height: 420px; box-shadow: 0 0 60px ${color};">
@@ -709,13 +728,13 @@ function startWalkoutAnimation(player, allPlayers) {
                 <div class="player-card-rarity-bottom" style="font-size: 1em; padding: 10px;">${player.name}</div>
             </div>
         `;
-        
+
         cardContainer.classList.add('animate-card-reveal'); // Apply CSS animation logic
         cardContainer.style.opacity = '1';
-        
+
         // Change button to Continue
         const btn = container.querySelector('.walkout-skip-btn');
-        if(btn) {
+        if (btn) {
             btn.textContent = "CONTINUE";
             btn.onclick = finishWalkout;
         }
@@ -731,9 +750,9 @@ function skipWalkout() {
 function finishWalkout() {
     const container = window.currentWalkoutContainer;
     const players = window.currentWalkoutPlayers;
-    
-    if(container) container.remove();
-    
+
+    if (container) container.remove();
+
     // Show grid of all 10 players
     showRevealGrid(players);
 }
@@ -777,10 +796,10 @@ function cleanupAnimation() {
 
 // Mock test
 window.testWalkout = async () => {
-   const mock = [{
-       id: 'test', name: 'Haaland', rarity: 'Iconic', overall: 98, position: 'CF', league: 'England Div 1', team: 'Manchester B', image: ''
-   }];
-   startWalkoutAnimation(mock[0], mock);
+    const mock = [{
+        id: 'test', name: 'Haaland', rarity: 'Iconic', overall: 98, position: 'CF', league: 'England Div 1', team: 'Manchester B', image: ''
+    }];
+    startWalkoutAnimation(mock[0], mock);
 };
 
 document.addEventListener('DOMContentLoaded', init);
