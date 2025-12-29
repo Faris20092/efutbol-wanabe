@@ -173,8 +173,30 @@ function createDefaultUser(userId, username) {
     const starters = candidates
         .map(value => ({ value, sort: Math.random() }))
         .sort((a, b) => a.sort - b.sort)
-        .map(({ value }) => value)
-        .slice(0, 22);
+        .slice(0, 22)
+        .map(({ value }) => {
+            // Determine rarity if missing
+            let rarity = value.rarity;
+            const rating = value.overall_rating || value.overall || 75;
+            if (!rarity) {
+                if (rating < 75) rarity = 'Bronze';
+                else rarity = 'Silver';
+            }
+            return {
+                id: value.id,
+                name: value.name,
+                position: value.position,
+                rarity: rarity,
+                overall: rating,
+                stats: value.stats || {},
+                playingStyle: value.playingStyle,
+                team: value.team,
+                league: value.league,
+                nationality: value.nation,
+                level: 1,
+                exp: 0
+            };
+        });
 
     // Fallback if not enough candidates
     if (starters.length < 22) {
@@ -200,7 +222,10 @@ function createDefaultUser(userId, username) {
                 description: 'Here are 22 Free Agent players to get you started. Build your dream team!',
                 date: new Date().toISOString(),
                 claimed: false,
-                rewards: [{ type: 'gp', amount: 5000 }]
+                rewards: {
+                    gp: 5000,
+                    eCoins: 100
+                }
             }
         ],
         stats: { wins: 0, draws: 0, losses: 0 },
