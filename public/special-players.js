@@ -601,12 +601,12 @@ async function showPackResult(players) {
     // 1. Determine Main Walkout Player (Highest Rated)
     const rarityOrder = ['Iconic', 'Legend', 'Black', 'Gold', 'Silver', 'Bronze', 'White'];
 
-    // Sort logic matching the rarity order + rating
+    // Sort logic safe for API data
     const sortedPlayers = [...players].sort((a, b) => {
         const aIdx = rarityOrder.indexOf(a.rarity);
         const bIdx = rarityOrder.indexOf(b.rarity);
         if (aIdx !== bIdx) return aIdx - bIdx;
-        return (b.overall || 0) - (a.overall || 0);
+        return (b.overall || b.overall_rating || 0) - (a.overall || a.overall_rating || 0);
     });
 
     const bestPlayer = sortedPlayers[0];
@@ -696,7 +696,7 @@ function startWalkoutAnimation(player, allPlayers) {
         const cardContainer = document.getElementById('woCardContainer');
         cardContainer.innerHTML += `
             <div class="player-detail-card" data-rarity="${player.rarity}" style="width: 300px; height: 420px; box-shadow: 0 0 60px ${color};">
-                <div class="player-card-rating" style="font-size: 2.5em;">${player.overall}</div>
+                <div class="player-card-rating" style="font-size: 2.5em;">${player.overall || player.overall_rating || 0}</div>
                 <div class="player-card-position" style="font-size: 1.2em;">${player.position}</div>
                 <div class="player-card-rarity" style="font-size: 2em; top: 80px;">${RARITY_EMOJIS[player.rarity] || '💎'}</div>
                 <img src="/assets/playerimages/${player.id}.png" 
@@ -737,7 +737,7 @@ function showRevealGrid(sortedPlayers) {
         return `
             <div class="player-detail-card" data-rarity="${player.rarity}" 
                  style="width: 140px; height: 200px; animation: cardReveal 0.5s ease-out ${index * 0.1}s both; cursor: pointer; margin: 10px;">
-                <div class="player-card-rating" style="font-size: 1.8em; top: 30px;">${player.overall || 0}</div>
+                <div class="player-card-rating" style="font-size: 1.8em; top: 30px;">${player.overall || player.overall_rating || 0}</div>
                 <div class="player-card-position" style="font-size: 0.85em;">${player.position}</div>
                 <div class="player-card-rarity" style="font-size: 1.2em; top: 70px;">${RARITY_EMOJIS[player.rarity] || '⚽'}</div>
                 <img src="/assets/playerimages/${player.id}.png" 
