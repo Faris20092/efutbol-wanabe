@@ -1,12 +1,14 @@
-// FM-Style Match Engine
+// FM-Style Match Engine with Player Movement
 let userData = null;
 let allPlayers = [];
 let matchState = null;
 let chanceResolve = null;
 let chanceTimeout = null;
 let cooldownUntil = 0;
+let playerAnimationInterval = null;
+let matchRunning = false;
 
-const COOLDOWN_MS = 20000; // 20 second cooldown
+const COOLDOWN_MS = 20000;
 
 const MATCH_REWARDS = {
     win: { gp: 5000, eCoins: 10 },
@@ -24,49 +26,49 @@ const AI_TEAMS = [
     { name: 'Chelsea', strength: 82, formation: '3-4-3' },
     { name: 'Juventus', strength: 81, formation: '3-5-2' },
     { name: 'Arsenal', strength: 80, formation: '4-3-3' },
-    { name: 'Manchester United', strength: 79, formation: '4-2-3-1' },
-    { name: 'Brazil', strength: 87, formation: '4-2-3-1' },
-    { name: 'Argentina', strength: 86, formation: '4-3-3' },
-    { name: 'France', strength: 88, formation: '4-2-3-1' },
-    { name: 'Germany', strength: 85, formation: '4-2-3-1' },
-    { name: 'Spain', strength: 84, formation: '4-3-3' },
-    { name: 'England', strength: 85, formation: '4-3-3' }
+    { name: 'Manchester United', strength: 79, formation: '4-2-3-1' }
 ];
 
-// Formation positions (percentage from top-left)
+// Base formation positions (will be animated)
 const FORMATION_POSITIONS = {
     '4-3-3': [
-        { x: 50, y: 90, isGK: true },  // GK
-        { x: 15, y: 70 }, { x: 38, y: 75 }, { x: 62, y: 75 }, { x: 85, y: 70 }, // DEF
-        { x: 30, y: 50 }, { x: 50, y: 45 }, { x: 70, y: 50 }, // MID
-        { x: 20, y: 25 }, { x: 50, y: 20 }, { x: 80, y: 25 }  // ATT
+        { x: 50, y: 92, isGK: true },
+        { x: 15, y: 75 }, { x: 38, y: 78 }, { x: 62, y: 78 }, { x: 85, y: 75 },
+        { x: 30, y: 55 }, { x: 50, y: 50 }, { x: 70, y: 55 },
+        { x: 20, y: 30 }, { x: 50, y: 25 }, { x: 80, y: 30 }
     ],
     '4-2-3-1': [
-        { x: 50, y: 90, isGK: true },
-        { x: 15, y: 70 }, { x: 38, y: 75 }, { x: 62, y: 75 }, { x: 85, y: 70 },
-        { x: 35, y: 55 }, { x: 65, y: 55 },
-        { x: 20, y: 35 }, { x: 50, y: 30 }, { x: 80, y: 35 },
-        { x: 50, y: 15 }
+        { x: 50, y: 92, isGK: true },
+        { x: 15, y: 75 }, { x: 38, y: 78 }, { x: 62, y: 78 }, { x: 85, y: 75 },
+        { x: 35, y: 60 }, { x: 65, y: 60 },
+        { x: 20, y: 40 }, { x: 50, y: 35 }, { x: 80, y: 40 },
+        { x: 50, y: 20 }
     ],
     '3-5-2': [
-        { x: 50, y: 90, isGK: true },
-        { x: 30, y: 75 }, { x: 50, y: 78 }, { x: 70, y: 75 },
-        { x: 10, y: 50 }, { x: 35, y: 55 }, { x: 50, y: 50 }, { x: 65, y: 55 }, { x: 90, y: 50 },
-        { x: 35, y: 20 }, { x: 65, y: 20 }
+        { x: 50, y: 92, isGK: true },
+        { x: 30, y: 78 }, { x: 50, y: 80 }, { x: 70, y: 78 },
+        { x: 10, y: 55 }, { x: 35, y: 58 }, { x: 50, y: 52 }, { x: 65, y: 58 }, { x: 90, y: 55 },
+        { x: 35, y: 25 }, { x: 65, y: 25 }
     ],
     '4-4-2': [
-        { x: 50, y: 90, isGK: true },
-        { x: 15, y: 70 }, { x: 38, y: 75 }, { x: 62, y: 75 }, { x: 85, y: 70 },
-        { x: 15, y: 45 }, { x: 38, y: 50 }, { x: 62, y: 50 }, { x: 85, y: 45 },
-        { x: 35, y: 20 }, { x: 65, y: 20 }
+        { x: 50, y: 92, isGK: true },
+        { x: 15, y: 75 }, { x: 38, y: 78 }, { x: 62, y: 78 }, { x: 85, y: 75 },
+        { x: 15, y: 50 }, { x: 38, y: 55 }, { x: 62, y: 55 }, { x: 85, y: 50 },
+        { x: 35, y: 25 }, { x: 65, y: 25 }
     ],
     '3-4-3': [
-        { x: 50, y: 90, isGK: true },
-        { x: 30, y: 75 }, { x: 50, y: 78 }, { x: 70, y: 75 },
-        { x: 15, y: 50 }, { x: 40, y: 55 }, { x: 60, y: 55 }, { x: 85, y: 50 },
-        { x: 20, y: 22 }, { x: 50, y: 18 }, { x: 80, y: 22 }
+        { x: 50, y: 92, isGK: true },
+        { x: 30, y: 78 }, { x: 50, y: 80 }, { x: 70, y: 78 },
+        { x: 15, y: 55 }, { x: 40, y: 58 }, { x: 60, y: 58 }, { x: 85, y: 55 },
+        { x: 20, y: 28 }, { x: 50, y: 22 }, { x: 80, y: 28 }
     ]
 };
+
+// Store current player positions for animation
+let homePlayers = [];
+let awayPlayers = [];
+let ballPosition = { x: 50, y: 50 };
+let possessionTeam = 'home'; // 'home' or 'away'
 
 async function init() {
     await loadUserData();
@@ -80,7 +82,6 @@ async function loadUserData() {
         const response = await fetch('/api/user');
         const data = await response.json();
         userData = data.gameData;
-
         document.getElementById('topGP').textContent = (userData.gp || 0).toLocaleString();
         document.getElementById('topEcoins').textContent = userData.eCoins || 0;
     } catch (error) {
@@ -100,29 +101,21 @@ async function loadPlayers() {
 
 function calculateTeamStrength() {
     if (!userData.squad?.main) return 0;
-    let total = 0;
-    let count = 0;
-
+    let total = 0, count = 0;
     userData.squad.main.forEach(playerId => {
         if (playerId) {
             const player = allPlayers.find(p => p.id === playerId);
-            if (player) {
-                total += player.overall || 0;
-                count++;
-            }
+            if (player) { total += player.overall || 0; count++; }
         }
     });
-
     return count > 0 ? Math.round(total / count) : 0;
 }
 
 function updateSquadStatus() {
     const playersInSquad = userData.squad?.main?.filter(id => id !== null && id !== undefined).length || 0;
     const strength = calculateTeamStrength();
-
     document.getElementById('playerStrength').textContent = strength;
     document.getElementById('playerCount').textContent = `${playersInSquad}/11`;
-
     const playBtn = document.getElementById('playBtn');
     if (playersInSquad >= 11) {
         document.getElementById('squadStatus').textContent = '✅ Squad Ready!';
@@ -137,10 +130,7 @@ function checkCooldown() {
     const stored = localStorage.getItem('matchCooldown');
     if (stored) {
         cooldownUntil = parseInt(stored);
-        if (Date.now() < cooldownUntil) {
-            updateCooldownDisplay();
-            return;
-        }
+        if (Date.now() < cooldownUntil) { updateCooldownDisplay(); }
     }
 }
 
@@ -151,14 +141,11 @@ function updateCooldownDisplay() {
         document.getElementById('cooldownMsg').style.display = 'block';
         document.getElementById('cooldownMsg').textContent = `⏳ Wait ${remaining}s before next match`;
         document.getElementById('playBtn').disabled = true;
-
         setTimeout(updateCooldownDisplay, 1000);
     } else {
         document.getElementById('cooldownMsg').style.display = 'none';
         const playersInSquad = userData.squad?.main?.filter(id => id !== null && id !== undefined).length || 0;
-        if (playersInSquad >= 11) {
-            document.getElementById('playBtn').disabled = false;
-        }
+        if (playersInSquad >= 11) document.getElementById('playBtn').disabled = false;
     }
 }
 
@@ -166,16 +153,13 @@ function updateCooldownDisplay() {
 // MATCH START
 // ==========================
 async function startMatch() {
-    // Set cooldown
     cooldownUntil = Date.now() + COOLDOWN_MS;
     localStorage.setItem('matchCooldown', cooldownUntil);
 
-    // Select opponent
     const opponent = AI_TEAMS[Math.floor(Math.random() * AI_TEAMS.length)];
     const playerStrength = calculateTeamStrength();
     const homeFormation = userData.formation || '4-3-3';
 
-    // Initialize match state
     matchState = {
         playerScore: 0,
         opponentScore: 0,
@@ -189,11 +173,13 @@ async function startMatch() {
             shotsOnTarget: { home: 0, away: 0 },
             corners: { home: 0, away: 0 },
             fouls: { home: 0, away: 0 }
-        },
-        events: []
+        }
     };
 
-    // Update UI
+    matchRunning = true;
+    possessionTeam = 'home';
+
+    // UI updates
     document.getElementById('matchSetup').style.display = 'none';
     document.getElementById('matchLive').classList.add('active');
     document.getElementById('opponentName').textContent = opponent.name;
@@ -203,56 +189,201 @@ async function startMatch() {
     document.getElementById('awayFormation').textContent = opponent.formation;
     document.getElementById('matchEvents').innerHTML = '';
 
-    // Draw players on pitch
-    drawPlayersOnPitch(homeFormation, opponent.formation);
-
-    // Reset stats display
+    // Initialize player positions
+    initializePlayers(homeFormation, opponent.formation);
+    drawPlayers();
     updateStatsDisplay();
 
-    // Add kick-off event
-    addEvent(0, '⚽', 'Kick off! The match begins!', 'normal');
+    // Start continuous player animation
+    startPlayerAnimation();
 
-    // Generate and process match events
-    const events = generateMatchTimeline(playerStrength, opponent.strength);
-    await processMatchEvents(events);
+    addEvent(0, '⚽', 'Kick off! The match has begun!', 'normal');
+
+    // Run the match simulation
+    await runMatch();
 }
 
 // ==========================
-// PITCH VISUALIZATION
+// PLAYER INITIALIZATION
 // ==========================
-function drawPlayersOnPitch(homeFormation, awayFormation) {
+function initializePlayers(homeFormation, awayFormation) {
+    const homeBase = FORMATION_POSITIONS[homeFormation] || FORMATION_POSITIONS['4-3-3'];
+    const awayBase = FORMATION_POSITIONS[awayFormation] || FORMATION_POSITIONS['4-4-2'];
+
+    // Home team (bottom half - attacking upward)
+    homePlayers = homeBase.map((pos, i) => ({
+        id: i,
+        baseX: pos.x,
+        baseY: pos.isGK ? 95 : 50 + (pos.y - 50) * 0.9, // Map to bottom half
+        x: pos.x,
+        y: pos.isGK ? 95 : 50 + (pos.y - 50) * 0.9,
+        isGK: pos.isGK || false,
+        vx: 0,
+        vy: 0
+    }));
+
+    // Away team (top half - attacking downward, mirror Y)
+    awayPlayers = awayBase.map((pos, i) => ({
+        id: i,
+        baseX: pos.x,
+        baseY: pos.isGK ? 5 : 50 - (pos.y - 50) * 0.9, // Map to top half (mirrored)
+        x: pos.x,
+        y: pos.isGK ? 5 : 50 - (pos.y - 50) * 0.9,
+        isGK: pos.isGK || false,
+        vx: 0,
+        vy: 0
+    }));
+
+    ballPosition = { x: 50, y: 50 };
+}
+
+// ==========================
+// PLAYER ANIMATION
+// ==========================
+function startPlayerAnimation() {
+    if (playerAnimationInterval) clearInterval(playerAnimationInterval);
+
+    playerAnimationInterval = setInterval(() => {
+        if (!matchRunning) return;
+
+        // Animate all players
+        animatePlayers();
+        drawPlayers();
+        updateBallPosition();
+
+    }, 100); // 10 FPS for smooth movement
+}
+
+function animatePlayers() {
+    const ballInfluence = 0.3; // How much ball affects player positions
+    const randomWander = 2; // Random movement range
+    const returnForce = 0.1; // Force to return to base position
+
+    // Animate home players
+    homePlayers.forEach(p => {
+        if (p.isGK) {
+            // GK moves slightly based on ball X
+            p.x = p.baseX + (ballPosition.x - 50) * 0.15;
+            p.y = p.baseY;
+            return;
+        }
+
+        // Calculate target based on ball position and possession
+        let targetX = p.baseX;
+        let targetY = p.baseY;
+
+        if (possessionTeam === 'home') {
+            // Push forward when attacking
+            targetY = p.baseY - 8;
+            // Move towards ball area
+            targetX = p.baseX + (ballPosition.x - 50) * ballInfluence * 0.5;
+        } else {
+            // Fall back when defending
+            targetY = p.baseY + 5;
+        }
+
+        // Add randomness
+        targetX += (Math.random() - 0.5) * randomWander;
+        targetY += (Math.random() - 0.5) * randomWander;
+
+        // Smooth movement
+        p.x += (targetX - p.x) * 0.15;
+        p.y += (targetY - p.y) * 0.15;
+
+        // Keep in bounds
+        p.x = Math.max(5, Math.min(95, p.x));
+        p.y = Math.max(45, Math.min(98, p.y));
+    });
+
+    // Animate away players
+    awayPlayers.forEach(p => {
+        if (p.isGK) {
+            p.x = p.baseX + (ballPosition.x - 50) * 0.15;
+            p.y = p.baseY;
+            return;
+        }
+
+        let targetX = p.baseX;
+        let targetY = p.baseY;
+
+        if (possessionTeam === 'away') {
+            // Push forward when attacking
+            targetY = p.baseY + 8;
+            targetX = p.baseX + (ballPosition.x - 50) * ballInfluence * 0.5;
+        } else {
+            // Fall back when defending
+            targetY = p.baseY - 5;
+        }
+
+        targetX += (Math.random() - 0.5) * randomWander;
+        targetY += (Math.random() - 0.5) * randomWander;
+
+        p.x += (targetX - p.x) * 0.15;
+        p.y += (targetY - p.y) * 0.15;
+
+        p.x = Math.max(5, Math.min(95, p.x));
+        p.y = Math.max(2, Math.min(55, p.y));
+    });
+}
+
+function updateBallPosition() {
+    // Ball follows play - smooth movement
+    const nearestPlayer = possessionTeam === 'home'
+        ? homePlayers.filter(p => !p.isGK)[Math.floor(Math.random() * 10)]
+        : awayPlayers.filter(p => !p.isGK)[Math.floor(Math.random() * 10)];
+
+    if (nearestPlayer && Math.random() < 0.05) { // Occasional ball movement
+        const targetX = nearestPlayer.x + (Math.random() - 0.5) * 15;
+        const targetY = nearestPlayer.y + (Math.random() - 0.5) * 10;
+        ballPosition.x += (targetX - ballPosition.x) * 0.3;
+        ballPosition.y += (targetY - ballPosition.y) * 0.3;
+    }
+
+    // Keep ball in bounds
+    ballPosition.x = Math.max(5, Math.min(95, ballPosition.x));
+    ballPosition.y = Math.max(5, Math.min(95, ballPosition.y));
+
+    // Update ball element
+    const ball = document.getElementById('fmBall');
+    ball.style.left = `${ballPosition.x}%`;
+    ball.style.top = `${ballPosition.y}%`;
+}
+
+function drawPlayers() {
     const pitch = document.getElementById('fmPitch');
 
-    // Remove existing player dots (but keep ball and penalty areas)
-    pitch.querySelectorAll('.fm-player-dot').forEach(dot => dot.remove());
-
-    // Home team (bottom half, attacking upwards)
-    const homePositions = FORMATION_POSITIONS[homeFormation] || FORMATION_POSITIONS['4-3-3'];
-    homePositions.forEach((pos, i) => {
-        const dot = document.createElement('div');
-        dot.className = `fm-player-dot home ${pos.isGK ? 'gk' : ''}`;
-        dot.style.left = `${pos.x}%`;
-        dot.style.top = `${100 - pos.y + 50}%`; // Flip for home team (bottom half)
-        if (pos.y > 50) dot.style.top = `${100 - (pos.y - 50)}%`;
-        else dot.style.top = `${50 + (50 - pos.y)}%`;
-        pitch.appendChild(dot);
+    // Update or create home player dots
+    homePlayers.forEach((p, i) => {
+        let dot = document.getElementById(`home-player-${i}`);
+        if (!dot) {
+            dot = document.createElement('div');
+            dot.id = `home-player-${i}`;
+            dot.className = `fm-player-dot home ${p.isGK ? 'gk' : ''}`;
+            pitch.appendChild(dot);
+        }
+        dot.style.left = `${p.x}%`;
+        dot.style.top = `${p.y}%`;
     });
 
-    // Away team (top half, attacking downwards) - mirror positions
-    const awayPositions = FORMATION_POSITIONS[awayFormation] || FORMATION_POSITIONS['4-4-2'];
-    awayPositions.forEach((pos, i) => {
-        const dot = document.createElement('div');
-        dot.className = `fm-player-dot away ${pos.isGK ? 'gk' : ''}`;
-        dot.style.left = `${pos.x}%`;
-        // Place in top half (y is inverted)
-        if (pos.y > 50) dot.style.top = `${pos.y - 50}%`;
-        else dot.style.top = `${50 - pos.y}%`;
-        pitch.appendChild(dot);
+    // Update or create away player dots
+    awayPlayers.forEach((p, i) => {
+        let dot = document.getElementById(`away-player-${i}`);
+        if (!dot) {
+            dot = document.createElement('div');
+            dot.id = `away-player-${i}`;
+            dot.className = `fm-player-dot away ${p.isGK ? 'gk' : ''}`;
+            pitch.appendChild(dot);
+        }
+        dot.style.left = `${p.x}%`;
+        dot.style.top = `${p.y}%`;
     });
 }
 
-function moveBall(x, y) {
+function moveBallTo(x, y, duration = 800) {
+    ballPosition.x = x;
+    ballPosition.y = y;
     const ball = document.getElementById('fmBall');
+    ball.style.transition = `all ${duration}ms ease`;
     ball.style.left = `${x}%`;
     ball.style.top = `${y}%`;
 }
@@ -264,23 +395,272 @@ function highlightPitchArea(x, y) {
     highlight.style.left = `${x}%`;
     highlight.style.top = `${y}%`;
     pitch.appendChild(highlight);
-
     setTimeout(() => highlight.remove(), 1000);
 }
 
 // ==========================
-// STATS
+// MATCH SIMULATION (Slower, FM-style)
+// ==========================
+async function runMatch() {
+    // Match runs from minute 0 to 90
+    // Each minute takes about 1-2 seconds real time = 90-180 seconds total (1.5 - 3 min)
+
+    for (let minute = 1; minute <= 90; minute++) {
+        if (!matchRunning) break;
+
+        matchState.currentMinute = minute;
+        document.getElementById('matchTime').textContent = `${minute}'`;
+        document.getElementById('halfIndicator').textContent = minute <= 45 ? '1ST HALF' : '2ND HALF';
+
+        // Wait based on minute (slower pace)
+        await sleep(800 + Math.random() * 400); // ~1 second per minute
+
+        // Change possession occasionally
+        if (Math.random() < 0.15) {
+            possessionTeam = possessionTeam === 'home' ? 'away' : 'home';
+            adjustPossession(possessionTeam === 'home');
+        }
+
+        // Generate events at specific minutes
+        await generateMinuteEvent(minute);
+
+        // Update stats display
+        updateStatsDisplay();
+
+        // Scroll commentary
+        const eventsContainer = document.getElementById('matchEvents');
+        eventsContainer.scrollTop = eventsContainer.scrollHeight;
+
+        // Half time
+        if (minute === 45) {
+            await handleHalfTime();
+        }
+    }
+
+    // Full time
+    await handleFullTime();
+}
+
+async function generateMinuteEvent(minute) {
+    const rand = Math.random();
+    const playerChance = matchState.playerStrength / (matchState.playerStrength + matchState.opponent.strength);
+    const squadPlayers = getSquadPlayerNames();
+    const randomPlayer = squadPlayers[Math.floor(Math.random() * squadPlayers.length)] || 'Player';
+
+    // Only generate notable events sometimes (not every minute)
+    if (rand > 0.25) return; // 75% of minutes have no commentary
+
+    const eventRand = Math.random();
+
+    if (eventRand < 0.12) {
+        // Goal attempt
+        const isHome = Math.random() < playerChance;
+        const scored = Math.random() < (isHome ? 0.30 : 0.25);
+
+        if (scored) {
+            await handleGoal(minute, isHome, randomPlayer);
+        } else {
+            await handleShotSaved(minute, isHome, randomPlayer);
+        }
+    } else if (eventRand < 0.20) {
+        // Shot miss
+        await handleShotMiss(minute, Math.random() < playerChance, randomPlayer);
+    } else if (eventRand < 0.28) {
+        // Corner
+        await handleCorner(minute, Math.random() < playerChance);
+    } else if (eventRand < 0.35) {
+        // Foul
+        await handleFoul(minute, Math.random() < 0.5, randomPlayer);
+    } else if (eventRand < 0.45) {
+        // Card (rare)
+        if (Math.random() < 0.2) {
+            await handleCard(minute, Math.random() < 0.5, randomPlayer);
+        }
+    } else if (eventRand < 0.60) {
+        // Attacking play commentary
+        await handleAttackingPlay(minute, Math.random() < playerChance, randomPlayer);
+    } else {
+        // General play commentary
+        await handleGeneralPlay(minute, Math.random() < playerChance, randomPlayer);
+    }
+
+    // Chance overlay (rare)
+    if (Math.random() < 0.015 && minute > 10 && minute < 85) {
+        const kinds = ['Chance', 'Free Kick', 'Penalty'];
+        await handleChance(minute, kinds[Math.floor(Math.random() * kinds.length)], randomPlayer);
+    }
+}
+
+async function handleGoal(minute, isHome, playerName) {
+    if (isHome) {
+        matchState.playerScore++;
+        matchState.stats.shots.home++;
+        matchState.stats.shotsOnTarget.home++;
+        possessionTeam = 'away'; // Kick off goes to opponent
+        moveBallTo(50, 10, 500);
+        highlightPitchArea(50, 10);
+        await sleep(300);
+        addEvent(minute, '⚽', `GOOOAAL!! ${playerName} scores for your team!`, 'goal-home');
+    } else {
+        matchState.opponentScore++;
+        matchState.stats.shots.away++;
+        matchState.stats.shotsOnTarget.away++;
+        possessionTeam = 'home';
+        moveBallTo(50, 90, 500);
+        highlightPitchArea(50, 90);
+        await sleep(300);
+        addEvent(minute, '⚽', `Goal for ${matchState.opponent.name}!`, 'goal-away');
+    }
+    updateScore();
+    await sleep(1500); // Pause for goal celebration
+    moveBallTo(50, 50, 500);
+}
+
+async function handleShotSaved(minute, isHome, playerName) {
+    if (isHome) {
+        matchState.stats.shots.home++;
+        matchState.stats.shotsOnTarget.home++;
+        moveBallTo(50, 15, 400);
+        addEvent(minute, '🧤', `${playerName} shoots! Great save by the goalkeeper!`, 'chance');
+    } else {
+        matchState.stats.shots.away++;
+        matchState.stats.shotsOnTarget.away++;
+        moveBallTo(50, 85, 400);
+        addEvent(minute, '🧤', `Shot from ${matchState.opponent.name}! Saved!`, 'normal');
+    }
+    possessionTeam = isHome ? 'away' : 'home';
+}
+
+async function handleShotMiss(minute, isHome, playerName) {
+    if (isHome) {
+        matchState.stats.shots.home++;
+        moveBallTo(45 + Math.random() * 10, 3, 400);
+        addEvent(minute, '🎯', `${playerName} fires wide! Close but not enough.`, 'normal');
+    } else {
+        matchState.stats.shots.away++;
+        moveBallTo(45 + Math.random() * 10, 97, 400);
+        addEvent(minute, '🎯', `${matchState.opponent.name} shoots wide.`, 'normal');
+    }
+}
+
+async function handleCorner(minute, isHome) {
+    if (isHome) {
+        matchState.stats.corners.home++;
+        moveBallTo(95, 5, 300);
+        addEvent(minute, '🚩', 'Corner kick for your team.', 'normal');
+    } else {
+        matchState.stats.corners.away++;
+        moveBallTo(5, 95, 300);
+        addEvent(minute, '🚩', `Corner kick for ${matchState.opponent.name}.`, 'normal');
+    }
+}
+
+async function handleFoul(minute, isHome, playerName) {
+    if (isHome) {
+        matchState.stats.fouls.home++;
+        addEvent(minute, '⚠️', `Foul by ${playerName}. Free kick given.`, 'normal');
+    } else {
+        matchState.stats.fouls.away++;
+        addEvent(minute, '⚠️', `Foul by ${matchState.opponent.name} player.`, 'normal');
+    }
+    possessionTeam = isHome ? 'away' : 'home';
+}
+
+async function handleCard(minute, isHome, playerName) {
+    if (isHome) {
+        matchState.stats.fouls.home++;
+        addEvent(minute, '🟨', `Yellow card! ${playerName} is booked for a reckless challenge.`, 'card');
+    } else {
+        matchState.stats.fouls.away++;
+        addEvent(minute, '🟨', `Yellow card shown to ${matchState.opponent.name} player.`, 'card');
+    }
+}
+
+async function handleAttackingPlay(minute, isHome, playerName) {
+    if (isHome) {
+        possessionTeam = 'home';
+        moveBallTo(40 + Math.random() * 20, 20 + Math.random() * 25, 600);
+        const comments = [
+            `${playerName} makes a dangerous run into the box!`,
+            `Quick passing in the final third.`,
+            `${playerName} looks for an opening...`,
+            `Your team pressing high up the pitch.`
+        ];
+        addEvent(minute, '⚡', comments[Math.floor(Math.random() * comments.length)], 'normal');
+    } else {
+        possessionTeam = 'away';
+        moveBallTo(40 + Math.random() * 20, 55 + Math.random() * 25, 600);
+        addEvent(minute, '⚡', `${matchState.opponent.name} building pressure.`, 'normal');
+    }
+}
+
+async function handleGeneralPlay(minute, isHome, playerName) {
+    const comments = isHome ? [
+        `${playerName} controls the ball in midfield.`,
+        `Good possession by your team.`,
+        `${playerName} spreads the play wide.`,
+        `Patient build-up from the back.`
+    ] : [
+        `${matchState.opponent.name} with the ball.`,
+        `Passing sequence by ${matchState.opponent.name}.`,
+        `${matchState.opponent.name} looking for space.`
+    ];
+
+    possessionTeam = isHome ? 'home' : 'away';
+    moveBallTo(30 + Math.random() * 40, 35 + Math.random() * 30, 600);
+    addEvent(minute, '📢', comments[Math.floor(Math.random() * comments.length)], 'normal');
+}
+
+async function handleChance(minute, kind, playerName) {
+    addEvent(minute, '🎯', `${kind.toUpperCase()} for your team!`, 'chance');
+    await sleep(500);
+
+    const result = await showChanceOverlay(kind);
+
+    if (result.scored) {
+        matchState.playerScore++;
+        matchState.stats.shots.home++;
+        matchState.stats.shotsOnTarget.home++;
+        updateScore();
+        moveBallTo(50, 10, 500);
+        highlightPitchArea(50, 10);
+        addEvent(minute, '⚽', `GOAL!! ${playerName} converts the ${kind}!`, 'goal-home');
+        await sleep(1500);
+        moveBallTo(50, 50, 500);
+    } else {
+        matchState.stats.shots.home++;
+        addEvent(minute, '❌', `${kind} missed! The keeper made a great save!`, 'normal');
+    }
+}
+
+async function handleHalfTime() {
+    moveBallTo(50, 50, 500);
+    addEvent(45, '⏸️', 'HALF TIME. The players head to the dressing rooms.', 'halftime');
+    await sleep(2500);
+    addEvent(46, '▶️', 'Second half underway!', 'halftime');
+    possessionTeam = 'away';
+}
+
+async function handleFullTime() {
+    matchRunning = false;
+    if (playerAnimationInterval) clearInterval(playerAnimationInterval);
+
+    moveBallTo(50, 50, 500);
+    addEvent(90, '🏁', 'FULL TIME! The referee blows the final whistle.', 'halftime');
+
+    await sleep(2000);
+    showMatchResult();
+}
+
+// ==========================
+// STATS & UI
 // ==========================
 function updateStatsDisplay() {
     const s = matchState.stats;
-
-    // Possession
     document.getElementById('possHome').textContent = `${s.possession.home}%`;
     document.getElementById('possAway').textContent = `${s.possession.away}%`;
     document.getElementById('possBarHome').style.width = `${s.possession.home}%`;
     document.getElementById('possBarAway').style.width = `${s.possession.away}%`;
-
-    // Shots
     updateStatBar('shots', s.shots.home, s.shots.away);
     updateStatBar('sot', s.shotsOnTarget.home, s.shotsOnTarget.away);
     updateStatBar('corners', s.corners.home, s.corners.away);
@@ -290,295 +670,34 @@ function updateStatsDisplay() {
 function updateStatBar(stat, home, away) {
     document.getElementById(`${stat}Home`).textContent = home;
     document.getElementById(`${stat}Away`).textContent = away;
-
     const total = home + away || 1;
     document.getElementById(`${stat}BarHome`).style.width = `${(home / total) * 100}%`;
     document.getElementById(`${stat}BarAway`).style.width = `${(away / total) * 100}%`;
 }
 
 function adjustPossession(forHome) {
-    const change = Math.floor(Math.random() * 5) + 2;
+    const change = Math.floor(Math.random() * 3) + 1;
     if (forHome) {
-        matchState.stats.possession.home = Math.min(70, matchState.stats.possession.home + change);
+        matchState.stats.possession.home = Math.min(65, matchState.stats.possession.home + change);
         matchState.stats.possession.away = 100 - matchState.stats.possession.home;
     } else {
-        matchState.stats.possession.away = Math.min(70, matchState.stats.possession.away + change);
+        matchState.stats.possession.away = Math.min(65, matchState.stats.possession.away + change);
         matchState.stats.possession.home = 100 - matchState.stats.possession.away;
-    }
-}
-
-// ==========================
-// EVENT GENERATION
-// ==========================
-function generateMatchTimeline(playerStrength, opponentStrength) {
-    const events = [];
-    const playerChance = (playerStrength / (playerStrength + opponentStrength));
-    const opponentChance = 1 - playerChance;
-
-    // Generate events for each 5-minute block
-    for (let minute = 5; minute <= 90; minute += 5) {
-        const rand = Math.random();
-
-        // Half time
-        if (minute === 45) {
-            events.push({ minute: 45, type: 'halftime' });
-            continue;
-        }
-
-        // Random event based on probabilities
-        if (rand < 0.15) {
-            // Goal attempt
-            const isHome = Math.random() < playerChance;
-            const scored = Math.random() < (isHome ? 0.35 : 0.30);
-
-            if (scored) {
-                events.push({
-                    minute,
-                    type: isHome ? 'goal_player' : 'goal_opponent',
-                    isHome
-                });
-            } else {
-                events.push({
-                    minute,
-                    type: 'shot_saved',
-                    isHome
-                });
-            }
-        } else if (rand < 0.25) {
-            // Shot off target
-            events.push({
-                minute,
-                type: 'shot_miss',
-                isHome: Math.random() < playerChance
-            });
-        } else if (rand < 0.35) {
-            // Corner
-            events.push({
-                minute,
-                type: 'corner',
-                isHome: Math.random() < playerChance
-            });
-        } else if (rand < 0.42) {
-            // Foul / Card
-            const isHome = Math.random() < 0.5;
-            const isCard = Math.random() < 0.25;
-            events.push({
-                minute,
-                type: isCard ? 'card' : 'foul',
-                isHome
-            });
-        } else if (rand < 0.55) {
-            // Commentary
-            events.push({
-                minute,
-                type: 'commentary',
-                isHome: Math.random() < playerChance
-            });
-        }
-    }
-
-    // Interactive chance (40% probability)
-    if (Math.random() < 0.4) {
-        const chanceMinute = 15 + Math.floor(Math.random() * 70);
-        const kinds = ['Chance', 'Free Kick', 'Penalty'];
-        events.push({
-            minute: chanceMinute,
-            type: 'chance',
-            kind: kinds[Math.floor(Math.random() * kinds.length)]
-        });
-    }
-
-    // Full time
-    events.push({ minute: 90, type: 'fulltime' });
-
-    // Sort by minute
-    events.sort((a, b) => a.minute - b.minute);
-
-    return events;
-}
-
-// ==========================
-// EVENT PROCESSING
-// ==========================
-async function processMatchEvents(events) {
-    for (const event of events) {
-        await sleep(1200 + Math.random() * 800);
-
-        matchState.currentMinute = event.minute;
-        document.getElementById('matchTime').textContent = `${event.minute}'`;
-
-        // Update half indicator
-        if (event.minute <= 45) {
-            document.getElementById('halfIndicator').textContent = '1ST HALF';
-        } else {
-            document.getElementById('halfIndicator').textContent = '2ND HALF';
-        }
-
-        // Process event
-        await handleEvent(event);
-        updateStatsDisplay();
-
-        // Scroll commentary
-        const eventsContainer = document.getElementById('matchEvents');
-        eventsContainer.scrollTop = eventsContainer.scrollHeight;
-    }
-
-    // Match finished
-    await sleep(1500);
-    showMatchResult();
-}
-
-async function handleEvent(event) {
-    const squadPlayers = getSquadPlayerNames();
-    const randomPlayer = squadPlayers[Math.floor(Math.random() * squadPlayers.length)] || 'Player';
-
-    switch (event.type) {
-        case 'goal_player':
-            matchState.playerScore++;
-            matchState.stats.shots.home++;
-            matchState.stats.shotsOnTarget.home++;
-            adjustPossession(true);
-            updateScore();
-            moveBall(50, 10);
-            highlightPitchArea(50, 10);
-            addEvent(event.minute, '⚽', `GOAL!! ${randomPlayer} scores! What a finish!`, 'goal-home');
-            break;
-
-        case 'goal_opponent':
-            matchState.opponentScore++;
-            matchState.stats.shots.away++;
-            matchState.stats.shotsOnTarget.away++;
-            adjustPossession(false);
-            updateScore();
-            moveBall(50, 90);
-            highlightPitchArea(50, 90);
-            addEvent(event.minute, '⚽', `Goal for ${matchState.opponent.name}. They take the lead!`, 'goal-away');
-            break;
-
-        case 'shot_saved':
-            if (event.isHome) {
-                matchState.stats.shots.home++;
-                matchState.stats.shotsOnTarget.home++;
-                moveBall(50, 15);
-                addEvent(event.minute, '🧤', `Shot by ${randomPlayer}! Great save by the keeper!`, 'chance');
-            } else {
-                matchState.stats.shots.away++;
-                matchState.stats.shotsOnTarget.away++;
-                moveBall(50, 85);
-                addEvent(event.minute, '🧤', `Shot from ${matchState.opponent.name}! Saved!`, 'normal');
-            }
-            adjustPossession(event.isHome);
-            break;
-
-        case 'shot_miss':
-            if (event.isHome) {
-                matchState.stats.shots.home++;
-                moveBall(45 + Math.random() * 10, 5);
-                addEvent(event.minute, '🎯', `${randomPlayer} shoots! Goes wide...`, 'normal');
-            } else {
-                matchState.stats.shots.away++;
-                moveBall(45 + Math.random() * 10, 95);
-                addEvent(event.minute, '🎯', `${matchState.opponent.name} with a shot. Off target!`, 'normal');
-            }
-            break;
-
-        case 'corner':
-            if (event.isHome) {
-                matchState.stats.corners.home++;
-                moveBall(95, 5);
-                addEvent(event.minute, '🚩', `Corner kick for your team.`, 'normal');
-            } else {
-                matchState.stats.corners.away++;
-                moveBall(5, 95);
-                addEvent(event.minute, '🚩', `Corner kick for ${matchState.opponent.name}.`, 'normal');
-            }
-            break;
-
-        case 'foul':
-            if (event.isHome) {
-                matchState.stats.fouls.home++;
-                addEvent(event.minute, '⚠️', `Foul by ${randomPlayer}. Free kick given.`, 'normal');
-            } else {
-                matchState.stats.fouls.away++;
-                addEvent(event.minute, '⚠️', `Foul by ${matchState.opponent.name}. Free kick!`, 'normal');
-            }
-            moveBall(50, 50);
-            break;
-
-        case 'card':
-            if (event.isHome) {
-                matchState.stats.fouls.home++;
-                addEvent(event.minute, '🟨', `Yellow card! ${randomPlayer} is booked.`, 'card');
-            } else {
-                matchState.stats.fouls.away++;
-                addEvent(event.minute, '🟨', `Yellow card for ${matchState.opponent.name} player.`, 'card');
-            }
-            break;
-
-        case 'commentary':
-            const comments = event.isHome ? [
-                `Good passing by ${randomPlayer} in midfield.`,
-                `${randomPlayer} makes a great run down the wing.`,
-                `Solid defending from your team.`,
-                `Your team dominates possession.`
-            ] : [
-                `${matchState.opponent.name} building up an attack.`,
-                `Pressure from ${matchState.opponent.name}.`,
-                `${matchState.opponent.name} probing for an opening.`
-            ];
-            const ballY = event.isHome ? 30 + Math.random() * 30 : 40 + Math.random() * 30;
-            moveBall(30 + Math.random() * 40, ballY);
-            addEvent(event.minute, '📢', comments[Math.floor(Math.random() * comments.length)], 'normal');
-            adjustPossession(event.isHome);
-            break;
-
-        case 'chance':
-            addEvent(event.minute, '🎯', `${event.kind} opportunity! Choose your shot!`, 'chance');
-            const result = await showChanceOverlay(event.kind);
-
-            if (result.scored) {
-                matchState.playerScore++;
-                matchState.stats.shots.home++;
-                matchState.stats.shotsOnTarget.home++;
-                updateScore();
-                moveBall(50, 10);
-                highlightPitchArea(50, 10);
-                addEvent(event.minute, '⚽', `GOAL!! ${event.kind} converted by ${randomPlayer}!`, 'goal-home');
-            } else {
-                matchState.stats.shots.home++;
-                addEvent(event.minute, '❌', `${event.kind} saved! Keeper guessed right!`, 'normal');
-            }
-            break;
-
-        case 'halftime':
-            moveBall(50, 50);
-            addEvent(45, '⏸️', 'HALF TIME. Teams head to the dressing room.', 'halftime');
-            await sleep(1500);
-            addEvent(46, '▶️', 'Second half begins!', 'halftime');
-            break;
-
-        case 'fulltime':
-            moveBall(50, 50);
-            addEvent(90, '🏁', 'FULL TIME! The referee blows the final whistle.', 'halftime');
-            break;
     }
 }
 
 function getSquadPlayerNames() {
     if (!userData.squad?.main) return ['Player'];
-
     const names = [];
     userData.squad.main.forEach(playerId => {
         if (playerId) {
             const player = allPlayers.find(p => p.id === playerId);
             if (player) {
-                // Get last name
                 const nameParts = player.name.split(' ');
                 names.push(nameParts[nameParts.length - 1]);
             }
         }
     });
-
     return names.length > 0 ? names : ['Player'];
 }
 
@@ -609,24 +728,15 @@ function showChanceOverlay(kind) {
 
         let timeLeft = 10;
         document.getElementById('chanceTimer').textContent = `Time remaining: ${timeLeft}s`;
-
         chanceResolve = resolve;
 
         chanceTimeout = setInterval(() => {
             timeLeft--;
             document.getElementById('chanceTimer').textContent = `Time remaining: ${timeLeft}s`;
-
             if (timeLeft <= 0) {
                 clearInterval(chanceTimeout);
                 overlay.classList.remove('active');
-
-                const directions = ['left', 'center', 'right'];
-                const keeperDirection = directions[Math.floor(Math.random() * 3)];
-                resolve({
-                    scored: Math.random() < 0.3,
-                    direction: 'center',
-                    keeperDirection
-                });
+                resolve({ scored: Math.random() < 0.3, direction: 'center', keeperDirection: 'center' });
             }
         }, 1000);
     });
@@ -648,11 +758,7 @@ function selectChance(direction) {
     const finalScored = Math.random() < successRate && scored;
 
     if (chanceResolve) {
-        chanceResolve({
-            scored: finalScored,
-            direction,
-            keeperDirection
-        });
+        chanceResolve({ scored: finalScored, direction, keeperDirection });
     }
 }
 
@@ -672,7 +778,6 @@ async function showMatchResult() {
         reward = MATCH_REWARDS.draw;
     }
 
-    // Update server
     try {
         const response = await fetch('/api/match', { method: 'POST' });
         const data = await response.json();
@@ -684,9 +789,7 @@ async function showMatchResult() {
         console.error('Error updating match result:', error);
     }
 
-    // Hide live match, show result
     document.getElementById('matchLive').classList.remove('active');
-
     document.getElementById('finalScore').textContent = `${matchState.playerScore} - ${matchState.opponentScore}`;
 
     const outcomeEl = document.getElementById('matchOutcome');
@@ -701,15 +804,22 @@ async function showMatchResult() {
 }
 
 function resetMatch() {
+    matchRunning = false;
+    if (playerAnimationInterval) clearInterval(playerAnimationInterval);
+
     document.getElementById('matchResult').classList.remove('show');
     document.getElementById('matchLive').classList.remove('active');
     document.getElementById('matchSetup').style.display = 'block';
     document.getElementById('matchEvents').innerHTML = '';
 
-    // Reset ball position
-    moveBall(50, 50);
+    // Remove player dots
+    document.querySelectorAll('.fm-player-dot').forEach(dot => dot.remove());
 
+    moveBallTo(50, 50);
     matchState = null;
+    homePlayers = [];
+    awayPlayers = [];
+
     checkCooldown();
     updateCooldownDisplay();
 }
