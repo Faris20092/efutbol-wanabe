@@ -112,6 +112,7 @@ async function loadAllPlayers() {
                 league: p.league,
                 stats: stats,
                 playingStyle: p.playingStyle, // Map from DB
+                nationality: p.nation, // Map from DB
                 image: p.image_url // Store external URL if needed
             };
         });

@@ -3511,4 +3511,48 @@ body {
 @keyframes pulseGlow {
     0% { opacity: 0.5; transform: translate(-50%, -50%) scale(0.8); }
     100% { opacity: 1; transform: translate(-50%, -50%) scale(1.2); }
+}/* ========================================= */
+/* MOBILE LANDSCAPE ENFORCEMENT */
+/* ========================================= */
+@media screen and (max-width: 900px) and (orientation: portrait) {
+
+    /* Show "Rotate Device" Warning Overlay */
+    body::after {
+        content: "Please rotate your device to play 🔄";
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        background-color: #000;
+        color: #fff;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        font-size: 1.5em;
+        text-align: center;
+        z-index: 9999999;
+        /* Highest possible z-index */
+        font-weight: bold;
+        padding: 40px;
+        white-space: pre-wrap;
+        box-sizing: border-box;
+        font-family: 'Segoe UI', sans-serif;
+    }
+
+    /* Hide interaction with underlying content */
+    body {
+        overflow: hidden !important;
+        position: fixed !important;
+        width: 100% !important;
+        height: 100% !important;
+    }
+
+    /* Optional: Hide specific critical elements to be sure */
+    .container,
+    .main-container,
+    .contracts-container,
+    .special-player-list {
+        display: none !important;
+    }
 }
