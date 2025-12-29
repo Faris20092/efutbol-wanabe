@@ -510,7 +510,6 @@ function showSingleCard(content, player) {
     const playerImagePath = `/assets/playerimages/${player.id}.png`;
 
     content.innerHTML = `
-// Single card - update overall rating access
         <div style="width: 100%; text-align: center;">
             <h2 style="color: var(--secondary); font-size: 2em; margin-bottom: 30px;">
                 🎉 Signings
@@ -533,8 +532,13 @@ function showSingleCard(content, player) {
         }
             </div>
         </div>
+    `;
+}
 
-// Multiple cards sorting
+// Show multiple cards in grid (2 rows x 5 columns for 10x) - sorted by rarity
+function showMultipleCards(content, players) {
+    // Sort players by rarity (highest first)
+    const rarityOrder = ['Iconic', 'Legend', 'Black', 'Gold', 'Silver', 'Bronze', 'White'];
     const sortedPlayers = [...players].sort((a, b) => {
         const aIndex = rarityOrder.indexOf(a.rarity);
         const bIndex = rarityOrder.indexOf(b.rarity);
@@ -545,10 +549,14 @@ function showSingleCard(content, player) {
         return ratingB - ratingA;
     });
 
-// Multiple cards rendering
+    // Generate cards HTML
+    const cardsHtml = sortedPlayers.map((player, index) => {
+        const playerImagePath = `/assets/playerimages/${player.id}.png`;
+        const animationDelay = index * 0.1;
+
         return `
-        < div class="player-detail-card" data - rarity="${player.rarity}"
-    style = "width: 140px; height: 200px; animation: cardReveal 0.5s ease-out ${animationDelay}s both; cursor: pointer; flex-shrink: 0;" >
+            <div class="player-detail-card" data-rarity="${player.rarity}" 
+                 style="width: 140px; height: 200px; animation: cardReveal 0.5s ease-out ${animationDelay}s both; cursor: pointer; flex-shrink: 0;">
                 <div class="player-card-rating" style="font-size: 1.8em; top: 30px;">${player.overall || player.overall_rating || 0}</div>
                 <div class="player-card-position" style="font-size: 0.85em;">${player.position}</div>
                 <div class="player-card-rarity" style="font-size: 1.2em; top: 70px;">${RARITY_EMOJIS[player.rarity] || '⚽'}</div>
@@ -560,19 +568,19 @@ function showSingleCard(content, player) {
                 ''
             }
             </div>
-    `;
+        `;
     }).join('');
 
     content.innerHTML = `
-        < div style = "width: 100%; text-align: center;" >
+        <div style="width: 100%; text-align: center;">
             <h2 style="color: var(--secondary); font-size: 2em; margin-bottom: 25px;">
                 🎉 Signings
             </h2>
             <div style="display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px; justify-items: center; max-width: 780px; margin: 0 auto;">
                 ${cardsHtml}
             </div>
-        </div >
-        `;
+        </div>
+    `;
 }
 
 // Helper function to truncate names
@@ -717,7 +725,7 @@ function renderPackDetails(packKey) {
     }
 
     container.innerHTML = `
-        < h3 > ${ PACK_EMOJIS[packKey] } ${ pack.name }</h3 >
+        < h3 > ${PACK_EMOJIS[packKey]} ${pack.name}</h3 >
         <p style="color: #ccc; margin-bottom: 15px;">${pack.description}</p>
         <h4 style="color: #fff; margin-top: 20px; margin-bottom: 10px;">Drop Rates:</h4>
         <div class="rarity-chances">
@@ -805,14 +813,14 @@ function renderPlayers() {
     filteredPlayers.forEach(player => {
         const isOwned = ownedPlayerIds.includes(player.id);
         const card = document.createElement('div');
-        card.className = `contract - player - card ${ isOwned ? 'owned' : '' } `;
+        card.className = `contract - player - card ${isOwned ? 'owned' : ''} `;
         card.dataset.rarity = player.rarity;
         card.onclick = () => showPlayerDetails(player);
         card.style.cursor = 'pointer';
 
         // Get player image from local assets using player ID
-        const playerImagePng = `/ assets / faces / ${ player.id }.png`;
-        const playerImageJpg = `/ assets / faces / ${ player.id }.jpg`;
+        const playerImagePng = `/ assets / faces / ${player.id}.png`;
+        const playerImageJpg = `/ assets / faces / ${player.id}.jpg`;
 
         card.innerHTML = `
         < div class="player-image-container" >
@@ -838,7 +846,7 @@ function showPlayerDetails(player) {
     const isOwned = ownedPlayerIds.includes(player.id);
 
     // Get player full image path using player ID
-    const playerImagePath = `/ assets / playerimages / ${ player.id }.png`;
+    const playerImagePath = `/ assets / playerimages / ${player.id}.png`;
 
     // Rarity icons
     const rarityIcons = {
@@ -987,8 +995,8 @@ async function testSpinAnimation(highestRarity = 'Iconic', count = 10) {
     for (let i = 1; i < count; i++) {
         const lowerRarity = rarities[Math.min(rarityIndex + Math.floor(Math.random() * 3) + 1, rarities.length - 1)];
         mockPlayers.push({
-            id: `mock - ${ i + 1 } `,
-            name: `Mock Player ${ i + 1 } `,
+            id: `mock - ${i + 1} `,
+            name: `Mock Player ${i + 1} `,
             rarity: lowerRarity,
             overall: 60 + Math.floor(Math.random() * 30),
             position: ['CF', 'LWF', 'RWF', 'AMF', 'CMF', 'DMF', 'CB', 'LB', 'RB', 'GK'][Math.floor(Math.random() * 10)],
