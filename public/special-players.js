@@ -74,34 +74,15 @@ async function loadAllPlayers() {
         const data = await response.json();
         const rawPlayers = data.players || [];
 
-        // Map new JSON schema to internal format
-        // USE DATABASE RARITY IF AVAILABLE (Updated via script)
+        // Map new JSON schema to internal format and DERIVE RARITY
         allPlayers = rawPlayers.map(p => {
             const rating = p.overall_rating || 75;
-            let finalRarity = p.rarity; // Try to use DB value first
-
-            // Fallback Derivation if DB is missing rarity
-            if (!finalRarity) {
-                if (rating >= 90) finalRarity = 'Iconic';
-                else if (rating >= 86) finalRarity = 'Legend';
-                else if (rating >= 77 && rating <= 85) {
-                    finalRarity = 'Black';
-                    if (rating <= 79 && Math.random() < 0.4) finalRarity = 'Gold';
-                }
-                else if (rating >= 74 && rating <= 76) {
-                    finalRarity = 'Gold';
-                    if (Math.random() < 0.4) finalRarity = 'Silver';
-                }
-                else if (rating >= 70 && rating <= 73) {
-                    finalRarity = 'Silver';
-                    if (rating <= 72 && Math.random() < 0.4) finalRarity = 'Bronze';
-                }
-                else if (rating >= 65 && rating <= 69) {
-                    finalRarity = 'Bronze';
-                    if (rating <= 66 && Math.random() < 0.4) finalRarity = 'White';
-                }
-                else finalRarity = 'White';
-            }
+            let derivedRarity = 'Bronze';
+            if (rating >= 90) derivedRarity = 'Iconic';
+            else if (rating >= 85) derivedRarity = 'Legend';
+            else if (rating >= 82) derivedRarity = 'Black';
+            else if (rating >= 78) derivedRarity = 'Gold';
+            else if (rating >= 75) derivedRarity = 'Silver';
 
             // Map Stats (Approximate mapping)
             const stats = {
@@ -116,7 +97,7 @@ async function loadAllPlayers() {
             return {
                 id: p.id,
                 name: p.name,
-                rarity: finalRarity,
+                rarity: derivedRarity, // Derived
                 overall: rating,
                 position: p.position,
                 team: p.team,
@@ -586,7 +567,7 @@ async function buyPack(count, isFree = false, freeCount = 0) {
 
 // Helper: Extract Country from League
 function getCountryFromLeague(league) {
-    if (!league || league === 'Unknown' || league === 'Unknown League') return 'World 🌍';
+    if (!league) return 'Unknown';
     if (league.includes('England')) return 'England 🏴󠁧󠁢󠁥󠁮󠁧󠁿';
     if (league.includes('Spain')) return 'Spain 🇪🇸';
     if (league.includes('Italy')) return 'Italy 🇮🇹';
@@ -625,8 +606,8 @@ async function showPackResult(players) {
 }
 
 function startWalkoutAnimation(player, allPlayers) {
-    const country = getCountryFromLeague(player.league);
-    const color = RARITY_STYLES[player.rarity]?.color || '#fff';
+    const country = player.nationality || getCountryFromLeague(player.league);
+    const color = RARITY_STYLES[player.rarity]?.color || '#ffd700';
 
     // 1. Create Container
     const container = document.createElement('div');
@@ -634,25 +615,19 @@ function startWalkoutAnimation(player, allPlayers) {
     container.style.setProperty('--walkout-color', color);
 
     container.innerHTML = `
+        <div class="walkout-flash" style="position:fixed; inset:0; background:#fff; z-index:10000; pointer-events:none;"></div>
         <div class="walkout-lights-bg"></div>
         <div class="spotlight left"></div>
+        <div class="spotlight center"></div>
         <div class="spotlight right"></div>
         
         <div class="walkout-info-container" id="walkoutInfo">
-            <!-- Stage 1: Country -->
-            <div class="walkout-flag" id="woCountry">${country}</div>
-            
-            <!-- Stage 2: League & Team -->
-            <div class="walkout-text-medium" id="woLeague"></div>
-            <div class="walkout-text-medium" id="woTeam"></div>
-            
-            <!-- Stage 3: Position -->
-            <div class="walkout-text-huge" id="woPos"></div>
+            <div class="walkout-flag" id="woText"></div>
         </div>
 
         <div class="walkout-card-container" id="woCardContainer">
              <div class="walkout-card-glow"></div>
-             <!-- Card will be injected here -->
+             <!-- Card injected here -->
         </div>
 
         <button class="walkout-skip-btn" onclick="skipWalkout()">SKIP >></button>
@@ -666,57 +641,51 @@ function startWalkoutAnimation(player, allPlayers) {
 
     // ANIMATION SEQUENCE
     const delay = (ms) => new Promise(r => setTimeout(r, ms));
+    const infoText = document.getElementById('woText');
 
     (async () => {
-        // 1. Lights Up
-        await delay(500);
+        // T=0: Flash
+        const flash = container.querySelector('.walkout-flash');
+        flash.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 500, fill: 'forwards' });
 
-        // 2. Country Reveal
-        const elCountry = document.getElementById('woCountry');
-        if (elCountry) {
-            elCountry.style.opacity = '1';
-            elCountry.style.transform = 'scale(1)';
-            elCountry.classList.add('animate-in-slam');
-        }
-        await delay(1500);
+        // T=200: Flares (handled by CSS animation delay)
 
-        // 3. League Reveal
-        const elLeague = document.getElementById('woLeague');
-        if (elLeague) {
-            elLeague.textContent = (player.league && player.league !== 'Unknown' && player.league !== 'Unknown League') ? player.league : 'Global League';
-            elLeague.classList.add('animate-in-fade');
-        }
+        // T=1000: NATION
+        await delay(1000);
+        if (!window.currentWalkoutContainer) return;
+        infoText.textContent = country;
+        infoText.className = 'walkout-flag animate-in-slam'; // Gold Text
 
-        // 4. Team Reveal (Quickly after league)
-        await delay(800);
-        const elTeam = document.getElementById('woTeam');
-        if (elTeam) {
-            elTeam.textContent = (player.team && player.team !== 'Unknown' && player.team !== 'Unknown Team') ? player.team : 'Free Agent';
-            elTeam.classList.add('animate-in-fade');
-        }
-        await delay(1500);
+        // Fade out at 2200ms (1.2s later)
+        await delay(1200);
+        infoText.className = 'walkout-flag animate-out-fade';
 
-        // Hide Country/League/Team to make room for Position
-        if (elCountry) elCountry.classList.add('animate-out-fade');
-        if (elLeague) elLeague.classList.add('animate-out-fade');
-        if (elTeam) elTeam.classList.add('animate-out-fade');
-        await delay(400);
+        // T=2500: POSITION
+        await delay(300); // 2200+300 = 2500
+        if (!window.currentWalkoutContainer) return;
+        infoText.textContent = player.position;
+        infoText.className = 'walkout-text-huge animate-in-slam'; // Big Text
 
-        // 5. Position Reveal (Huge)
-        const elPos = document.getElementById('woPos');
-        if (elPos) {
-            elPos.textContent = player.position;
-            elPos.classList.add('animate-in-slam');
-        }
-        await delay(1500);
-        if (elPos) elPos.classList.add('animate-out-fade'); // Fade out position
-        await delay(300);
+        // Fade out at 3700ms
+        await delay(1200);
+        infoText.className = 'walkout-text-huge animate-out-fade';
 
-        // 6. CARD DROP (The Reveal)
+        // T=4000: CLUB
+        await delay(300); // 3700+300 = 4000
+        if (!window.currentWalkoutContainer) return;
+        infoText.textContent = player.team;
+        infoText.className = 'walkout-text-medium animate-in-fade'; // Medium Text
+
+        // Fade out at 5200ms
+        await delay(1200);
+        infoText.className = 'walkout-text-medium animate-out-fade';
+
+        // T=5500: REVEAL
+        await delay(300); // 5200+300 = 5500
+        if (!window.currentWalkoutContainer) return;
+
+        // Build Card HTML
         const cardContainer = document.getElementById('woCardContainer');
-        const nameSlug = player.name.toLowerCase().replace(/\s+/g, '_');
-
-        // Construct Card HTML
         cardContainer.innerHTML += `
             <div class="player-detail-card" data-rarity="${player.rarity}" style="width: 300px; height: 420px; box-shadow: 0 0 60px ${color};">
                 <div class="player-card-rating" style="font-size: 2.5em;">${player.overall}</div>
@@ -724,15 +693,13 @@ function startWalkoutAnimation(player, allPlayers) {
                 <div class="player-card-rarity" style="font-size: 2em; top: 80px;">${RARITY_EMOJIS[player.rarity] || '💎'}</div>
                 <img src="/assets/playerimages/${player.id}.png" 
                      class="player-detail-image" 
-                     onerror="this.src='/assets/faces/${player.name.replace(/[^a-zA-Z0-9\-_]/g, '_').toLowerCase().replace(/_+/g, '_').replace(/_+$/g, '')}.png'; this.onerror=function(){this.src='/assets/playerimages/default_player.png'}">
+                     onerror="this.onerror=null; this.src='${player.image}'; this.onerror=function(){this.src='/assets/playerimages/default_player.png'}">
                 <div class="player-card-rarity-bottom" style="font-size: 1em; padding: 10px;">${player.name}</div>
             </div>
         `;
-
-        cardContainer.classList.add('animate-card-reveal'); // Apply CSS animation logic
+        cardContainer.classList.add('animate-card-reveal');
         cardContainer.style.opacity = '1';
 
-        // Change button to Continue
         const btn = container.querySelector('.walkout-skip-btn');
         if (btn) {
             btn.textContent = "CONTINUE";
@@ -767,7 +734,7 @@ function showRevealGrid(sortedPlayers) {
                 <div class="player-card-rarity" style="font-size: 1.2em; top: 70px;">${RARITY_EMOJIS[player.rarity] || '⚽'}</div>
                 <img src="/assets/playerimages/${player.id}.png" 
                      class="player-detail-image" 
-                     onerror="this.src='/assets/faces/${player.name.replace(/[^a-zA-Z0-9\-_]/g, '_').toLowerCase().replace(/_+/g, '_').replace(/_+$/g, '')}.png'; this.onerror=function(){this.src='/assets/playerimages/default_player.png'}">
+                     onerror="this.onerror=null; this.src='${player.image}'; this.onerror=function(){this.src='/assets/playerimages/default_player.png'}">
                 <div class="player-card-rarity-bottom" style="font-size: 0.7em; padding: 4px;">${truncateName(player.name)}</div>
             </div>
         `;

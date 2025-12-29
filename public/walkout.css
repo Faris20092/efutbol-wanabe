@@ -1,0 +1,254 @@
+/* FIFA Walkout Animation Styles */
+
+/* 1. Full Screen Overlay */
+.efw-walkout-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: radial-gradient(circle at center, #2a2a2a 0%, #000000 90%);
+    z-index: 9999;
+    overflow: hidden;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    perspective: 1000px;
+    --walkout-color: #ffd700;
+    /* Default Gold */
+}
+
+/* 2. Background Lights (Atmosphere) */
+.walkout-lights-bg {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background:
+        radial-gradient(circle at 20% 50%, rgba(255, 255, 255, 0.05) 0%, transparent 40%),
+        radial-gradient(circle at 80% 50%, rgba(255, 255, 255, 0.05) 0%, transparent 40%);
+    animation: pulseAtmosphere 4s infinite alternate;
+}
+
+@keyframes pulseAtmosphere {
+    0% {
+        opacity: 0.5;
+    }
+
+    100% {
+        opacity: 1;
+    }
+}
+
+/* 3. Floor Flares (The 3 Lights) */
+.spotlight {
+    position: absolute;
+    bottom: 0;
+    width: 150px;
+    height: 0;
+    /* Starts at 0, animates up */
+    background: linear-gradient(to top, var(--walkout-color), transparent);
+    filter: blur(20px);
+    opacity: 0;
+    animation: riseFlae 1.5s ease-out 0.2s forwards;
+}
+
+.spotlight.left {
+    left: 20%;
+    transform: rotate(-15deg);
+}
+
+.spotlight.right {
+    right: 20%;
+    transform: rotate(15deg);
+}
+
+.spotlight.center {
+    left: 50%;
+    transform: translateX(-50%);
+    width: 200px;
+    filter: blur(25px);
+    animation-delay: 0.4s;
+}
+
+@keyframes riseFlae {
+    0% {
+        height: 0;
+        opacity: 0;
+    }
+
+    100% {
+        height: 80vh;
+        opacity: 0.6;
+    }
+}
+
+/* 4. Text Containers */
+.walkout-info-container {
+    position: absolute;
+    z-index: 100;
+    text-align: center;
+    width: 100%;
+}
+
+.walkout-flag {
+    font-size: 8rem;
+    font-weight: 900;
+    color: var(--walkout-color);
+    text-shadow: 0 0 30px var(--walkout-color);
+    opacity: 0;
+    transform: scale(0.5);
+}
+
+.walkout-text-medium {
+    font-size: 4rem;
+    font-weight: 800;
+    color: #fff;
+    text-transform: uppercase;
+    letter-spacing: 5px;
+    opacity: 0;
+    margin-top: 20px;
+    text-shadow: 0 5px 15px rgba(0, 0, 0, 0.8);
+}
+
+.walkout-text-huge {
+    font-size: 15rem;
+    font-weight: 900;
+    color: #fff;
+    opacity: 0;
+    transform: scale(3);
+    text-shadow: 0 0 50px rgba(255, 255, 255, 0.5);
+    /* Metallic/Gradient Text */
+    background: linear-gradient(to bottom, #fff 40%, #aaa 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+/* 5. Animations Classes */
+.animate-in-slam {
+    animation: textSlam 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+}
+
+.animate-in-fade {
+    animation: textFadeIn 0.8s ease-out forwards;
+}
+
+.animate-out-fade {
+    animation: textFadeOut 0.5s ease-in forwards;
+}
+
+@keyframes textSlam {
+    0% {
+        opacity: 0;
+        transform: scale(3);
+        filter: blur(10px);
+    }
+
+    100% {
+        opacity: 1;
+        transform: scale(1);
+        filter: blur(0);
+    }
+}
+
+@keyframes textFadeIn {
+    0% {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+
+    100% {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes textFadeOut {
+    0% {
+        opacity: 1;
+        transform: scale(1);
+    }
+
+    100% {
+        opacity: 0;
+        transform: scale(1.5);
+        filter: blur(10px);
+    }
+}
+
+/* 6. Card Reveal Container */
+.walkout-card-container {
+    position: absolute;
+    z-index: 200;
+    opacity: 0;
+    transform: scale(0.8);
+}
+
+.animate-card-reveal {
+    animation: cardBoom 0.8s cubic-bezier(0.6, -0.28, 0.735, 0.045) forwards;
+    /* Bounce effect? No, let's allow JS to handle specific bezier */
+}
+
+@keyframes cardBoom {
+    0% {
+        opacity: 0;
+        transform: scale(0.2) translateY(50px);
+    }
+
+    60% {
+        opacity: 1;
+        transform: scale(1.1);
+    }
+
+    100% {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+/* Glow behind card */
+.walkout-card-glow {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 400px;
+    height: 400px;
+    background: radial-gradient(circle, var(--walkout-color) 0%, transparent 70%);
+    opacity: 0.4;
+    filter: blur(40px);
+    z-index: -1;
+    animation: rotateGlow 10s linear infinite;
+}
+
+@keyframes rotateGlow {
+    from {
+        transform: translate(-50%, -50%) rotate(0deg);
+    }
+
+    to {
+        transform: translate(-50%, -50%) rotate(360deg);
+    }
+}
+
+/* Skip Button */
+.walkout-skip-btn {
+    position: absolute;
+    bottom: 30px;
+    right: 30px;
+    background: transparent;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    color: rgba(255, 255, 255, 0.6);
+    padding: 10px 20px;
+    cursor: pointer;
+    font-family: inherit;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    z-index: 999;
+    transition: all 0.3s;
+}
+
+.walkout-skip-btn:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: #fff;
+    border-color: #fff;
+}

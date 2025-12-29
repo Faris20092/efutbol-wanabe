@@ -602,7 +602,7 @@ app.post('/api/contract/pull', isAuthenticated, (req, res) => {
                         name: randomPlayer.name,
                         position: randomPlayer.position,
                         rarity: randomPlayer.rarity,
-                        overall: randomPlayer.overall,
+                        overall: randomPlayer.overall_rating || randomPlayer.overall || 75,
                         stats: randomPlayer.stats || {},
                         playingStyle: randomPlayer.playingStyle,
                         club: randomPlayer.club,

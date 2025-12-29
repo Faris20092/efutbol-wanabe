@@ -33,6 +33,9 @@
     "passport-discord": "^0.1.4",
     "passport-google-oauth20": "^2.0.0",
     "passport-local": "^1.0.0",
+    "puppeteer": "^24.34.0",
+    "puppeteer-extra": "^3.3.6",
+    "puppeteer-extra-plugin-stealth": "^2.11.2",
     "session-file-store": "^1.5.0"
   }
 }
