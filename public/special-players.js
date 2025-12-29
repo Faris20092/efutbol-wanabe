@@ -94,10 +94,18 @@ async function loadAllPlayers() {
                 goalkeeping: p.stats?.gk_awareness || 40
             };
 
+            // Normalize rarity from DB (Title Case)
+            let finalRarity = derivedRarity;
+            if (p.rarity) {
+                // Ensure Title Case (e.g. "black" -> "Black")
+                finalRarity = p.rarity.charAt(0).toUpperCase() + p.rarity.slice(1).toLowerCase();
+            }
+
             return {
                 id: p.id,
                 name: p.name,
-                rarity: derivedRarity, // Derived
+                rarity: finalRarity, // Use DB rarity if available
+
                 overall: rating,
                 position: p.position,
                 team: p.team,
