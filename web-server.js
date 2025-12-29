@@ -141,6 +141,73 @@ function getAllPlayers() {
     return [];
 }
 
+// Helper: Create default user data with starter pack
+function createDefaultUser(userId, username) {
+    console.log(`Creating/Resetting user profile for ${username || userId}`);
+    const allPlayers = getAllPlayers();
+
+    // 1. Filter for White/Bronze Free Agents
+    const candidates = allPlayers.filter(p => {
+        // Determine rarity (prioritize DB rarity, fallback to simple rating check)
+        let rarity = p.rarity;
+        const rating = p.overall_rating || 0;
+
+        if (!rarity) {
+            if (rating < 75) rarity = 'Bronze';
+            else rarity = 'Silver'; // Fallback
+        }
+
+        // Normalize rarity string
+        const rNorm = rarity.toLowerCase();
+        const isLowRarity = rNorm.includes('white') || rNorm.includes('bronze');
+
+        // Check for Free Agent status
+        const team = (p.team || '').toLowerCase();
+        const league = (p.league || '').toLowerCase();
+        const isFreeAgent = team.includes('free agent') || league.includes('free agent');
+
+        return isLowRarity && isFreeAgent;
+    });
+
+    // 2. Select 22 random players
+    const starters = candidates
+        .map(value => ({ value, sort: Math.random() }))
+        .sort((a, b) => a.sort - b.sort)
+        .map(({ value }) => value)
+        .slice(0, 22);
+
+    // Fallback if not enough candidates
+    if (starters.length < 22) {
+        const moreCandidates = allPlayers.filter(p => (p.overall_rating || 0) < 75 && !starters.includes(p))
+            .sort(() => 0.5 - Math.random())
+            .slice(0, 22 - starters.length);
+        starters.push(...moreCandidates);
+    }
+
+    // 3. Create default data object
+    return {
+        id: userId, // Ensure ID is saved if needed by some views
+        gp: 10000,
+        eCoins: 0,
+        players: starters,
+        squad: { main: new Array(11).fill(null), bench: [] },
+        formation: '4-3-3',
+        inventory: { freePacks: {} },
+        mail: [
+            {
+                id: Date.now().toString(),
+                title: 'Welcome to eFotball!',
+                description: 'Here are 22 Free Agent players to get you started. Build your dream team!',
+                date: new Date().toISOString(),
+                claimed: false,
+                rewards: [{ type: 'gp', amount: 5000 }]
+            }
+        ],
+        stats: { wins: 0, draws: 0, losses: 0 },
+        createdAt: new Date().toISOString()
+    };
+}
+
 // Middleware: Check if user is authenticated
 function isAuthenticated(req, res, next) {
     if (req.isAuthenticated()) {
@@ -471,70 +538,7 @@ app.get('/api/user', isAuthenticated, (req, res) => {
 
     // Initialize new user if no data found
     if (!userData) {
-        console.log(`Creating new user profile for ${req.user.username}`);
-        const allPlayers = getAllPlayers();
-
-        // 1. Filter for White/Bronze Free Agents
-        const candidates = allPlayers.filter(p => {
-            // Determine rarity (prioritize DB rarity, fallback to simple rating check)
-            let rarity = p.rarity;
-            const rating = p.overall_rating || 0;
-
-            if (!rarity) {
-                if (rating < 75) rarity = 'Bronze';
-                else rarity = 'Silver'; // Fallback
-            }
-
-            // Normalize rarity string
-            const rNorm = rarity.toLowerCase();
-            const isLowRarity = rNorm.includes('white') || rNorm.includes('bronze');
-
-            // Check for Free Agent status
-            const team = (p.team || '').toLowerCase();
-            const league = (p.league || '').toLowerCase();
-            const isFreeAgent = team.includes('free agent') || league.includes('free agent');
-
-            return isLowRarity && isFreeAgent;
-        });
-
-        // 2. Select 22 random players
-        // Shuffle candidates
-        const starters = candidates
-            .map(value => ({ value, sort: Math.random() }))
-            .sort((a, b) => a.sort - b.sort)
-            .map(({ value }) => value)
-            .slice(0, 22);
-
-        // Fallback if not enough candidates (unlikely, but safe)
-        if (starters.length < 22) {
-            const moreCandidates = allPlayers.filter(p => (p.overall_rating || 0) < 75 && !starters.includes(p))
-                .sort(() => 0.5 - Math.random())
-                .slice(0, 22 - starters.length);
-            starters.push(...moreCandidates);
-        }
-
-        // 3. Create default data object
-        userData = {
-            gp: 10000, // Starter GP bonus
-            eCoins: 0,
-            players: starters,
-            squad: { main: new Array(11).fill(null), bench: [] },
-            formation: '4-3-3',
-            inventory: { freePacks: {} },
-            mail: [
-                {
-                    id: Date.now().toString(),
-                    title: 'Welcome to eFotball!',
-                    description: 'Here are 22 Free Agent players to get you started. Build your dream team!',
-                    date: new Date().toISOString(),
-                    claimed: false,
-                    rewards: [{ type: 'gp', amount: 5000 }]
-                }
-            ],
-            createdAt: new Date().toISOString()
-        };
-
-        // 4. Save to disk
+        userData = createDefaultUser(req.user.id, req.user.username);
         setUserData(req.user.id, userData);
     }
 
@@ -1066,18 +1070,7 @@ app.post('/api/account/reset', isAuthenticated, (req, res) => {
         const userId = req.user.id;
 
         // Create fresh user data
-        const freshData = {
-            id: userId,
-            gp: 10000,
-            eCoins: 100,
-            players: [],
-            squad: { main: [], bench: [] },
-            formation: '4-3-3',
-            mail: [],
-            inventory: {},
-            stats: { wins: 0, draws: 0, losses: 0 },
-            createdAt: new Date().toISOString()
-        };
+        const freshData = createDefaultUser(userId, req.user.username);
 
         setUserData(userId, freshData);
 
