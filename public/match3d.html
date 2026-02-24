@@ -1,0 +1,516 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FIFA Soccer Game 3D</title>
+    <style>
+        /* =========================================
+       RESET & BASE
+       ========================================= */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            background: #0a0a0a;
+            color: #fff;
+            overflow: hidden;
+            width: 100vw;
+            height: 100vh;
+        }
+
+        /* =========================================
+       GAME CONTAINER
+       ========================================= */
+        #game-container {
+            position: relative;
+            width: 100%;
+            height: 100%;
+        }
+
+        #game-canvas {
+            display: block;
+            width: 100%;
+            height: 100%;
+        }
+
+        /* =========================================
+       LOADING SCREEN
+       ========================================= */
+        #loading-screen {
+            position: fixed;
+            inset: 0;
+            background: linear-gradient(135deg, #1a1a2e 0%, #0a0a0a 100%);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        #loading-screen.hidden {
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.5s;
+        }
+
+        #loading-screen h1 {
+            font-size: 4rem;
+            font-weight: 900;
+            background: linear-gradient(180deg, #2d7a2d, #1a5a1a);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 2rem;
+        }
+
+        .progress-bar {
+            width: 300px;
+            height: 6px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 3px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, #2d7a2d, #4CAF50);
+            transition: width 0.3s;
+        }
+
+        /* =========================================
+       MAIN MENU
+       ========================================= */
+        #main-menu {
+            position: fixed;
+            inset: 0;
+            background: linear-gradient(135deg, #1a1a2e 0%, #0a0a0a 100%);
+            display: none;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 900;
+        }
+
+        #main-menu.visible {
+            display: flex;
+        }
+
+        #main-menu h1 {
+            font-size: 5rem;
+            font-weight: 900;
+            color: #fff;
+            margin-bottom: 0.5rem;
+        }
+
+        #main-menu .subtitle {
+            font-size: 1.5rem;
+            color: #4CAF50;
+            margin-bottom: 3rem;
+        }
+
+        .menu-btn {
+            padding: 1rem 3rem;
+            font-size: 1.2rem;
+            font-weight: 700;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 0.5rem;
+            min-width: 250px;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .menu-btn.primary {
+            background: linear-gradient(180deg, #2d7a2d, #1a5a1a);
+            color: #fff;
+        }
+
+        .menu-btn.primary:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 20px rgba(45, 122, 45, 0.5);
+        }
+
+        .menu-btn.secondary {
+            background: rgba(255, 255, 255, 0.1);
+            color: #fff;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .menu-btn.secondary:hover {
+            transform: scale(1.05);
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .menu-btn.back-btn {
+            margin-top: 2rem;
+            background: #e74c3c;
+        }
+
+        /* =========================================
+       HUD - SCOREBOARD
+       ========================================= */
+        #hud {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            pointer-events: none;
+            z-index: 100;
+            display: none;
+        }
+
+        #hud.visible {
+            display: block;
+        }
+
+        .scoreboard {
+            display: flex;
+            justify-content: center;
+            padding: 15px;
+        }
+
+        .scoreboard-inner {
+            display: flex;
+            background: rgba(0, 0, 0, 0.85);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .team-display {
+            display: flex;
+            align-items: center;
+            padding: 10px 20px;
+            gap: 15px;
+        }
+
+        .team-display.home {
+            background: var(--home-color, #a50044);
+        }
+
+        .team-display.away {
+            background: var(--away-color, #ffffff);
+            color: #000;
+        }
+
+        .team-name {
+            font-weight: 700;
+            font-size: 1.1rem;
+        }
+
+        .team-score {
+            font-size: 2rem;
+            font-weight: 900;
+        }
+
+        .match-time {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 10px 30px;
+            background: #111;
+        }
+
+        .time-display {
+            font-size: 1.8rem;
+            font-weight: 700;
+            font-family: monospace;
+        }
+
+        .half-indicator {
+            font-size: 0.8rem;
+            color: #888;
+        }
+
+        /* =========================================
+       RADAR / MINI-MAP
+       ========================================= */
+        .radar {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 200px;
+            height: 130px;
+            background: #1a4d1a;
+            border: 2px solid #fff;
+            border-radius: 4px;
+            opacity: 0.9;
+            z-index: 101;
+        }
+
+        .radar canvas {
+            width: 100%;
+            height: 100%;
+        }
+
+        /* =========================================
+       STAMINA BAR & INDICATOR
+       ========================================= */
+        .stamina-container {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            z-index: 101;
+        }
+
+        .stamina-label {
+            font-size: 0.8rem;
+            margin-bottom: 5px;
+            color: #fff;
+            font-weight: bold;
+        }
+
+        .stamina-bar {
+            width: 150px;
+            height: 8px;
+            background: rgba(0, 0, 0, 0.5);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .stamina-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #ff4444, #ffff00, #44ff44);
+            transition: width 0.1s;
+            width: 100%;
+        }
+
+        /* =========================================
+       CONTROLS HINT
+       ========================================= */
+        .controls-hint {
+            position: fixed;
+            bottom: 80px;
+            left: 20px;
+            background: rgba(0, 0, 0, 0.7);
+            padding: 10px 15px;
+            border-radius: 8px;
+            font-size: 0.75rem;
+            z-index: 101;
+        }
+
+        .controls-hint kbd {
+            background: #333;
+            padding: 2px 6px;
+            border-radius: 3px;
+            margin-right: 5px;
+        }
+
+        /* =========================================
+       GOAL OVERLAY
+       ========================================= */
+        #goal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.8);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            z-index: 500;
+        }
+
+        #goal-overlay.visible {
+            display: flex;
+        }
+
+        #goal-overlay h1 {
+            font-size: 8rem;
+            font-weight: 900;
+            color: #ffd700;
+            text-shadow: 0 0 50px rgba(255, 215, 0, 0.5);
+            animation: goal-pulse 0.5s ease-out;
+        }
+
+        @keyframes goal-pulse {
+            0% {
+                transform: scale(0.5);
+                opacity: 0;
+            }
+
+            50% {
+                transform: scale(1.2);
+            }
+
+            100% {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+        #goal-overlay .scorer {
+            font-size: 2rem;
+            margin-top: 1rem;
+        }
+
+        /* =========================================
+       PAUSE MENU & FULLTIME
+       ========================================= */
+        #pause-menu,
+        #fulltime-menu {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.85);
+            display: none;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 600;
+        }
+
+        #pause-menu.visible,
+        #fulltime-menu.visible {
+            display: flex;
+        }
+
+        #pause-menu h2,
+        #fulltime-menu h2 {
+            font-size: 3rem;
+            margin-bottom: 2rem;
+        }
+
+        .match-stats-table {
+            margin: 20px 0;
+            border-collapse: collapse;
+            width: 400px;
+        }
+
+        .match-stats-table td {
+            padding: 10px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+            text-align: center;
+            font-size: 1.2rem;
+        }
+
+        .match-stats-table td:nth-child(2) {
+            color: #aaa;
+            font-size: 1rem;
+        }
+    </style>
+
+    <!-- Import Maps for Three.js so we don't need a bundler -->
+    <script type="importmap">
+    {
+      "imports": {
+        "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+        "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
+      }
+    }
+  </script>
+</head>
+
+<body>
+    <div id="game-container">
+        <canvas id="game-canvas"></canvas>
+    </div>
+
+    <!-- Loading Screen -->
+    <div id="loading-screen">
+        <h1>3D MATCH ENGINE</h1>
+        <div class="progress-bar">
+            <div class="progress-fill" id="progress-fill"></div>
+        </div>
+        <p style="margin-top: 1rem; color: #666;" id="loading-text">Loading Assets...</p>
+    </div>
+
+    <!-- Main Menu -->
+    <div id="main-menu" class="visible">
+        <h1>3D MATCH ENGINE</h1>
+        <p class="subtitle">Manager vs AI</p>
+        <button class="menu-btn primary" id="start-match-btn" disabled>Loading Squad...</button>
+        <button class="menu-btn secondary" id="auto-sim-btn" disabled>Auto Simulate</button>
+        <button class="menu-btn secondary back-btn" onclick="window.location.href='/dashboard.html'">Back to
+            Dashboard</button>
+    </div>
+
+    <!-- HUD -->
+    <div id="hud">
+        <div class="scoreboard">
+            <div class="scoreboard-inner">
+                <div class="team-display home" id="home-team-display">
+                    <span class="team-name" id="home-name">MY TEAM</span>
+                    <span class="team-score" id="home-score">0</span>
+                </div>
+                <div class="match-time">
+                    <span class="time-display" id="match-time">00:00</span>
+                    <span class="half-indicator" id="half-indicator">1ST HALF</span>
+                </div>
+                <div class="team-display away" id="away-team-display">
+                    <span class="team-score" id="away-score">0</span>
+                    <span class="team-name" id="away-name">AI OPPONENT</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="radar" id="radar">
+            <canvas id="radar-canvas"></canvas>
+        </div>
+
+        <div class="stamina-container">
+            <div class="stamina-label" id="controlled-player-name">Player Name</div>
+            <div class="stamina-bar">
+                <div class="stamina-fill" id="stamina-fill"></div>
+            </div>
+        </div>
+
+        <div class="controls-hint">
+            <div><kbd>WASD</kbd> Move</div>
+            <div><kbd>SHIFT</kbd> Sprint</div>
+            <div><kbd>SPACE</kbd> Pass / Switch</div>
+            <div><kbd>E</kbd> Shoot / Tackle</div>
+            <div><kbd>Q</kbd> Through Ball</div>
+            <div><kbd>P / ESC</kbd> Pause</div>
+        </div>
+    </div>
+
+    <!-- Goal Overlay -->
+    <div id="goal-overlay">
+        <h1>GOAL!</h1>
+        <p class="scorer" id="goal-scorer"></p>
+    </div>
+
+    <!-- Pause Menu -->
+    <div id="pause-menu">
+        <h2>PAUSED</h2>
+        <button class="menu-btn primary" id="resume-btn">Resume</button>
+        <button class="menu-btn secondary" id="quit-btn" onclick="window.location.href='/dashboard.html'">Quit to
+            Menu</button>
+    </div>
+
+    <!-- Full Time Menu -->
+    <div id="fulltime-menu">
+        <h2>FULL TIME</h2>
+        <h3 id="ft-result" style="color: #4CAF50; font-size: 2rem; margin-bottom: 20px;">VICTORY</h3>
+        <table class="match-stats-table">
+            <tr>
+                <td id="ft-home-score">0</td>
+                <td>Goals</td>
+                <td id="ft-away-score">0</td>
+            </tr>
+            <tr>
+                <td id="ft-home-shots">0</td>
+                <td>Shots</td>
+                <td id="ft-away-shots">0</td>
+            </tr>
+            <tr>
+                <td id="ft-home-poss">50%</td>
+                <td>Possession</td>
+                <td id="ft-away-poss">50%</td>
+            </tr>
+        </table>
+        <div id="match-rewards" style="margin-bottom: 20px; color: gold; font-weight: bold; font-size: 1.2rem;">
+            +5000 GP, +10 eCoins
+        </div>
+        <button class="menu-btn primary" id="ft-continue-btn"
+            onclick="window.location.href='/dashboard.html'">Continue</button>
+    </div>
+
+    <script src="/match3d.js" type="module"></script>
+</body>
+
+</html>
